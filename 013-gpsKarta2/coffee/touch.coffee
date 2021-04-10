@@ -17,7 +17,7 @@ add = (type,parent,attrs) ->
 	obj
 
 add 'rect',svg,{width:1080, height:1080, fill:'green'}
-circle = add 'circle',svg, {cx:800, cy:800, r:100, fill:'#fff', stroke:'black', 'stroke-width':1, onclick:click}
+circle = add 'circle',svg, {cx:800, cy:800, r:100, fill:'#fff', stroke:'black', 'stroke-width':1}
 
 texts = (add 'text',svg, {x:400, y:40*(i+1), stroke:'black', 'stroke-width':1, 'text-anchor':'middle'} for i in range 20)
 
@@ -37,15 +37,15 @@ click = (event) ->
 
 touchstart = (event) ->
 	event.preventDefault()
-	makeText "#{event.type} #{pretty event.touches}"
+	makeText "#{event.type} #{pretty event.targetTouches}"
 
 touchend = (event) ->
 	event.preventDefault()
-	makeText "#{event.type} #{pretty event.touches}"
+	makeText "#{event.type} #{pretty event.targetTouches}"
 
 touchmove = (event) ->
 	event.preventDefault()
-	makeText "#{event.type} #{pretty event.touches}"
+	makeText "#{event.type} #{pretty event.targetTouches}"
 
 svg.addEventListener 'touchstart', touchstart
 svg.addEventListener 'touchmove',  touchmove
