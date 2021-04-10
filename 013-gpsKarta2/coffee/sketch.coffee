@@ -1,6 +1,8 @@
-W = 768 # window.innerWidth
-H = 768 # window.innerHeight
+W = 2.5*256 # window.innerWidth
+H = 2.5*256 # window.innerHeight
 INVISIBLE = -100
+SIZE = 128 # 128..65536 # rutornas storlek i meter
+TILE = 256 # rutornas storlek i pixels
 
 range = _.range
 ass = (a,b) -> chai.assert.deepEqual a, b
@@ -8,12 +10,7 @@ ass = (a,b) -> chai.assert.deepEqual a, b
 svgurl = "http://www.w3.org/2000/svg"
 svg = document.getElementById 'svgOne'
 
-position = [59.09443087294174,17.7142975294884] # 128 m in.
-
-#position = [59.09332934261859, 17.71197528267203] # 6553600, 655360
-#position = [59.26519880996387, 18.132755831664422] # lat,lng y,x Home
-#position = [59.26698746068617, 18.128352823008175] # Skarpnäcks Torg
-#position = [59.2631917949656, 18.12265887424414] # Elhuset
+position = [59.09663380498758, 17.718942469566965] # 3*128 meter in.
 
 center = [] # skärmens mittpunkt (sweref). Påverkas av pan
 target = [] # målkoordinater (sweref)
@@ -28,8 +25,6 @@ texts = []
 recButton = null
 rec = 0
 aimButton = null
-
-SIZE = 256 # 128..65536 # rutornas storlek i meter
 
 degrees = (radians) -> radians * 180 / Math.PI
 
@@ -61,12 +56,13 @@ class TargetButton extends Button
 		@vline = add 'line',svg, {x1:x-@r, y1:y, x2:x+@r, y2:y, stroke:'black', 'stroke-width':1}
 		@hline = add 'line',svg, {x1:x, y1:y-@r, x2:x, y2:y+@r, stroke:'black', 'stroke-width':1}
 
-	move : () ->
+	move : ->
 		if target.length == 0 then return
-		dx = target[0]-center[0]
-		dy = target[1]-center[1]
-		x = H/2 + dy // (SIZE//256)
-		y = W/2 - dx // (SIZE//256)
+		dx = target[0] - center[0]
+		dy = target[1] - center[1]
+		antal = if SIZE == 128 then 2 else SIZE//TILE
+		x = H/2 + dy * antal
+		y = W/2 - dx * antal
 		@moveHard x,y
 
 	moveHard : (x,y) ->
@@ -104,47 +100,46 @@ mousemove = (evt) ->
 	center[0] = Math.round center[0]
 	drawMap()
 
-# Givet en sweref punkt samt SIZE
-#   beräkna rutans nedre vänstra hörn x,y (sweref)
-#   beräkna vektor i skärmkoordinater dx,dy (0..256,0..256)
-convert = ([x,y]) ->
-	dx = x % SIZE
+convert = ([x,y]) -> # sweref punkt
+	dx = x % SIZE # beräkna vektor dx,dy (sweref)
 	dy = y % SIZE
-	x -= dx
+	x -= dx       # beräkna rutans nedre vänstra hörn x,y (sweref)
 	y -= dy
 
 	if SIZE == 128
-		dx = 2*dx-SIZE
-		dy = SIZE-2*dy
+		dx = 2*dx + SIZE
+		dy = 3*SIZE - 2*dy
 	else if SIZE == 256
-		dx = dx-SIZE//2
-		dy = SIZE//2-dy
+		dx = dx + SIZE//2 
+		dy = 3*SIZE//2 - dy
 	else
-		dx = dx//2-SIZE//4
-		dy = SIZE//4-dy//2
+		dx = dx//2 + SIZE//4
+		dy = 3*SIZE//4 - dy//2
 
 	[x, y, dx,dy]
 
 drawMap = ->
+	n = 2
 	[baseX,baseY,dx,dy] = convert center
-	console.log [baseX,baseY,dx,dy]
-	for j in range 4
-		y = baseY + (j-1) * SIZE
-		for i in range 4
-			x = baseX + (1-i) * SIZE
+	for j in range 2*n+1
+		y = baseY + (j-n) * SIZE
+		py = TILE*(j-n)+dy
+		for i in range 2*n+1
+			x = baseX + (n-i) * SIZE
+			px = TILE*(i-n)+dx
 			href = "maps\\#{SIZE}\\#{x}-#{y}-#{SIZE}.jpg"
-			setAttrs images[j][i], {x:256*j+dy, y:256*i+dx, href:href}
-			setAttrs rects[j][i], {x:256*j+dy, y:256*i+dx}
+			setAttrs images[j][i], {x:py, y:px, href:href}
+			setAttrs rects[j][i],  {x:py, y:px}
 	texts[0].textContent = "C:#{center} T:#{target} D:#{distance(target,center)} B:#{bearing(target,center)}"
 	texts[1].textContent = "Z:#{SIZE} B:#{[baseX,baseY]}"
 	targetButton.move()
 
-centrera = () ->
+centrera = ->
 	grid = geodetic_to_grid position[0],position[1] # TURN!
 	center = (Math.round g for g in grid)
 	drawMap()
 
-aimEvent = () ->
+aimEvent = ->
 	if target.length == 0
 		target = center.slice()
 		targetButton.moveHard W/2,H/2
@@ -152,44 +147,37 @@ aimEvent = () ->
 		target = []
 		targetButton.moveHard INVISIBLE, INVISIBLE
 
-recEvent = () ->
+recEvent = ->
 	rec = 1 - rec
 	recButton.setAttributeNS null, 'fill',['#f008','#f000'][rec]
 
+makeText = (x,y) ->
+	text = add 'text',svg, {x:x, y:y, stroke:'black', 'stroke-width':1, 'text-anchor':'middle'}
+	text.style.fontSize = '25px'
+	texts.push text
+
 startup = ->
-	add 'rect',svg,{x:0, y:0, width:W, height:H, stroke:'black', 'stroke-width':2, fill:'green'}
-	grid = geodetic_to_grid position[0],position[1] # TURN!
+	add 'rect',svg,{width:W, height:H, fill:'green'}
+	grid = geodetic_to_grid position[0],position[1]
 	center = (Math.round g for g in grid)
-	console.log center
 	[baseX,baseY,dx,dy] = convert center
-	console.log [baseX,baseY,dx,dy]
 
 	images = []
 	rects = []
 	texts = []
 
-	for j in range 4
+	n = 2
+	for j in range 2*n+1
 		irow = []
 		rrow = []
-		y = baseY + (j-1) * SIZE
-		for i in range 4
-			x = baseX + (1-i) * SIZE 
-			href = "maps\\#{SIZE}\\#{x}-#{y}-#{SIZE}.jpg" # TURN!
-			console.log href
-			irow.push add 'image',svg, {x:256*j+dy, y:256*i+dx, href:href}
-			rrow.push add 'rect', svg, {x:256*i+dx, y:256*j+dy, width:256, height:256, stroke:'black', 'stroke-width':1, fill:'none'}
+		for i in range 2*n+1
+			irow.push add 'image',svg, {}
+			rrow.push add 'rect', svg, {width:TILE, height:TILE, stroke:'black', 'stroke-width':1, fill:'none'}
 		images.push irow
 		rects.push rrow
 
-	text = add 'text',svg, {x:W/2, y:40, stroke:'black', 'stroke-width':1, 'text-anchor':'middle'}
-	text.style.fontSize = '25px'
-	text.textContent = SIZE
-	texts.push text 
-
-	text = add 'text',svg, {x:W/2, y:H-30, stroke:'black', 'stroke-width':1, 'text-anchor':'middle'}
-	text.style.fontSize = '25px'
-	text.textContent = SIZE
-	texts.push text 
+	makeText W/2, 40
+	makeText W/2, H-30
 
 	targetButton = new TargetButton INVISIBLE, INVISIBLE, '', '#f008'
 	aimButton = new TargetButton W/2, H/2, "click('aim')"
@@ -198,7 +186,7 @@ startup = ->
 	new Button 35, H-35, 'ctr', "click('ctr')"
 	recButton = new Button W-35, H-35, 'rec', "recEvent()"
 
-	console.log grid_to_geodetic 6553600+128,655360+128
+	console.log grid_to_geodetic 6553600+3*128,655360+3*128
 	drawMap()
 
 startup()

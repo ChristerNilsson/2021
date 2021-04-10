@@ -6,8 +6,8 @@
 #SIZE = 2048
 #SIZE = 1024
 #SIZE = 512
-#SIZE = 256
-SIZE = 128
+SIZE = 256
+#SIZE = 128
 
 latNW = 6553600
 longNW = 655360
@@ -16,8 +16,8 @@ print(latNW  % SIZE, latNW)
 print(longNW % SIZE, longNW)
 
 with open('fetch.bat', 'w') as f:
-	for n in range(4):
-		for e in range(4):
+	for n in range(8):
+		for e in range(8):
 			lat = latNW + n * SIZE
 			long = longNW + e * SIZE
 			url = '"https://historiskakartor.lantmateriet.se/historiskakartor/wmsproxy?LAYERS=topowebbkartan&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&STYLES=&EXCEPTIONS=application/vnd.ogc.se_inimage&FORMAT=image/jpeg&SRS=EPSG:3006&'
