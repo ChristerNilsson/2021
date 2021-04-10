@@ -34,6 +34,7 @@ pretty = (lst) -> "#{Math.round t.clientX} #{Math.round t.clientY}" for t in lst
 click = (event) ->
 	event.preventDefault()
 	makeText 'circle'
+	event.stopPropagation()
 
 touchstart = (event) ->
 	event.preventDefault()
@@ -51,3 +52,5 @@ svg.addEventListener 'touchstart', touchstart
 svg.addEventListener 'touchmove',  touchmove
 svg.addEventListener 'touchend',   touchend
 circle.addEventListener 'click', click 
+
+makeText 'a'
