@@ -28,10 +28,21 @@ makeText = (prompt) ->
 useEventType = if (typeof window.PointerEvent == 'function') then 'pointer' else 'mouse'
 listeners = ['click','touchstart','touchend', 'touchmove' ,"#{useEventType}enter","#{useEventType}leave", "#{useEventType}move"]
 
-pointerHandler = (event) ->
+touchstart = (event) ->
 	event.preventDefault()
-	makeText "#{event.type} #{Math.round event.x} #{Math.round event.y}"  
-	console.log event
+	makeText "#{event.type} #{event.touches}"  
+
+touchend = (event) ->
+	event.preventDefault()
+	makeText "#{event.type} #{event.touches}"  
+
+touchmove = (event) ->
+	event.preventDefault()
+	makeText "#{event.type} #{event.touches}"  
+
+svg.addEventListener 'touchstart', touchstart
+svg.addEventListener 'touchmove',  touchmove
+svg.addEventListener 'touchend',   touchend
 
 listeners.map (etype) -> svg.addEventListener etype, pointerHandler
 
