@@ -19,9 +19,7 @@ add = (type,parent,attrs) ->
 add 'rect',svg,{width:1080, height:1080, fill:'green'}
 circle = add 'circle',svg, {cx:800, cy:800, r:100, fill:'#fff', stroke:'black', 'stroke-width':1, onclick:click}
 
-click = () -> makeText 'circle'
-
-texts = (add 'text',svg, {x:200, y:40*(i+1), stroke:'black', 'stroke-width':1, 'text-anchor':'middle'} for i in range 20)
+texts = (add 'text',svg, {x:400, y:40*(i+1), stroke:'black', 'stroke-width':1, 'text-anchor':'middle'} for i in range 20)
 
 makeText = (prompt) ->
 	counter = (counter+1) % 20
@@ -31,7 +29,11 @@ makeText = (prompt) ->
 #useEventType = if (typeof window.PointerEvent == 'function') then 'pointer' else 'mouse'
 #listeners = ['click','touchstart','touchend', 'touchmove' ,"#{useEventType}enter","#{useEventType}leave", "#{useEventType}move"]
 
-pretty = (lst) -> "#{t.clientX} #{t.clientY}" for t in lst
+pretty = (lst) -> "#{Math.round t.clientX} #{Math.round t.clientY}" for t in lst
+
+click = (event) ->
+	event.preventDefault()
+	makeText 'circle'
 
 touchstart = (event) ->
 	event.preventDefault()
@@ -48,5 +50,4 @@ touchmove = (event) ->
 svg.addEventListener 'touchstart', touchstart
 svg.addEventListener 'touchmove',  touchmove
 svg.addEventListener 'touchend',   touchend
-
-circle.addEventListener 'click', click
+circle.addEventListener 'click', click 
