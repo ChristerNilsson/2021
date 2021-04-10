@@ -18,18 +18,19 @@ add = (type,parent,attrs) ->
 
 add 'rect',svg,{width:1080, height:1080, fill:'green'}
 
-texts = (add 'text',svg, {x:100, y:20*(i+1), stroke:'black', 'stroke-width':1, 'text-anchor':'middle'} for i in range 20)
+texts = (add 'text',svg, {x:200, y:40*(i+1), stroke:'black', 'stroke-width':1, 'text-anchor':'middle'} for i in range 20)
 
 makeText = (prompt) ->
 	counter = (counter+1) % 20
 	texts[counter].textContent = prompt
+	texts[counter].style.fontSize = '25px'
 
 useEventType = if (typeof window.PointerEvent == 'function') then 'pointer' else 'mouse'
 listeners = ['click','touchstart','touchend', 'touchmove' ,"#{useEventType}enter","#{useEventType}leave", "#{useEventType}move"]
 
 pointerHandler = (event) ->
 	event.preventDefault()
-	makeText "#{event.type} #{event.x} #{event.y}"  
+	makeText "#{event.type} #{Math.round event.x} #{Math.round event.y}"  
 	console.log event
 
 listeners.map (etype) -> svg.addEventListener etype, pointerHandler
