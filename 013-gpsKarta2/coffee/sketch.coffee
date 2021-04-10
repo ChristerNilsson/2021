@@ -1,5 +1,5 @@
-W = 3*256 # window.innerWidth
-H = 3*256 # window.innerHeight
+W = 1080 # window.innerWidth
+H = 1080 # window.innerHeight
 INVISIBLE = -100
 SIZE = 256 # 128..65536 # rutornas storlek i meter
 TILE = 256 # rutornas storlek i pixels
@@ -202,3 +202,4 @@ startup = ->
 	drawMap()
 
 startup()
+
