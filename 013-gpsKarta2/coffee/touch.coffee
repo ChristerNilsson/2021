@@ -17,6 +17,9 @@ add = (type,parent,attrs) ->
 	obj
 
 add 'rect',svg,{width:1080, height:1080, fill:'green'}
+circle = add 'circle',svg, {cx:800, cy:800, r:100, fill:'#fff', stroke:'black', 'stroke-width':1, onclick:click}
+
+click = () -> makeText 'circle'
 
 texts = (add 'text',svg, {x:200, y:40*(i+1), stroke:'black', 'stroke-width':1, 'text-anchor':'middle'} for i in range 20)
 
@@ -25,8 +28,8 @@ makeText = (prompt) ->
 	texts[counter].textContent = prompt
 	texts[counter].style.fontSize = '25px'
 
-useEventType = if (typeof window.PointerEvent == 'function') then 'pointer' else 'mouse'
-listeners = ['click','touchstart','touchend', 'touchmove' ,"#{useEventType}enter","#{useEventType}leave", "#{useEventType}move"]
+#useEventType = if (typeof window.PointerEvent == 'function') then 'pointer' else 'mouse'
+#listeners = ['click','touchstart','touchend', 'touchmove' ,"#{useEventType}enter","#{useEventType}leave", "#{useEventType}move"]
 
 pretty = (lst) -> "#{t.clientX} #{t.clientY}" for t in lst
 
@@ -46,12 +49,4 @@ svg.addEventListener 'touchstart', touchstart
 svg.addEventListener 'touchmove',  touchmove
 svg.addEventListener 'touchend',   touchend
 
-listeners.map (etype) -> svg.addEventListener etype, pointerHandler
-
-# btn.addEventListener('click', (event) => {
-#   output.innerHTML = '';
-# });
-
-# toggle.addEventListener('change', (event) => {
-#   event.target.checked ? circ.setAttribute('fill', '#D79CFD') : circ.setAttribute('fill', 'none');
-# });
+circle.addEventListener 'click', click
