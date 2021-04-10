@@ -28,17 +28,19 @@ makeText = (prompt) ->
 useEventType = if (typeof window.PointerEvent == 'function') then 'pointer' else 'mouse'
 listeners = ['click','touchstart','touchend', 'touchmove' ,"#{useEventType}enter","#{useEventType}leave", "#{useEventType}move"]
 
+pretty = (lst) -> "#{t.clientX} #{t.clientY}" for t in lst
+
 touchstart = (event) ->
 	event.preventDefault()
-	makeText "#{event.type} #{event.touches}"  
+	makeText "#{event.type} #{pretty event.touches}"
 
 touchend = (event) ->
 	event.preventDefault()
-	makeText "#{event.type} #{event.touches}"  
+	makeText "#{event.type} #{pretty event.touches}"
 
 touchmove = (event) ->
 	event.preventDefault()
-	makeText "#{event.type} #{event.touches}"  
+	makeText "#{event.type} #{pretty event.touches}"
 
 svg.addEventListener 'touchstart', touchstart
 svg.addEventListener 'touchmove',  touchmove
