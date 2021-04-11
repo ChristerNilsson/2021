@@ -10,6 +10,13 @@ nh = H//TILE
 
 range = _.range
 ass = (a,b=true) -> chai.assert.deepEqual a, b
+myRound = (x,dec=0) -> Math.round(x*10**dec)/10**dec
+map = (n, start1, stop1, start2, stop2) -> (n - start1) / (stop1 - start1) * (stop2 - start2) + start2
+
+#merp = (y1,y2,i,x1=0,x2=1) -> map i,x1,x2,y1,y2
+# interpolate = (a, b, c, d, value) -> c + value/b * (d-c)
+# ass 16, interpolate 0,1024,0,256,64
+# ass 240, interpolate 0,1024,256,0,64
 
 setAttrs = (obj,attrs) ->
 	for key of attrs
@@ -18,7 +25,8 @@ setAttrs = (obj,attrs) ->
 svgurl = "http://www.w3.org/2000/svg"
 svg = document.getElementById 'svgOne'
 
-position = [59.26357841066772, 18.120888557388074] # (lat long)
+#position = [59.09443087294174, 17.7142975294884] # 6553600,655360
+position = [59.265196, 18.132748] # Home (lat long)
 
 center = [] # skärmens mittpunkt (sweref). Påverkas av pan (x y) (6 7)
 target = [] # målkoordinater (sweref)
@@ -144,40 +152,38 @@ svg.addEventListener 'mousedown', mousedown
 svg.addEventListener 'mousemove', mousemove
 svg.addEventListener 'mouseup',   mouseup
 
-interpolate = (a, b, c, d, value) -> c + value/b * (d-c)
-ass 16, interpolate 0,1024,0,256,64
-ass 240, interpolate 0,1024,256,0,64
-
 convert = ([x,y],size=SIZE) -> # sweref punkt
-
-	dx = x % SIZE # beräkna vektor dx,dy (sweref)
-	dy = y % SIZE
+	dx = x % size # beräkna vektor dx,dy (sweref)
+	dy = y % size
 	x -= dx       # beräkna rutans SW hörn x,y (sweref)
 	y -= dy
-
-	if SIZE in [64,128,256]
-		dx = interpolate 0,SIZE, TILE,0, dx
-		dy = interpolate 0,SIZE, 0,TILE, dy
-	else
-		dx = interpolate 0,SIZE, SIZE//2,0, dx
-		dy = interpolate 0,SIZE, 0,SIZE//2, dy
-
-	dx = Math.round dx
-	dy = Math.round dy
-
+	dx = Math.round map dx, 0,size, 0,TILE # map n,start1,stop1,start2,stop2
+	dy = Math.round map dy, 0,size, 0,TILE
 	[x,y, dx,dy]
+ass [655360,6553600,64,72], convert [655360+16,6553600+18],64
+ass [655360,6553600,128,128], convert [655360+64,6553600+64],128
+ass [655360+128,6553600+128,0,0], convert [655360+128,6553600+128],128
+ass [655360,6553600,44,44], convert [655360+22,6553600+22],128
+ass [655360,6553600,128,128], convert [655360+128,6553600+128],256
+ass [655360,6553600,64,64], convert [655360+64,6553600+64],256
+ass [655360,6553600,64,74], convert [655360+128,6553600+148],512
+ass [655360,6553600,32,32], convert [655360+64,6553600+64],512
+ass [655360,6553600,200,250], convert [655360+400,6553600+500],512
+ass [655360,6553600,32,37], convert [655360+128,6553600+148],1024
+ass [655360,6553600,16,16], convert [655360+64,6553600+64],1024
+ass [655360,6553600,100,125], convert [655360+400,6553600+500],1024
 
 drawMap = ->
 	[baseX,baseY,dx,dy] = convert center
-	for j in range 2*nh+1
-		y = baseY + (j-nh) * SIZE
-		py = TILE*(nh-j+1)+dy
-		for i in range 2*nw+1
-			x = baseX + (i-nw) * SIZE
-			px = TILE*(i-nw+1)+dx
+	for j in range -nh,nh+1
+		y = baseY + j * SIZE - SIZE
+		py = H/2 - TILE*j + dy
+		for i in range -nw,nw+1
+			x = baseX + i * SIZE
+			px = W/2 + TILE*i - dx
 			href = "maps\\#{SIZE}\\#{y}-#{x}-#{SIZE}.jpg"
-			setAttrs images[j][i], {x:px, y:py, href:href} 
-			setAttrs rects[j][i],  {x:px, y:py}
+			setAttrs images[j+nh][i+nw], {x:px, y:py, href:href} 
+			setAttrs rects[j+nh][i+nw],  {x:px, y:py}
 	# texts[0].textContent = "C:#{center} T:#{target} D:#{distance(target,center)} B:#{bearing(target,center)}"
 	# texts[1].textContent = "Z:#{SIZE} B:#{[baseX,baseY]} DX:#{dx} DY:#{dy}"
 	if target.length==2
@@ -186,7 +192,7 @@ drawMap = ->
 	else
 		texts[0].textContent = ""
 		texts[1].textContent = ""
-	texts[2].textContent = "#{SIZE} m"
+	texts[2].textContent = "#{SIZE} m\n#{position}\n#{center}"
 	targetButton.move()
 
 centrera = ->
@@ -209,16 +215,54 @@ recEvent = ->
 
 makeText = (x,y) ->
 	text = add 'text',svg, {x:x, y:y, stroke:'black', 'stroke-width':1, 'text-anchor':'middle'}
-	text.style.fontSize = '50px'
+	text.style.fontSize = '25px'
 	texts.push text
 
 nada = (event) ->
 	event.preventDefault()
 	event.stopPropagation()
 
+locationUpdateFail = (error) ->	if error.code == error.PERMISSION_DENIED then messages = ['','','','','','Check location permissions']
+
+locationUpdate = (p) ->
+	position = [myRound(p.coords.latitude,6), myRound(p.coords.longitude,6)]
+	grid = geodetic_to_grid position[0],position[1]
+	center = (Math.round g for g in grid)
+	center.reverse()
+	console.log position
+	console.log center
+	drawMap()
+
+	# pLat = myRound p.coords.latitude,6
+	# pLon = myRound p.coords.longitude,6
+	# if storage.trail.length == 0
+	# 	gpsLat = pLat
+	# 	gpsLon = pLon
+	# messages[5] = gpsCount++
+	# decreaseQueue()
+	# increaseQueue p # meters
+	# uppdatera pLat, pLon
+
+uppdatera = (pLat, pLon) ->
+	dump.store ""
+	dump.store "LU #{pLat} #{pLon}"
+	[x,y] = w2b.convert pLon,pLat
+	updateTrack pLat, pLon, x,y
+	updateTrail pLat, pLon, x,y
+
+initGPS = ->
+	navigator.geolocation.watchPosition locationUpdate, locationUpdateFail,
+		enableHighAccuracy: true
+		maximumAge: 30000
+		timeout: 27000
+
 startup = ->
+	initGPS()
 	console.log W,H,nw,nh
 	add 'rect',svg,{width:W, height:H, fill:'green'}
+
+	position = (myRound p,6 for p in position)
+
 	grid = geodetic_to_grid position[0],position[1]
 	center = (Math.round g for g in grid)
 	center.reverse()
