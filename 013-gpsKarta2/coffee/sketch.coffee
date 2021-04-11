@@ -182,7 +182,9 @@ drawMap = ->
 			x = baseX + i * SIZE
 			px = W/2 + TILE*i - dx
 			href = "maps\\#{SIZE}\\#{y}-#{x}-#{SIZE}.jpg"
-			setAttrs images[j+nh][i+nw], {x:px, y:py, href:href} 
+			if href != images[j+nh][i+nw].getAttributeNS null,'href' # only update if needed
+				setAttrs images[j+nh][i+nw], {href:href}
+			setAttrs images[j+nh][i+nw], {x:px, y:py}
 			setAttrs rects[j+nh][i+nw],  {x:px, y:py}
 	# texts[0].textContent = "C:#{center} T:#{target} D:#{distance(target,center)} B:#{bearing(target,center)}"
 	# texts[1].textContent = "Z:#{SIZE} B:#{[baseX,baseY]} DX:#{dx} DY:#{dy}"
