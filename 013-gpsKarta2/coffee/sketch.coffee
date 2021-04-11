@@ -1,7 +1,7 @@
 W = 1024 # window.innerWidth
 H = 1024 # window.innerHeight
 INVISIBLE = -100
-SIZE = 256 # 128..65536 # rutornas storlek i meter
+SIZE = 64 # 64..65536 # rutornas storlek i meter
 TILE = 256 # rutornas storlek i pixels
 
 range = _.range
@@ -44,7 +44,7 @@ bearing = (p,q) ->
 
 class Button 
 	constructor : (x,y,prompt,event,color='#f000') ->
-		@r = 50
+		@r = 100
 		if prompt != ""
 			@text = add 'text',svg, {x:x, y:y+10, stroke:'black', 'stroke-width':1, 'text-anchor':'middle'}
 			@text.textContent = prompt
@@ -82,7 +82,7 @@ setAttrs = (obj,attrs) ->
 		obj.setAttributeNS null, key, attrs[key]
 
 click = (s) -> 
-	if s=='in'  and SIZE > 128 then SIZE //= 2
+	if s=='in'  and SIZE > 64 then SIZE //= 2
 	if s=='out' and SIZE < 65536 then SIZE *= 2
 	if s=='ctr' then centrera()
 	if s=='aim' then aimEvent()
@@ -104,6 +104,7 @@ mousemove = (event) ->
 	if touches.length != 1 then return
 	touch = touches[0]
 	factor = 2
+	if SIZE == 64 then factor = 0.25
 	if SIZE == 128 then factor = 0.5
 	if SIZE == 256 then factor = 1
 
@@ -145,7 +146,7 @@ convert = ([x,y],size=SIZE) -> # sweref punkt
 	x -= dx       # beräkna rutans SW hörn x,y (sweref)
 	y -= dy
 
-	if SIZE in [128,256]
+	if SIZE in [64,128,256]
 		dx = interpolate 0,SIZE, TILE,0, dx
 		dy = interpolate 0,SIZE, 0,TILE, dy
 	else
@@ -185,8 +186,10 @@ drawMap = ->
 			href = "maps\\#{SIZE}\\#{y}-#{x}-#{SIZE}.jpg"
 			setAttrs images[j][i], {x:px, y:py, href:href} 
 			setAttrs rects[j][i],  {x:px, y:py}
-	texts[0].textContent = "C:#{center} T:#{target} D:#{distance(target,center)} B:#{bearing(target,center)}"
-	texts[1].textContent = "Z:#{SIZE} B:#{[baseX,baseY]} DX:#{dx} DY:#{dy}"
+	# texts[0].textContent = "C:#{center} T:#{target} D:#{distance(target,center)} B:#{bearing(target,center)}"
+	# texts[1].textContent = "Z:#{SIZE} B:#{[baseX,baseY]} DX:#{dx} DY:#{dy}"
+	texts[0].textContent = "#{distance(target,center)} #{bearing(target,center)}"
+	texts[1].textContent = "Z:#{SIZE} B:#{[baseX,baseY]} dx:#{dx} dy:#{dy}"
 	targetButton.move()
 
 centrera = ->
@@ -209,7 +212,7 @@ recEvent = ->
 
 makeText = (x,y) ->
 	text = add 'text',svg, {x:x, y:y, stroke:'black', 'stroke-width':1, 'text-anchor':'middle'}
-	text.style.fontSize = '25px'
+	text.style.fontSize = '50px'
 	texts.push text
 
 nada = (event) ->
@@ -253,10 +256,10 @@ startup = ->
 
 	targetButton = new TargetButton INVISIBLE, INVISIBLE, '', '#f008'
 	aimButton = new TargetButton W/2, H/2, "click('aim')"
-	new Button 60,   60, 'in',  "click('in')"
-	new Button W-60, 60, 'out', "click('out')"
-	new Button 60, H-60, 'ctr', "click('ctr')"
-	recButton = new Button W-60, H-60, 'rec', "recEvent()"
+	new Button 120,   120, 'in',  "click('in')"
+	new Button W-120, 120, 'out', "click('out')"
+	new Button 120, H-120, 'ctr', "click('ctr')"
+	recButton = new Button W-120, H-120, 'rec', "recEvent()"
 
 	console.log grid_to_geodetic 6553600+128,655360+128
 	console.log grid_to_geodetic 6553600+3.5*128,655360+3.5*128
