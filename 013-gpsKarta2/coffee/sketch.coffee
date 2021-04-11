@@ -188,8 +188,8 @@ drawMap = ->
 			setAttrs rects[j][i],  {x:px, y:py}
 	# texts[0].textContent = "C:#{center} T:#{target} D:#{distance(target,center)} B:#{bearing(target,center)}"
 	# texts[1].textContent = "Z:#{SIZE} B:#{[baseX,baseY]} DX:#{dx} DY:#{dy}"
-	texts[0].textContent = "#{distance(target,center)} #{bearing(target,center)}"
-	texts[1].textContent = "Z:#{SIZE} B:#{[baseX,baseY]} dx:#{dx} dy:#{dy}"
+	texts[0].textContent = "#{bearing(target,center)} º"
+	texts[1].textContent = "#{distance(target,center)} m" #Z:#{SIZE} B:#{[baseX,baseY]} dx:#{dx} dy:#{dy}"
 	targetButton.move()
 
 centrera = ->
@@ -239,8 +239,8 @@ startup = ->
 		images.push irow
 		rects.push rrow
 
-	makeText W/2, 40
-	makeText W/2, H-30
+	makeText W/2, 120+10
+	makeText W/2, H-120+10
 
 
 
