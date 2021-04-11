@@ -9,6 +9,7 @@ nw = W//TILE
 nh = H//TILE
 
 updateMode = 0 # 0=manual 1=gps
+points = []
 
 range = _.range
 ass = (a,b=true) -> chai.assert.deepEqual a, b
@@ -196,9 +197,10 @@ drawMap = ->
 		texts[0].textContent = "#{bearing(target,center)} º"
 		texts[1].textContent = "#{distance(target,center)} m"
 	else
-		texts[0].textContent = ""
-		texts[1].textContent = ""
-	texts[2].textContent = "#{SIZE} m\n#{position}\n#{center}"
+		texts[0].textContent = "#{points.length}"
+		texts[1].textContent = "#{SIZE} #{updateMode}"
+	texts[2].textContent = "#{position}"
+	texts[3].textContent = "#{center}"
 	targetButton.move()
 
 centrera = ->
@@ -222,7 +224,7 @@ recEvent = ->
 
 makeText = (x,y) ->
 	text = add 'text',svg, {x:x, y:y, stroke:'black', 'stroke-width':1, 'text-anchor':'middle'}
-	text.style.fontSize = '25px'
+	text.style.fontSize = '50px'
 	texts.push text
 
 nada = (event) ->
@@ -233,6 +235,7 @@ locationUpdateFail = (error) ->	if error.code == error.PERMISSION_DENIED then me
 
 locationUpdate = (p) ->
 	position = [myRound(p.coords.latitude,6), myRound(p.coords.longitude,6)]
+	points.push position.slice()
 	if updateMode == 0 then return 
 	grid = geodetic_to_grid position[0],position[1]
 	center = (Math.round g for g in grid)
@@ -291,6 +294,7 @@ startup = ->
 	makeText 1*W/3, 120+10
 	makeText 2*W/3, 120+10
 	makeText W/2, H-120+10
+	makeText W/2, H-60+10
 
 	targetButton = new TargetButton INVISIBLE, INVISIBLE, '', '#f008'
 	aimButton = new TargetButton W/2, H/2, "click('aim')"
