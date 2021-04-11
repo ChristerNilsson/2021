@@ -1,11 +1,19 @@
-W = 1024 # window.innerWidth
-H = 1024 # window.innerHeight
+W = window.innerWidth
+H = window.innerHeight
+
 INVISIBLE = -100
 SIZE = 256 # 64..65536 # rutornas storlek i meter
 TILE = 256 # rutornas storlek i pixels
 
+nw = W//TILE
+nh = H//TILE
+
 range = _.range
 ass = (a,b=true) -> chai.assert.deepEqual a, b
+
+setAttrs = (obj,attrs) ->
+	for key of attrs
+		obj.setAttributeNS null, key, attrs[key]
 
 svgurl = "http://www.w3.org/2000/svg"
 svg = document.getElementById 'svgOne'
@@ -44,7 +52,7 @@ bearing = (p,q) ->
 
 class Button 
 	constructor : (x,y,prompt,event,color='#f000') ->
-		@r = 100
+		@r = 128
 		if prompt != ""
 			@text = add 'text',svg, {x:x, y:y+10, stroke:'black', 'stroke-width':1, 'text-anchor':'middle'}
 			@text.textContent = prompt
@@ -76,10 +84,6 @@ add = (type,parent,attrs) ->
 	parent.appendChild obj
 	setAttrs obj,attrs
 	obj
-
-setAttrs = (obj,attrs) ->
-	for key of attrs
-		obj.setAttributeNS null, key, attrs[key]
 
 click = (s) -> 
 	if s=='in'  and SIZE > 64 then SIZE //= 2
@@ -164,21 +168,24 @@ convert = ([x,y],size=SIZE) -> # sweref punkt
 	[x,y, dx,dy]
 
 drawMap = ->
-	n = 2
 	[baseX,baseY,dx,dy] = convert center
-	for j in range 2*n+1
-		y = baseY + (j-n) * SIZE
-		py = TILE*(n-j+1)+dy
-		for i in range 2*n+1
-			x = baseX + (i-n) * SIZE
-			px = TILE*(i-n+1)+dx
+	for j in range 2*nh+1
+		y = baseY + (j-nh) * SIZE
+		py = TILE*(nh-j+1)+dy
+		for i in range 2*nw+1
+			x = baseX + (i-nw) * SIZE
+			px = TILE*(i-nw+1)+dx
 			href = "maps\\#{SIZE}\\#{y}-#{x}-#{SIZE}.jpg"
 			setAttrs images[j][i], {x:px, y:py, href:href} 
 			setAttrs rects[j][i],  {x:px, y:py}
 	# texts[0].textContent = "C:#{center} T:#{target} D:#{distance(target,center)} B:#{bearing(target,center)}"
 	# texts[1].textContent = "Z:#{SIZE} B:#{[baseX,baseY]} DX:#{dx} DY:#{dy}"
-	texts[0].textContent = "#{bearing(target,center)} º"
-	texts[1].textContent = "#{distance(target,center)} m"
+	if target.length==2
+		texts[0].textContent = "#{bearing(target,center)} º"
+		texts[1].textContent = "#{distance(target,center)} m"
+	else
+		texts[0].textContent = ""
+		texts[1].textContent = ""
 	texts[2].textContent = "#{SIZE} m"
 	targetButton.move()
 
@@ -210,6 +217,7 @@ nada = (event) ->
 	event.stopPropagation()
 
 startup = ->
+	console.log W,H,nw,nh
 	add 'rect',svg,{width:W, height:H, fill:'green'}
 	grid = geodetic_to_grid position[0],position[1]
 	center = (Math.round g for g in grid)
@@ -219,11 +227,10 @@ startup = ->
 	rects = []
 	texts = []
 
-	n = 2
-	for _ in range 2*n+1
+	for _ in range 2*nh+1
 		irow = []
 		rrow = []
-		for _ in range 2*n+1
+		for _ in range 2*nw+1
 			irow.push add 'image',svg, {}
 			rrow.push add 'rect', svg, {width:TILE, height:TILE, stroke:'black', 'stroke-width':1, fill:'none'}
 		images.push irow
@@ -235,10 +242,10 @@ startup = ->
 
 	targetButton = new TargetButton INVISIBLE, INVISIBLE, '', '#f008'
 	aimButton = new TargetButton W/2, H/2, "click('aim')"
-	new Button 120,   120, 'in',  "click('in')"
-	new Button W-120, 120, 'out', "click('out')"
-	new Button 120, H-120, 'ctr', "click('ctr')"
-	recButton = new Button W-120, H-120, 'rec', "recEvent()"
+	new Button 128,   128, 'in',  "click('in')"
+	new Button W-128, 128, 'out', "click('out')"
+	new Button 128, H-128, 'ctr', "click('ctr')"
+	recButton = new Button W-128, H-128, 'rec', "recEvent()"
 
 	console.log grid_to_geodetic 6553600+128,655360+128
 	console.log grid_to_geodetic 6553600+78*256,655360+88*256
@@ -247,4 +254,3 @@ startup = ->
 	drawMap()
 
 startup()
-
