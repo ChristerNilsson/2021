@@ -1,7 +1,7 @@
 W = 1024 # window.innerWidth
 H = 1024 # window.innerHeight
 INVISIBLE = -100
-SIZE = 64 # 64..65536 # rutornas storlek i meter
+SIZE = 256 # 64..65536 # rutornas storlek i meter
 TILE = 256 # rutornas storlek i pixels
 
 range = _.range
@@ -10,7 +10,7 @@ ass = (a,b=true) -> chai.assert.deepEqual a, b
 svgurl = "http://www.w3.org/2000/svg"
 svg = document.getElementById 'svgOne'
 
-position = [59.09443087294174, 17.7142975294884] # 128 meter in. (lat long)
+position = [59.26357841066772, 18.120888557388074] # (lat long)
 
 center = [] # skärmens mittpunkt (sweref). Påverkas av pan (x y) (6 7)
 target = [] # målkoordinater (sweref)
@@ -49,7 +49,7 @@ class Button
 			@text = add 'text',svg, {x:x, y:y+10, stroke:'black', 'stroke-width':1, 'text-anchor':'middle'}
 			@text.textContent = prompt
 			@text.style.fontSize = '50px'
-		@circle = add 'circle',svg, {cx:x, cy:y, r:@r, fill:color, stroke:'black', 'stroke-width':1, ontouchstart:event} #, ontouchmove:'nada(evt)', ontouchend:'nada(evt)'}
+		@circle = add 'circle',svg, {cx:x, cy:y, r:@r, fill:color, stroke:'black', 'stroke-width':1, ontouchstart:event, onclick:event} #, ontouchmove:'nada(evt)', ontouchend:'nada(evt)'}
 
 class TargetButton extends Button
 	constructor : (x,y,event,color) ->
@@ -88,17 +88,35 @@ click = (s) ->
 	if s=='aim' then aimEvent()
 	drawMap()
 
-mousedown = (event) -> 
+mousedown = (event) -> mouse = [event.x,event.y]
+mouseup   = (event) -> mouse = []
+mousemove = (event) ->
+	if mouse.length == 0 then return
+	factor = 2
+	if SIZE == 64 then factor = 0.25
+	if SIZE == 128 then factor = 0.5
+	if SIZE == 256 then factor = 1
+	dx = event.movementX
+	dy = event.movementY
+	mouse = [dx,dy]
+	center[0] -= Math.round dx * factor
+	center[1] += Math.round dy * factor
+	drawMap()
+
+touchstart = (event) ->
+	event.preventDefault()
 	touches = event.targetTouches 
 	if touches.length != 1 then return
 	touch = touches[0]
 	mouse = [touch.clientX,touch.clientY]
 
-mouseup   = (event) -> 
+touchend = (event) ->
+	event.preventDefault()
 	mouse = []
 	drawMap()
 
-mousemove = (event) ->
+touchmove = (event) ->
+	event.preventDefault()
 	if mouse.length == 0 then return
 	touches = event.targetTouches 
 	if touches.length != 1 then return
@@ -107,33 +125,20 @@ mousemove = (event) ->
 	if SIZE == 64 then factor = 0.25
 	if SIZE == 128 then factor = 0.5
 	if SIZE == 256 then factor = 1
-
-	# dx = event.movementX
-	# dy = event.movementY
 	dx = touch.clientX - mouse[0]
 	dy = touch.clientY - mouse[1]
 	mouse = [touch.clientX,touch.clientY]
 	center[0] -= Math.round dx * factor
 	center[1] += Math.round dy * factor
-
 	drawMap()
-	#moveMap()
-
-touchstart = (event) ->
-	event.preventDefault()
-	mousedown event
-
-touchend = (event) ->
-	event.preventDefault()
-	mouseup event
-
-touchmove = (event) ->
-	event.preventDefault()
-	mousemove event
 
 svg.addEventListener 'touchstart', touchstart
 svg.addEventListener 'touchmove',  touchmove
 svg.addEventListener 'touchend',   touchend
+
+svg.addEventListener 'mousedown', mousedown
+svg.addEventListener 'mousemove', mousemove
+svg.addEventListener 'mouseup',   mouseup
 
 interpolate = (a, b, c, d, value) -> c + value/b * (d-c)
 ass 16, interpolate 0,1024,0,256,64
@@ -157,22 +162,6 @@ convert = ([x,y],size=SIZE) -> # sweref punkt
 	dy = Math.round dy
 
 	[x,y, dx,dy]
-
-# moveMap = ->
-# 	n = 2
-# 	[baseX,baseY,dx,dy] = convert center
-# 	for j in range 2*n+1
-# 		#y = baseY + (j-n) * SIZE
-# 		py = TILE*(n-j+1)+dy
-# 		for i in range 2*n+1
-# 			#x = baseX + (i-n) * SIZE
-# 			px = TILE*(i-n+1)+dx
-# 			#href = "maps\\#{SIZE}\\#{y}-#{x}-#{SIZE}.jpg"
-# 			setAttrs images[j][i], {x:px, y:py} 
-# 			setAttrs rects[j][i],  {x:px, y:py}
-# 	texts[0].textContent = "C:#{center} T:#{target} D:#{distance(target,center)} B:#{bearing(target,center)}"
-# 	texts[1].textContent = "Z:#{SIZE} B:#{[baseX,baseY]} DX:#{dx} DY:#{dy}"
-# 	targetButton.move()
 
 drawMap = ->
 	n = 2
@@ -244,16 +233,6 @@ startup = ->
 	makeText 2*W/3, 120+10
 	makeText W/2, H-120+10
 
-
-# touchstartCircle = (event) ->
-# 	event.preventDefault()
-# 	#makeText "#{event.type} #{pretty event.targetTouches}"
-# 	event.stopPropagation()
-
-# circle.addEventListener 'touchstart', touchstartCircle
-# circle.addEventListener 'touchmove',  nada
-# circle.addEventListener 'touchend',   nada
-
 	targetButton = new TargetButton INVISIBLE, INVISIBLE, '', '#f008'
 	aimButton = new TargetButton W/2, H/2, "click('aim')"
 	new Button 120,   120, 'in',  "click('in')"
@@ -262,7 +241,9 @@ startup = ->
 	recButton = new Button W-120, H-120, 'rec', "recEvent()"
 
 	console.log grid_to_geodetic 6553600+128,655360+128
-	console.log grid_to_geodetic 6553600+3.5*128,655360+3.5*128
+	console.log grid_to_geodetic 6553600+78*256,655360+88*256
+	console.log grid_to_geodetic 6553600+(78+16)*256,655360+(88+16)*256
+	#console.log geodetic_to_grid 59.263331493465394, 18.122142177751353
 	drawMap()
 
 startup()
