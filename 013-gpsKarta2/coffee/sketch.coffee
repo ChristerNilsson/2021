@@ -88,18 +88,33 @@ click = (s) ->
 	if s=='aim' then aimEvent()
 	drawMap()
 
-mousedown = (evt) -> mouse = [evt.x,evt.y]
-mouseup   = (evt) -> 
+mousedown = (event) -> 
+	touches = event.targetTouches 
+	if touches.length != 1 then return
+	touch = touches[0]
+	mouse = [touch.clientX,touch.clientY]
+	
+mouseup   = (event) -> 
 	mouse = []
 	drawMap()
 
-mousemove = (evt) ->
+mousemove = (event) ->
 	if mouse.length == 0 then return
+	touches = event.targetTouches 
+	if touches.length != 1 then return
+	touch = touches[0]
 	factor = 2
 	if SIZE == 128 then factor = 0.5
 	if SIZE == 256 then factor = 1
-	center[0] -= Math.round evt.movementX * factor
-	center[1] += Math.round evt.movementY * factor
+
+	# dx = event.movementX
+	# dy = event.movementY
+	dx = touch.clientX - mouse[0]
+	dy = touch.clientY - mouse[1]
+	mouse = [touch.clientX,touch.clientY]
+	center[0] -= Math.round dx * factor
+	center[1] += Math.round dy * factor
+
 	drawMap()
 	#moveMap()
 
