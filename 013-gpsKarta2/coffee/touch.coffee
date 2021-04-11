@@ -57,15 +57,15 @@ touchstartCircle = (event) ->
 	makeText "#{event.type} #{pretty event.targetTouches}"
 	event.stopPropagation()
 
-touchendCircle = (event) ->
-	event.preventDefault()
-	makeText "#{event.type} #{pretty event.targetTouches}"
-	event.stopPropagation()
+# touchendCircle = (event) ->
+# 	event.preventDefault()
+# 	makeText "#{event.type} #{pretty event.targetTouches}"
+# 	event.stopPropagation()
 
-touchmoveCircle = (event) ->
-	event.preventDefault()
-	makeText "#{event.type} #{pretty event.targetTouches}"
-	event.stopPropagation()
+# touchmoveCircle = (event) ->
+# 	event.preventDefault()
+# 	makeText "#{event.type} #{pretty event.targetTouches}"
+# 	event.stopPropagation()
 
 circle.addEventListener 'touchstart', touchstartCircle
 circle.addEventListener 'touchmove',  nada

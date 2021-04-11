@@ -1,5 +1,5 @@
-W = 1080 # window.innerWidth
-H = 1080 # window.innerHeight
+W = 1024 # window.innerWidth
+H = 1024 # window.innerHeight
 INVISIBLE = -100
 SIZE = 256 # 128..65536 # rutornas storlek i meter
 TILE = 256 # rutornas storlek i pixels
@@ -44,11 +44,11 @@ bearing = (p,q) ->
 
 class Button 
 	constructor : (x,y,prompt,event,color='#f000') ->
-		@r = 25
+		@r = 50
 		if prompt != ""
-			@text = add 'text',svg, {x:x, y:y+5, stroke:'black', 'stroke-width':1, 'text-anchor':'middle'}
+			@text = add 'text',svg, {x:x, y:y+10, stroke:'black', 'stroke-width':1, 'text-anchor':'middle'}
 			@text.textContent = prompt
-			@text.style.fontSize = '25px'
+			@text.style.fontSize = '50px'
 		@circle = add 'circle',svg, {cx:x, cy:y, r:@r, fill:color, stroke:'black', 'stroke-width':1, onclick:event}
 
 class TargetButton extends Button
@@ -89,7 +89,10 @@ click = (s) ->
 	drawMap()
 
 mousedown = (evt) -> mouse = [evt.x,evt.y]
-mouseup   = (evt) -> mouse = []
+mouseup   = (evt) -> 
+	mouse = []
+	drawMap()
+
 mousemove = (evt) ->
 	if mouse.length == 0 then return
 	factor = 2
@@ -98,6 +101,23 @@ mousemove = (evt) ->
 	center[0] -= Math.round evt.movementX * factor
 	center[1] += Math.round evt.movementY * factor
 	drawMap()
+	#moveMap()
+
+touchstart = (event) ->
+	event.preventDefault()
+	mousedown event
+
+touchend = (event) ->
+	event.preventDefault()
+	mouseup event
+
+touchmove = (event) ->
+	event.preventDefault()
+	mousemove event
+
+svg.addEventListener 'touchstart', touchstart
+svg.addEventListener 'touchmove',  touchmove
+svg.addEventListener 'touchend',   touchend
 
 interpolate = (a, b, c, d, value) -> c + value/b * (d-c)
 ass 16, interpolate 0,1024,0,256,64
@@ -110,15 +130,9 @@ convert = ([x,y],size=SIZE) -> # sweref punkt
 	x -= dx       # beräkna rutans SW hörn x,y (sweref)
 	y -= dy
 
-	if SIZE==128
-		dx = interpolate 0,SIZE, 256,0, dx
-		dy = interpolate 0,SIZE, 0,256, dy
-	else if SIZE == 256
-		dx = interpolate 0,SIZE, 256,0, dx
-		dy = interpolate 0,SIZE, 0,256, dy
-	else if SIZE == 512
-		dx = interpolate 0,SIZE, SIZE//2,0, dx
-		dy = interpolate 0,SIZE, 0,SIZE//2, dy
+	if SIZE in [128,256]
+		dx = interpolate 0,SIZE, TILE,0, dx
+		dy = interpolate 0,SIZE, 0,TILE, dy
 	else
 		dx = interpolate 0,SIZE, SIZE//2,0, dx
 		dy = interpolate 0,SIZE, 0,SIZE//2, dy
@@ -127,6 +141,22 @@ convert = ([x,y],size=SIZE) -> # sweref punkt
 	dy = Math.round dy
 
 	[x,y, dx,dy]
+
+# moveMap = ->
+# 	n = 2
+# 	[baseX,baseY,dx,dy] = convert center
+# 	for j in range 2*n+1
+# 		#y = baseY + (j-n) * SIZE
+# 		py = TILE*(n-j+1)+dy
+# 		for i in range 2*n+1
+# 			#x = baseX + (i-n) * SIZE
+# 			px = TILE*(i-n+1)+dx
+# 			#href = "maps\\#{SIZE}\\#{y}-#{x}-#{SIZE}.jpg"
+# 			setAttrs images[j][i], {x:px, y:py} 
+# 			setAttrs rects[j][i],  {x:px, y:py}
+# 	texts[0].textContent = "C:#{center} T:#{target} D:#{distance(target,center)} B:#{bearing(target,center)}"
+# 	texts[1].textContent = "Z:#{SIZE} B:#{[baseX,baseY]} DX:#{dx} DY:#{dy}"
+# 	targetButton.move()
 
 drawMap = ->
 	n = 2
@@ -138,7 +168,7 @@ drawMap = ->
 			x = baseX + (i-n) * SIZE
 			px = TILE*(i-n+1)+dx
 			href = "maps\\#{SIZE}\\#{y}-#{x}-#{SIZE}.jpg"
-			setAttrs images[j][i], {x:px, y:py, href:href} ##
+			setAttrs images[j][i], {x:px, y:py, href:href} 
 			setAttrs rects[j][i],  {x:px, y:py}
 	texts[0].textContent = "C:#{center} T:#{target} D:#{distance(target,center)} B:#{bearing(target,center)}"
 	texts[1].textContent = "Z:#{SIZE} B:#{[baseX,baseY]} DX:#{dx} DY:#{dy}"
@@ -192,10 +222,10 @@ startup = ->
 
 	targetButton = new TargetButton INVISIBLE, INVISIBLE, '', '#f008'
 	aimButton = new TargetButton W/2, H/2, "click('aim')"
-	new Button 35,   35, 'in',  "click('in')"
-	new Button W-35, 35, 'out', "click('out')"
-	new Button 35, H-35, 'ctr', "click('ctr')"
-	recButton = new Button W-35, H-35, 'rec', "recEvent()"
+	new Button 60,   60, 'in',  "click('in')"
+	new Button W-60, 60, 'out', "click('out')"
+	new Button 60, H-60, 'ctr', "click('ctr')"
+	recButton = new Button W-60, H-60, 'rec', "recEvent()"
 
 	console.log grid_to_geodetic 6553600+128,655360+128
 	console.log grid_to_geodetic 6553600+3.5*128,655360+3.5*128
