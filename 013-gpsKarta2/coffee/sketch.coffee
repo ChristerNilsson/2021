@@ -8,6 +8,8 @@ TILE = 256 # rutornas storlek i pixels
 nw = W//TILE
 nh = H//TILE
 
+updateMode = 0 # 0=manual 1=gps
+
 range = _.range
 ass = (a,b=true) -> chai.assert.deepEqual a, b
 myRound = (x,dec=0) -> Math.round(x*10**dec)/10**dec
@@ -113,6 +115,7 @@ mousemove = (event) ->
 	mouse = [dx,dy]
 	center[0] -= Math.round dx * factor
 	center[1] += Math.round dy * factor
+	updateMode = 0
 	drawMap()
 
 touchstart = (event) ->
@@ -142,6 +145,7 @@ touchmove = (event) ->
 	mouse = [touch.clientX,touch.clientY]
 	center[0] -= Math.round dx * factor
 	center[1] += Math.round dy * factor
+	updateMode = 0
 	drawMap()
 
 svg.addEventListener 'touchstart', touchstart
@@ -198,6 +202,7 @@ drawMap = ->
 	targetButton.move()
 
 centrera = ->
+	updateMode = 1
 	grid = geodetic_to_grid position[0],position[1]
 	center = (Math.round g for g in grid)
 	center.reverse()
@@ -228,6 +233,7 @@ locationUpdateFail = (error) ->	if error.code == error.PERMISSION_DENIED then me
 
 locationUpdate = (p) ->
 	position = [myRound(p.coords.latitude,6), myRound(p.coords.longitude,6)]
+	if updateMode == 0 then return 
 	grid = geodetic_to_grid position[0],position[1]
 	center = (Math.round g for g in grid)
 	center.reverse()
