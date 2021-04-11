@@ -49,7 +49,7 @@ class Button
 			@text = add 'text',svg, {x:x, y:y+10, stroke:'black', 'stroke-width':1, 'text-anchor':'middle'}
 			@text.textContent = prompt
 			@text.style.fontSize = '50px'
-		@circle = add 'circle',svg, {cx:x, cy:y, r:@r, fill:color, stroke:'black', 'stroke-width':1, onclick:event}
+		@circle = add 'circle',svg, {cx:x, cy:y, r:@r, fill:color, stroke:'black', 'stroke-width':1, ontouchstart:event} #, ontouchmove:'nada(evt)', ontouchend:'nada(evt)'}
 
 class TargetButton extends Button
 	constructor : (x,y,event,color) ->
@@ -93,7 +93,7 @@ mousedown = (event) ->
 	if touches.length != 1 then return
 	touch = touches[0]
 	mouse = [touch.clientX,touch.clientY]
-	
+
 mouseup   = (event) -> 
 	mouse = []
 	drawMap()
@@ -212,6 +212,10 @@ makeText = (x,y) ->
 	text.style.fontSize = '25px'
 	texts.push text
 
+nada = (event) ->
+	event.preventDefault()
+	event.stopPropagation()
+
 startup = ->
 	add 'rect',svg,{width:W, height:H, fill:'green'}
 	grid = geodetic_to_grid position[0],position[1]
@@ -234,6 +238,18 @@ startup = ->
 
 	makeText W/2, 40
 	makeText W/2, H-30
+
+
+
+
+# touchstartCircle = (event) ->
+# 	event.preventDefault()
+# 	#makeText "#{event.type} #{pretty event.targetTouches}"
+# 	event.stopPropagation()
+
+# circle.addEventListener 'touchstart', touchstartCircle
+# circle.addEventListener 'touchmove',  nada
+# circle.addEventListener 'touchend',   nada
 
 	targetButton = new TargetButton INVISIBLE, INVISIBLE, '', '#f008'
 	aimButton = new TargetButton W/2, H/2, "click('aim')"
