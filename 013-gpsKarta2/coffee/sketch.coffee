@@ -97,10 +97,12 @@ add = (type,parent,attrs) ->
 	obj
 
 click = (s) -> 
+	event.preventDefault()
 	if s=='in'  and SIZE > 64 then SIZE //= 2
 	if s=='out' and SIZE < 65536 then SIZE *= 2
 	if s=='ctr' then centrera()
 	if s=='aim' then aimEvent()
+	event.stopPropagation()
 	drawMap()
 
 mousedown = (event) -> mouse = [event.x,event.y]
@@ -235,13 +237,13 @@ locationUpdateFail = (error) ->	if error.code == error.PERMISSION_DENIED then me
 
 locationUpdate = (p) ->
 	position = [myRound(p.coords.latitude,6), myRound(p.coords.longitude,6)]
-	points.push position.slice()
-	if updateMode == 0 then return 
+	if updateMode == 0 then return
 	grid = geodetic_to_grid position[0],position[1]
 	center = (Math.round g for g in grid)
 	center.reverse()
-	console.log position
-	console.log center
+	points.push center.slice()
+	# console.log position
+	# console.log center
 	drawMap()
 
 	# pLat = myRound p.coords.latitude,6
@@ -254,12 +256,12 @@ locationUpdate = (p) ->
 	# increaseQueue p # meters
 	# uppdatera pLat, pLon
 
-uppdatera = (pLat, pLon) ->
-	dump.store ""
-	dump.store "LU #{pLat} #{pLon}"
-	[x,y] = w2b.convert pLon,pLat
-	updateTrack pLat, pLon, x,y
-	updateTrail pLat, pLon, x,y
+# uppdatera = (pLat, pLon) ->
+# 	dump.store ""
+# 	dump.store "LU #{pLat} #{pLon}"
+# 	[x,y] = w2b.convert pLon,pLat
+# 	updateTrack pLat, pLon, x,y
+# 	updateTrail pLat, pLon, x,y
 
 initGPS = ->
 	navigator.geolocation.watchPosition locationUpdate, locationUpdateFail,
