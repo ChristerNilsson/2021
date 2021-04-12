@@ -237,13 +237,11 @@ locationUpdateFail = (error) ->	if error.code == error.PERMISSION_DENIED then me
 
 locationUpdate = (p) ->
 	position = [myRound(p.coords.latitude,6), myRound(p.coords.longitude,6)]
-	if updateMode == 0 then return
 	grid = geodetic_to_grid position[0],position[1]
-	center = (Math.round g for g in grid)
-	center.reverse()
-	points.push center.slice()
-	# console.log position
-	# console.log center
+	temp = (Math.round g for g in grid)
+	temp.reverse()
+	points.push temp.slice()
+	if updateMode == 1 then center = temp
 	drawMap()
 
 	# pLat = myRound p.coords.latitude,6
