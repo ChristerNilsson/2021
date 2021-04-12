@@ -198,11 +198,14 @@ drawMap = ->
 	if target.length==2
 		texts[0].textContent = "#{bearing(target,center)} º"
 		texts[1].textContent = "#{distance(target,center)} m"
-	else
-		texts[0].textContent = "#{points.length}"
-		texts[1].textContent = "#{SIZE} #{updateMode}"
-	texts[2].textContent = "#{position}"
-	texts[3].textContent = "#{center}"
+	texts[2].textContent = "#{points.length}"
+	texts[3].textContent = "#{SIZE} #{updateMode}"
+	texts[4].textContent = "#{position[0]}"
+	texts[5].textContent = "#{position[1]}"
+	if points.length > 0
+		p = points[points.length-1]
+		texts[6].textContent = "#{p[0]}"
+		texts[7].textContent = "#{p[1]}"
 	targetButton.move()
 
 centrera = ->
@@ -293,8 +296,15 @@ startup = ->
 
 	makeText 1*W/3, 120+10
 	makeText 2*W/3, 120+10
-	makeText W/2, H-120+10
-	makeText W/2, H-60+10
+
+	makeText 1*W/3, H-180+10
+	makeText 2*W/3, H-180+10
+
+	makeText 1*W/3, H-120+10
+	makeText 2*W/3, H-120+10
+
+	makeText 1*W/3, H-60+10
+	makeText 2*W/3, H-60+10
 
 	targetButton = new TargetButton INVISIBLE, INVISIBLE, '', '#f008'
 	aimButton = new TargetButton W/2, H/2, "click('aim')"
