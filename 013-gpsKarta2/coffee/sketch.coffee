@@ -224,12 +224,14 @@ updateTrail = (baseX,baseY,dx,dy) ->
 		yy = map y, y0,y1, H/2 - TILE, H/2 + TILE
 		#if s == '' then s+="M" else s+="L"
 #		s += "#{TILE/2+xx-dx},#{-TILE/2+H+dy-yy}"
-		s.push "#{xx-dx},#{H+dy-yy}"
+		s.push "#{Math.round xx-dx},#{Math.round H+dy-yy}"
 		#console.log baseX,baseY,dx,dy, x0,x1,y0,y1, x,y,xx,yy
-	console.log s
+	#console.log s
 
 	#setAttrs trail, {d:s}
-	setAttrs trail, {points:s.join ' '}
+	s = s.join ' '
+	console.log s
+	setAttrs trail, {points:s}
 
 drawMap = ->
 	[baseX,baseY,dx,dy] = convert center
@@ -341,13 +343,7 @@ initTrail = ->
 		'marker-start' : "url(#dot)"
 		'marker-mid' : "url(#dot)"
 		'marker-end' : "url(#dot)"
-				# <!-- <marker id="dot" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5">
-				# 	<circle cx="5" cy="5" r="5" fill="red" />
-				# </marker>
-				# <polyline points="15,80 29,50 43,60 57,30 71,40 85,15" fill="none" stroke="black"
-				# 	marker-start="url(#dot)" marker-mid="url(#dot)" marker-end="url(#dot)" /> -->
-				# <!-- <circle cx=50 cy=50 r=30 stroke=black fill=red></circle>	 -->
-	console.log trail
+	# console.log trail
 
 startup = ->
 	parameters = getParameters()
