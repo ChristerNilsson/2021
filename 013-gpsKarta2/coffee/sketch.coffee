@@ -16,6 +16,18 @@ ass = (a,b=true) -> chai.assert.deepEqual a, b
 myRound = (x,dec=0) -> Math.round(x*10**dec)/10**dec
 map = (n, start1, stop1, start2, stop2) -> (n - start1) / (stop1 - start1) * (stop2 - start2) + start2
 
+sendMail = (subject,body) ->
+	mail.href = "mailto:janchrister.nilsson@gmail.com?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body)
+	mail.click()
+
+getParameters = (h = window.location.href) ->
+	h = decodeURI h
+	arr = h.split('?')
+	if arr.length != 2 then return {}
+	s = arr[1]
+	if s=='' then return {}
+	_.object(f.split '=' for f in s.split('&'))
+
 #merp = (y1,y2,i,x1=0,x2=1) -> map i,x1,x2,y1,y2
 # interpolate = (a, b, c, d, value) -> c + value/b * (d-c)
 # ass 16, interpolate 0,1024,0,256,64
@@ -52,7 +64,8 @@ distance = (p,q) ->
 
 	dx = p[0] - q[0]
 	dy = p[1] - q[1]
-	Math.round Math.sqrt dx * dx + dy * dy
+	#Math.round Math.sqrt dx * dx + dy * dy
+	Math.sqrt dx * dx + dy * dy
 
 bearing = (p,q) ->
 	if p.length!=2 or q.length!=2 then return 0
@@ -69,6 +82,7 @@ class Button
 			@text.textContent = prompt
 			@text.style.fontSize = '50px'
 		@circle = add 'circle',svg, {cx:x, cy:y, r:@r, fill:color, stroke:'black', 'stroke-width':1, ontouchstart:event, onclick:event} #, ontouchmove:'nada(evt)', ontouchend:'nada(evt)'}
+	setColor : (color) -> setAttrs @circle, {fill:color}
 
 class TargetButton extends Button
 	constructor : (x,y,event,color) ->
@@ -116,8 +130,10 @@ mousemove = (event) ->
 	dx = event.movementX
 	dy = event.movementY
 	mouse = [dx,dy]
-	center[0] -= Math.round dx * factor
-	center[1] += Math.round dy * factor
+	# center[0] -= Math.round dx * factor
+	# center[1] += Math.round dy * factor
+	center[0] -= dx * factor
+	center[1] += dy * factor
 	updateMode = 0
 	drawMap()
 
@@ -146,8 +162,10 @@ touchmove = (event) ->
 	dx = touch.clientX - mouse[0]
 	dy = touch.clientY - mouse[1]
 	mouse = [touch.clientX,touch.clientY]
-	center[0] -= Math.round dx * factor
-	center[1] += Math.round dy * factor
+	# center[0] -= Math.round dx * factor
+	# center[1] += Math.round dy * factor
+	center[0] -= dx * factor
+	center[1] += dy * factor
 	updateMode = 0
 	drawMap()
 
@@ -164,8 +182,10 @@ convert = ([x,y],size=SIZE) -> # sweref punkt
 	dy = y % size
 	x -= dx       # beräkna rutans SW hörn x,y (sweref)
 	y -= dy
-	dx = Math.round map dx, 0,size, 0,TILE # map n,start1,stop1,start2,stop2
-	dy = Math.round map dy, 0,size, 0,TILE
+	# dx = Math.round map dx, 0,size, 0,TILE # map n,start1,stop1,start2,stop2
+	# dy = Math.round map dy, 0,size, 0,TILE
+	dx = map dx, 0,size, 0,TILE # map n,start1,stop1,start2,stop2
+	dy = map dy, 0,size, 0,TILE
 	[x,y, dx,dy]
 ass [655360,6553600,64,72], convert [655360+16,6553600+18],64
 ass [655360,6553600,128,128], convert [655360+64,6553600+64],128
@@ -204,14 +224,15 @@ drawMap = ->
 	texts[5].textContent = "#{position[1]}"
 	if points.length > 0
 		p = points[points.length-1]
-		texts[6].textContent = "#{p[0]}"
-		texts[7].textContent = "#{p[1]}"
+		texts[6].textContent = "#{Math.round p[0]}"
+		texts[7].textContent = "#{Math.round p[1]}"
 	targetButton.move()
 
 centrera = ->
 	updateMode = 1
 	grid = geodetic_to_grid position[0],position[1]
-	center = (Math.round g for g in grid)
+	#center = (Math.round g for g in grid)
+	center = (g for g in grid)
 	center.reverse()
 	drawMap()
 
@@ -224,8 +245,12 @@ aimEvent = ->
 		targetButton.moveHard INVISIBLE, INVISIBLE
 
 recEvent = ->
+	if rec == 1
+		data = ("#{x},#{y}" for [x,y] in points).join "|"
+		sendMail "Path:#{points.length}", "#{window.location}?path=#{data}"
+		points = []
 	rec = 1 - rec
-	recButton.setAttributeNS null, 'fill',['#f008','#f000'][rec]
+	recButton.setColor ['#f000','#f008'][rec]
 
 makeText = (x,y) ->
 	text = add 'text',svg, {x:x, y:y, stroke:'black', 'stroke-width':1, 'text-anchor':'middle'}
@@ -241,7 +266,8 @@ locationUpdateFail = (error) ->	if error.code == error.PERMISSION_DENIED then me
 locationUpdate = (p) ->
 	position = [myRound(p.coords.latitude,6), myRound(p.coords.longitude,6)]
 	grid = geodetic_to_grid position[0],position[1]
-	temp = (Math.round g for g in grid)
+	#temp = (Math.round g for g in grid)
+	temp = (g for g in grid)
 	temp.reverse()
 	points.push temp.slice()
 	if updateMode == 1 then center = temp
@@ -271,14 +297,16 @@ initGPS = ->
 		timeout: 27000
 
 startup = ->
+	console.log getParameters()
 	initGPS()
 	console.log W,H,nw,nh
 	add 'rect',svg,{width:W, height:H, fill:'green'}
 
-	position = (myRound p,6 for p in position)
+	#position = (myRound p,6 for p in position)
 
 	grid = geodetic_to_grid position[0],position[1]
-	center = (Math.round g for g in grid)
+	#center = (Math.round g for g in grid)
+	center = (g for g in grid)
 	center.reverse()
 
 	images = []
@@ -294,17 +322,24 @@ startup = ->
 		images.push irow
 		rects.push rrow
 
-	makeText 1*W/3, 120+10
-	makeText 2*W/3, 120+10
+	x0 = 0.38*W
+	x1 = 0.62*W
+	y0 = 120+10
+	y1 = H-180+10
+	y2 = H-120+10
+	y3 = H-60+10
 
-	makeText 1*W/3, H-180+10
-	makeText 2*W/3, H-180+10
+	makeText x0, y0
+	makeText x1, y0
 
-	makeText 1*W/3, H-120+10
-	makeText 2*W/3, H-120+10
+	makeText x0, y1
+	makeText x1, y1
 
-	makeText 1*W/3, H-60+10
-	makeText 2*W/3, H-60+10
+	makeText x0, y2
+	makeText x1, y2
+
+	makeText x0, y3
+	makeText x1, y3
 
 	targetButton = new TargetButton INVISIBLE, INVISIBLE, '', '#f008'
 	aimButton = new TargetButton W/2, H/2, "click('aim')"
