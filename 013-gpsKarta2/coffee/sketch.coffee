@@ -10,11 +10,15 @@ nh = H//TILE
 
 updateMode = 0 # 0=manual 1=gps
 points = []
+trail = null # M256,256 l100,100 l50,0
 
 range = _.range
 ass = (a,b=true) -> chai.assert.deepEqual a, b
 myRound = (x,dec=0) -> Math.round(x*10**dec)/10**dec
-map = (n, start1, stop1, start2, stop2) -> (n - start1) / (stop1 - start1) * (stop2 - start2) + start2
+
+map = (x, x0, x1, y0, y1) -> (x - x0) / (x1 - x0) * (y1 - y0) + y0
+ass 325,map 150,100,200,300,350
+ass 375,map 250,100,200,300,350
 
 sendMail = (subject,body) ->
 	mail.href = "mailto:janchrister.nilsson@gmail.com?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body)
@@ -200,6 +204,31 @@ ass [655360,6553600,32,37], convert [655360+128,6553600+148],1024
 ass [655360,6553600,16,16], convert [655360+64,6553600+64],1024
 ass [655360,6553600,100,125], convert [655360+400,6553600+500],1024
 
+# baseX, baseY,  dx, dy, x0,    x1,    y0,     y1,     x,     y       xx   yy
+# 678400 6573568 155 212 678272 678784 6573440 6573952 679448 6574343 1880 1194.5
+updateTrail = (baseX,baseY,dx,dy) ->
+#	console.log 'updateTrail in',baseX,baseY,dx,dy
+	s = ""
+	# x0 = baseX + SIZE/2 - SIZE
+	# x1 = baseX + SIZE/2 + SIZE
+	# y0 = baseY + SIZE/2 - SIZE
+	# y1 = baseY + SIZE/2 + SIZE
+	x0 = baseX - SIZE
+	x1 = baseX + SIZE
+	y0 = baseY - SIZE
+	y1 = baseY + SIZE
+#	console.log 'updateTrail out',x0,x1,y0,y1
+
+	for [x,y] in points
+		xx = map x, x0,x1, W/2 - TILE, W/2 + TILE
+		yy = map y, y0,y1, H/2 - TILE, H/2 + TILE
+		if s == '' then s+="M" else s+="L"
+#		s += "#{TILE/2+xx-dx},#{-TILE/2+H+dy-yy}"
+		s += "#{xx-dx},#{H+dy-yy}"
+		#console.log baseX,baseY,dx,dy, x0,x1,y0,y1, x,y,xx,yy
+	#console.log s
+	setAttrs trail, {d:s}
+
 drawMap = ->
 	[baseX,baseY,dx,dy] = convert center
 	for j in range -nh,nh+1
@@ -215,6 +244,9 @@ drawMap = ->
 			setAttrs rects[j+nh][i+nw],  {x:px, y:py}
 	# texts[0].textContent = "C:#{center} T:#{target} D:#{distance(target,center)} B:#{bearing(target,center)}"
 	# texts[1].textContent = "Z:#{SIZE} B:#{[baseX,baseY]} DX:#{dx} DY:#{dy}"
+
+	updateTrail Math.round(baseX),Math.round(baseY),Math.round(dx),Math.round(dy)
+
 	if target.length==2
 		texts[0].textContent = "#{bearing(target,center)} º"
 		texts[1].textContent = "#{distance(target,center)} m"
@@ -269,7 +301,7 @@ locationUpdate = (p) ->
 	#temp = (Math.round g for g in grid)
 	temp = (Math.round(g) for g in grid)
 	temp.reverse()
-	points.push temp.slice()
+	#points.push temp.slice()
 	if updateMode == 1 then center = temp
 	drawMap()
 
@@ -297,7 +329,13 @@ initGPS = ->
 		timeout: 27000
 
 startup = ->
-	console.log getParameters()
+	parameters = getParameters()
+	if parameters.path 
+		points = (pair for pair in parameters.path.split '|')
+		points = (p.split ',' for p in points)
+		points = ([parseInt(p[0]),parseInt(p[1])] for p in points)
+		points.shift()
+	console.log points
 	initGPS()
 	console.log W,H,nw,nh
 	add 'rect',svg,{width:W, height:H, fill:'green'}
@@ -321,6 +359,8 @@ startup = ->
 			rrow.push add 'rect', svg, {width:TILE, height:TILE, stroke:'black', 'stroke-width':1, fill:'none'}
 		images.push irow
 		rects.push rrow
+
+	trail = add 'path', svg, {d:"", stroke:'blue', 'stroke-width':1, fill:'none'}
 
 	x0 = 0.36*W
 	x1 = 0.64*W
