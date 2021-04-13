@@ -267,7 +267,7 @@ locationUpdate = (p) ->
 	position = [myRound(p.coords.latitude,6), myRound(p.coords.longitude,6)]
 	grid = geodetic_to_grid position[0],position[1]
 	#temp = (Math.round g for g in grid)
-	temp = (g for g in grid)
+	temp = (Math.round(g) for g in grid)
 	temp.reverse()
 	points.push temp.slice()
 	if updateMode == 1 then center = temp
