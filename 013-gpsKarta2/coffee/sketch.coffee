@@ -208,7 +208,7 @@ ass [655360,6553600,100,125], convert [655360+400,6553600+500],1024
 # 678400 6573568 155 212 678272 678784 6573440 6573952 679448 6574343 1880 1194.5
 updateTrail = (baseX,baseY,dx,dy) ->
 #	console.log 'updateTrail in',baseX,baseY,dx,dy
-	s = ""
+	s = []
 	# x0 = baseX + SIZE/2 - SIZE
 	# x1 = baseX + SIZE/2 + SIZE
 	# y0 = baseY + SIZE/2 - SIZE
@@ -222,12 +222,14 @@ updateTrail = (baseX,baseY,dx,dy) ->
 	for [x,y] in points
 		xx = map x, x0,x1, W/2 - TILE, W/2 + TILE
 		yy = map y, y0,y1, H/2 - TILE, H/2 + TILE
-		if s == '' then s+="M" else s+="L"
+		#if s == '' then s+="M" else s+="L"
 #		s += "#{TILE/2+xx-dx},#{-TILE/2+H+dy-yy}"
-		s += "#{xx-dx},#{H+dy-yy}"
+		s.push "#{xx-dx},#{H+dy-yy}"
 		#console.log baseX,baseY,dx,dy, x0,x1,y0,y1, x,y,xx,yy
-	#console.log s
-	setAttrs trail, {d:s}
+	console.log s
+
+	#setAttrs trail, {d:s}
+	setAttrs trail, {points:s.join ' '}
 
 drawMap = ->
 	[baseX,baseY,dx,dy] = convert center
@@ -328,6 +330,25 @@ initGPS = ->
 		maximumAge: 30000
 		timeout: 27000
 
+initTrail = ->
+	# trail = add 'path', svg, {d:"", stroke:'blue', 'stroke-width':1, fill:'none'}
+	marker = add 'marker', svg, {id:'dot', viewBox:"0 0 10 10", refX:"5", refY:"5", markerWidth:"5", markerHeight:"5" }
+	add 'circle', marker, {cx:"5", cy:"5", r:"5", fill:"red"}
+	trail = add 'polyline', svg, 
+		points : "15,80 29,50 43,60 57,30 71,40 85,15"
+		fill : "none"
+		stroke : "black"
+		'marker-start' : "url(#dot)"
+		'marker-mid' : "url(#dot)"
+		'marker-end' : "url(#dot)"
+				# <!-- <marker id="dot" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5">
+				# 	<circle cx="5" cy="5" r="5" fill="red" />
+				# </marker>
+				# <polyline points="15,80 29,50 43,60 57,30 71,40 85,15" fill="none" stroke="black"
+				# 	marker-start="url(#dot)" marker-mid="url(#dot)" marker-end="url(#dot)" /> -->
+				# <!-- <circle cx=50 cy=50 r=30 stroke=black fill=red></circle>	 -->
+	console.log trail
+
 startup = ->
 	parameters = getParameters()
 	if parameters.path 
@@ -360,7 +381,7 @@ startup = ->
 		images.push irow
 		rects.push rrow
 
-	trail = add 'path', svg, {d:"", stroke:'blue', 'stroke-width':1, fill:'none'}
+	initTrail()
 
 	x0 = 0.36*W
 	x1 = 0.64*W
