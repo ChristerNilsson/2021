@@ -322,8 +322,8 @@ startup = ->
 		images.push irow
 		rects.push rrow
 
-	x0 = 0.38*W
-	x1 = 0.62*W
+	x0 = 0.36*W
+	x1 = 0.64*W
 	y0 = 120+10
 	y1 = H-180+10
 	y2 = H-120+10
