@@ -248,7 +248,7 @@ recEvent = ->
 	if rec == 1
 		data = ("#{x},#{y}" for [x,y] in points).join "|"
 		sendMail "Path:#{points.length}", "#{window.location}?path=#{data}"
-		points = []
+		#points = []
 	rec = 1 - rec
 	recButton.setColor ['#f000','#f008'][rec]
 
