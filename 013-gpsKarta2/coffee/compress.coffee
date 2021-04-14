@@ -51,7 +51,7 @@ ass [26,-26], decode 'Zz'
 
 encodeAll = (pairs) ->
 	[x,y] = pairs[0]
-	result = "#{x},#{y}|" 
+	result = "#{x},#{y}," 
 	for i in range 1,pairs.length
 		[x0,y0] = pairs[i-1]
 		[x1,y1] = pairs[i]
@@ -59,21 +59,21 @@ encodeAll = (pairs) ->
 		result += encode dx,dy
 	result
 
-expected = '1017,1373|aE0EAEbEbEcEdCcDbEeBcDaEaEcDdDeBfBdBeCe0e0cDbEeCeAeBeBeCeBbEcEdDcDfCbDaEbEbE0ECDDCDDAEbEbEaFdBbEcEBEaEebf0dbdCeAcDeAe0dccdfaeceacccdddceebdddccdddBedcfaeaeBe0fBe0eadcdcccdcebedccccebe0eAeAe0fadbebedcddcdcdccdcecddcdd0eAeBeAe0faeae'
+expected = '1017,1373,aE0EAEbEbEcEdCcDbEeBcDaEaEcDdDeBfBdBeCe0e0cDbEeCeAeBeBeCeBbEcEdDcDfCbDaEbEbE0ECDDCDDAEbEbEaFdBbEcEBEaEebf0dbdCeAcDeAe0dccdfaeceacccdddceebdddccdddBedcfaeaeBe0fBe0eadcdcccdcebedccccebe0eAeAe0fadbebedcddcdcdccdcecddcdd0eAeBeAe0faeae'
 ass expected, encodeAll pairs
-expected9244 = '1312,1472|aAa0aBbAA00aa00000a000000000000AA0000000000aa0AbAa0a0Aa0000A00A0000a00AAa00A0Aa0AA000000a0000a000000000000000000000000a0000000000a00000000000000000000A00aA0AaA00aA0AaA0A00aA0A0AaA0A0Aa00B0Aa00A00aAa000000Aa000000A00a0000000a0000000000acNfNeNeOeEbA000000A00aA0A0000A000a0000000000000A000000AA0a00A0a000a0000A0000A0a00a0000aA00a000a0000000000000a00A00000A0A0A000A0AaA000AaAa0aAaA00a00AaAa0aAaA00aA00aA00aA0A000Aa00B00000A0A000A000A0A000A0A000A0AaA000Aa00Aa00Aa00A00aA0000aA00aA0000aA00a00Aa000aA00a000a0a0a00Aa0000Aa00Ba00Aa00A0AaA000A0A000A0A000A000AAAa00A000A000A0Aa00A000AaA000Aa00A00aA000A000Aa00A00000Aa00A00aA0A00aA000A0A000A0A000A000A0A0A000A0A0A000A000B00aA0A0A0A0Aa00A000AaA00aA0Aa00AaA0000aAa00Aa0a00AaAa00AaAaAaA00aA0Aa00Aa00Aa00AaA00aAaA00aAa00AaA0AaA0Aa00Aa00AaA00a00Aa00Aa000aA00aAa00Aa0a0a000a0aA00a000bA00aAaAa00AaA00aA000Aa00AaA00a00Aa000a000a0aA00a000aa0000aaA0000a00A00aA00000000000000000A00000B000A000000000000000000000000AabeddcddeccdcdccebeaeddcdcdccdcccbeBEeAeadcdcdceae0f0dcdce0dDaeBfdbeAfAeAcdbebeceadae0eAfAd0eBeCeBe0fAf0eBeAebeddebeaeaeabeAeBdfcdadcdcAeCdAe0eddae0fbe0eaecdecdcecdcdbebeaeccdafAeAeAfAeAeae0eaebe0e0eBfAeAe0eaeAfDdDdCcDdCdCdDcFaEaF0EaEaE0EAEAEaEaEBDDCDDCEBDBEBECDCEAEbEaE0EcCeBeae0ebeaeDdCeadddecbecdcdcebdaeaeaf0daeafbfadceecdcebecdcebdcebebdbebe0eafae0eBeadddcebcdaecdcdcdcdecf0dadddcebe0eAeAe0ebeBDcEaEBEaEbCeaeCeEaDCE0EAE0E0AeEaDdBeCdDcDcDdEcDbDcAfAeBe0e0eAeAeDcAeddebe0eBcecdbebeceaecebdeb0faebeceeceafaeaebebfae0ddcecdecebebfAdBeAeaeaAe0edcebceCeAeAfbeaeecdcecebdddedbaefaece0eaf0d0ebecebeccdBecdddAeaececd0eAeBebecebdebecdcddaeAeaebe'
+expected9244 = '1312,1472,aAa0aBbAA00aa00000a000000000000AA0000000000aa0AbAa0a0Aa0000A00A0000a00AAa00A0Aa0AA000000a0000a000000000000000000000000a0000000000a00000000000000000000A00aA0AaA00aA0AaA0A00aA0A0AaA0A0Aa00B0Aa00A00aAa000000Aa000000A00a0000000a0000000000acNfNeNeOeEbA000000A00aA0A0000A000a0000000000000A000000AA0a00A0a000a0000A0000A0a00a0000aA00a000a0000000000000a00A00000A0A0A000A0AaA000AaAa0aAaA00a00AaAa0aAaA00aA00aA00aA0A000Aa00B00000A0A000A000A0A000A0A000A0AaA000Aa00Aa00Aa00A00aA0000aA00aA0000aA00a00Aa000aA00a000a0a0a00Aa0000Aa00Ba00Aa00A0AaA000A0A000A0A000A000AAAa00A000A000A0Aa00A000AaA000Aa00A00aA000A000Aa00A00000Aa00A00aA0A00aA000A0A000A0A000A000A0A0A000A0A0A000A000B00aA0A0A0A0Aa00A000AaA00aA0Aa00AaA0000aAa00Aa0a00AaAa00AaAaAaA00aA0Aa00Aa00Aa00AaA00aAaA00aAa00AaA0AaA0Aa00Aa00AaA00a00Aa00Aa000aA00aAa00Aa0a0a000a0aA00a000bA00aAaAa00AaA00aA000Aa00AaA00a00Aa000a000a0aA00a000aa0000aaA0000a00A00aA00000000000000000A00000B000A000000000000000000000000AabeddcddeccdcdccebeaeddcdcdccdcccbeBEeAeadcdcdceae0f0dcdce0dDaeBfdbeAfAeAcdbebeceadae0eAfAd0eBeCeBe0fAf0eBeAebeddebeaeaeabeAeBdfcdadcdcAeCdAe0eddae0fbe0eaecdecdcecdcdbebeaeccdafAeAeAfAeAeae0eaebe0e0eBfAeAe0eaeAfDdDdCcDdCdCdDcFaEaF0EaEaE0EAEAEaEaEBDDCDDCEBDBEBECDCEAEbEaE0EcCeBeae0ebeaeDdCeadddecbecdcdcebdaeaeaf0daeafbfadceecdcebecdcebdcebebdbebe0eafae0eBeadddcebcdaecdcdcdcdecf0dadddcebe0eAeAe0ebeBDcEaEBEaEbCeaeCeEaDCE0EAE0E0AeEaDdBeCdDcDcDdEcDbDcAfAeBe0e0eAeAeDcAeddebe0eBcecdbebeceaecebdeb0faebeceeceafaeaebebfae0ddcecdecebebfAdBeAeaeaAe0edcebceCeAeAfbeaeecdcecebdddedbaefaece0eaf0d0ebecebeccdBecdddAeaececd0eAeBebecebdebecdcddaeAeaebe'
 ass 1590,expected9244.length
 ass expected9244, encodeAll pairs9244
 
 decodeAll = (s) ->
 	result = []
-	arr = s.split '|'
-	pair = arr[0].split ','
-	x = parseInt pair[0]
-	y = parseInt pair[1]
+	[x,y,points] = s.split ','
+	#pair = arr[0].split ','
+	x = parseInt x
+	y = parseInt y
 	result.push [x,y]
-	for i in range 0,arr[1].length,2
-		xy = arr[1].slice i,i+2
+	for i in range 0,points.length,2
+		xy = points.slice i,i+2
 		[dx,dy] = decode xy
 		x += dx
 		y += dy
@@ -87,4 +87,4 @@ result9244 = [[1312,1472],[1311,1473],[1310,1473],[1309,1475],[1307,1476],[1308,
 ass 602, result9244.length
 ass result9244.pop(), decodeAll(expected9244).pop()
 
-ass [[0,0],[3,-8],[-15,-17],[-34,-37],[-39,-55]], decodeAll '0,0|Christer'
+ass [[0,0],[3,-8],[-15,-17],[-34,-37],[-39,-55]], decodeAll '0,0,Christer'

@@ -12,25 +12,10 @@ updateMode = 0 # 0=manual 1=gps
 points = []
 trail = null # M256,256 l100,100 l50,0
 
-range = _.range
-ass = (a,b=true) -> chai.assert.deepEqual a, b
-myRound = (x,dec=0) -> Math.round(x*10**dec)/10**dec
-
-map = (x, x0, x1, y0, y1) -> (x - x0) / (x1 - x0) * (y1 - y0) + y0
-ass 325,map 150,100,200,300,350
-ass 375,map 250,100,200,300,350
-
 sendMail = (subject,body) ->
 	mail.href = "mailto:janchrister.nilsson@gmail.com?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body)
 	mail.click()
 
-getParameters = (h = window.location.href) ->
-	h = decodeURI h
-	arr = h.split('?')
-	if arr.length != 2 then return {}
-	s = arr[1]
-	if s=='' then return {}
-	_.object(f.split '=' for f in s.split('&'))
 
 #merp = (y1,y2,i,x1=0,x2=1) -> map i,x1,x2,y1,y2
 # interpolate = (a, b, c, d, value) -> c + value/b * (d-c)
@@ -282,8 +267,15 @@ aimEvent = ->
 
 recEvent = ->
 	if rec == 1
-		data = ("#{x},#{y}" for [x,y] in points).join "|"
-		sendMail "Path:#{points.length}", "#{window.location}?path=#{data}"
+		#data = ("#{x},#{y}" for [x,y] in points).join "|"
+		#points = [[1234,5678],[1243,5687]]
+		if points.length > 0
+			data = encodeAll points
+
+			console.log window.location.origin + window.location.pathname
+			console.log data
+
+			sendMail "Path:#{points.length}", "#{window.location.origin + window.location.pathname}?path=#{data}"
 		#points = []
 	rec = 1 - rec
 	recButton.setColor ['#f000','#f008'][rec]
@@ -305,7 +297,7 @@ locationUpdate = (p) ->
 	#temp = (Math.round g for g in grid)
 	temp = (Math.round(g) for g in grid)
 	temp.reverse()
-	#points.push temp.slice()
+	points.push temp.slice()
 	if updateMode == 1 then center = temp
 	drawMap()
 
@@ -348,10 +340,10 @@ initTrail = ->
 startup = ->
 	parameters = getParameters()
 	if parameters.path 
-		points = (pair for pair in parameters.path.split '|')
-		points = (p.split ',' for p in points)
-		points = ([parseInt(p[0]),parseInt(p[1])] for p in points)
-		points.shift()
+		points = decodeAll parameters.path # = (pair for pair in parameters.path.split '|')
+		#points = (p.split ',' for p in arr)
+		#points = ([parseInt(p[0]),parseInt(p[1])] for p in points)
+		#points.shift()
 	console.log points
 	initGPS()
 	console.log W,H,nw,nh
