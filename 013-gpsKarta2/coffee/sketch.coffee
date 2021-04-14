@@ -16,7 +16,6 @@ sendMail = (subject,body) ->
 	mail.href = "mailto:janchrister.nilsson@gmail.com?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body)
 	mail.click()
 
-
 #merp = (y1,y2,i,x1=0,x2=1) -> map i,x1,x2,y1,y2
 # interpolate = (a, b, c, d, value) -> c + value/b * (d-c)
 # ass 16, interpolate 0,1024,0,256,64
@@ -31,6 +30,7 @@ svg = document.getElementById 'svgOne'
 
 #position = [59.09443087294174, 17.7142975294884] # 6553600,655360
 position = [59.265196, 18.132748] # Home (lat long)
+grid = []
 
 center = [] # skärmens mittpunkt (sweref). Påverkas av pan (x y) (6 7)
 target = [] # målkoordinater (sweref)
@@ -67,11 +67,12 @@ class Button
 	constructor : (x,y,prompt,event,color='#f000') ->
 		@r = 128
 		if prompt != ""
-			@text = add 'text',svg, {x:x, y:y+10, stroke:'black', 'stroke-width':1, 'text-anchor':'middle'}
+			@text = add 'text',svg, {x:x, y:y+10, stroke:'black', fill:'black', 'stroke-width':1, 'text-anchor':'middle'}
 			@text.textContent = prompt
 			@text.style.fontSize = '50px'
 		@circle = add 'circle',svg, {cx:x, cy:y, r:@r, fill:color, stroke:'black', 'stroke-width':1, ontouchstart:event, onclick:event} #, ontouchmove:'nada(evt)', ontouchend:'nada(evt)'}
 	setColor : (color) -> setAttrs @circle, {fill:color}
+	setTextFill : (color) -> setAttrs @text, {fill:color}
 
 class TargetButton extends Button
 	constructor : (x,y,event,color) ->
@@ -189,34 +190,23 @@ ass [655360,6553600,32,37], convert [655360+128,6553600+148],1024
 ass [655360,6553600,16,16], convert [655360+64,6553600+64],1024
 ass [655360,6553600,100,125], convert [655360+400,6553600+500],1024
 
-# baseX, baseY,  dx, dy, x0,    x1,    y0,     y1,     x,     y       xx   yy
-# 678400 6573568 155 212 678272 678784 6573440 6573952 679448 6574343 1880 1194.5
 updateTrail = (baseX,baseY,dx,dy) ->
-#	console.log 'updateTrail in',baseX,baseY,dx,dy
-	s = []
-	# x0 = baseX + SIZE/2 - SIZE
-	# x1 = baseX + SIZE/2 + SIZE
-	# y0 = baseY + SIZE/2 - SIZE
-	# y1 = baseY + SIZE/2 + SIZE
 	x0 = baseX - SIZE
 	x1 = baseX + SIZE
 	y0 = baseY - SIZE
 	y1 = baseY + SIZE
-#	console.log 'updateTrail out',x0,x1,y0,y1
 
+	s = '' # path
+	# s = [] # polyline
 	for [x,y] in points
 		xx = map x, x0,x1, W/2 - TILE, W/2 + TILE
 		yy = map y, y0,y1, H/2 - TILE, H/2 + TILE
-		#if s == '' then s+="M" else s+="L"
-#		s += "#{TILE/2+xx-dx},#{-TILE/2+H+dy-yy}"
-		s.push "#{Math.round xx-dx},#{Math.round H+dy-yy}"
-		#console.log baseX,baseY,dx,dy, x0,x1,y0,y1, x,y,xx,yy
-	#console.log s
-
-	#setAttrs trail, {d:s}
-	s = s.join ' '
+		if s == '' then s+="M" else s+="L"
+		s += "#{Math.round xx-dx},#{Math.round H+dy-yy}" # path
+		#s.push "#{Math.round xx-dx},#{Math.round H+dy-yy}" # polyline
+	setAttrs trail, {d:s} # path
+	#setAttrs trail, {points:s.join ' '} # polyline
 	console.log s
-	setAttrs trail, {points:s}
 
 drawMap = ->
 	[baseX,baseY,dx,dy] = convert center
@@ -231,22 +221,20 @@ drawMap = ->
 				setAttrs images[j+nh][i+nw], {href:href}
 			setAttrs images[j+nh][i+nw], {x:px, y:py}
 			setAttrs rects[j+nh][i+nw],  {x:px, y:py}
-	# texts[0].textContent = "C:#{center} T:#{target} D:#{distance(target,center)} B:#{bearing(target,center)}"
-	# texts[1].textContent = "Z:#{SIZE} B:#{[baseX,baseY]} DX:#{dx} DY:#{dy}"
 
 	updateTrail Math.round(baseX),Math.round(baseY),Math.round(dx),Math.round(dy)
 
-	if target.length==2
-		texts[0].textContent = "#{bearing(target,center)} º"
-		texts[1].textContent = "#{distance(target,center)} m"
+	texts[0].textContent = if target.length==2 then "#{bearing(target,center)} º" else ""
+	texts[1].textContent = if target.length==2 then "#{distance(target,center)} m" else ""
+
 	texts[2].textContent = "#{points.length}"
 	texts[3].textContent = "#{SIZE} #{updateMode}"
 	texts[4].textContent = "#{position[0]}"
 	texts[5].textContent = "#{position[1]}"
-	if points.length > 0
-		p = points[points.length-1]
-		texts[6].textContent = "#{Math.round p[0]}"
-		texts[7].textContent = "#{Math.round p[1]}"
+	#if points.length > 0
+	#	p = points[points.length-1]
+	texts[6].textContent = "#{Math.round grid[0]}"
+	texts[7].textContent = "#{Math.round grid[1]}"
 	targetButton.move()
 
 centrera = ->
@@ -265,20 +253,26 @@ aimEvent = ->
 		target = []
 		targetButton.moveHard INVISIBLE, INVISIBLE
 
+calcDist = (points) ->
+	res = 0
+	for i in range 1,points.length
+		[x0,y0] = points[i-1]
+		[x1,y1] = points[i]
+		dx = x0-x1
+		dy = y0-y1
+		res += Math.sqrt dx*dx+dy*dy
+	res
+
 recEvent = ->
 	if rec == 1
-		#data = ("#{x},#{y}" for [x,y] in points).join "|"
-		#points = [[1234,5678],[1243,5687]]
 		if points.length > 0
-			data = encodeAll points
-
-			console.log window.location.origin + window.location.pathname
-			console.log data
-
-			sendMail "Path:#{points.length}", "#{window.location.origin + window.location.pathname}?path=#{data}"
-		#points = []
+			header = "#{points.length} points. #{calcDist points} meter."
+			sendMail header, "#{window.location.origin + window.location.pathname}?path=#{encodeAll points}"
+	else
+		points = []
 	rec = 1 - rec
-	recButton.setColor ['#f000','#f008'][rec]
+	recButton.setTextFill ['#000f','#f00f'][rec]
+	texts[2].textContent = "#{points.length}"
 
 makeText = (x,y) ->
 	text = add 'text',svg, {x:x, y:y, stroke:'black', 'stroke-width':1, 'text-anchor':'middle'}
@@ -294,29 +288,11 @@ locationUpdateFail = (error) ->	if error.code == error.PERMISSION_DENIED then me
 locationUpdate = (p) ->
 	position = [myRound(p.coords.latitude,6), myRound(p.coords.longitude,6)]
 	grid = geodetic_to_grid position[0],position[1]
-	#temp = (Math.round g for g in grid)
 	temp = (Math.round(g) for g in grid)
 	temp.reverse()
-	points.push temp.slice()
+	if rec == 1 then points.push temp.slice()
 	if updateMode == 1 then center = temp
 	drawMap()
-
-	# pLat = myRound p.coords.latitude,6
-	# pLon = myRound p.coords.longitude,6
-	# if storage.trail.length == 0
-	# 	gpsLat = pLat
-	# 	gpsLon = pLon
-	# messages[5] = gpsCount++
-	# decreaseQueue()
-	# increaseQueue p # meters
-	# uppdatera pLat, pLon
-
-# uppdatera = (pLat, pLon) ->
-# 	dump.store ""
-# 	dump.store "LU #{pLat} #{pLon}"
-# 	[x,y] = w2b.convert pLon,pLat
-# 	updateTrack pLat, pLon, x,y
-# 	updateTrail pLat, pLon, x,y
 
 initGPS = ->
 	navigator.geolocation.watchPosition locationUpdate, locationUpdateFail,
@@ -325,34 +301,18 @@ initGPS = ->
 		timeout: 27000
 
 initTrail = ->
-	# trail = add 'path', svg, {d:"", stroke:'blue', 'stroke-width':1, fill:'none'}
-	marker = add 'marker', svg, {id:'dot', viewBox:"0 0 10 10", refX:"5", refY:"5", markerWidth:"5", markerHeight:"5" }
-	add 'circle', marker, {cx:"5", cy:"5", r:"5", fill:"red"}
-	trail = add 'polyline', svg, 
-		points : "15,80 29,50 43,60 57,30 71,40 85,15"
-		fill : "none"
-		stroke : "black"
-		'marker-start' : "url(#dot)"
-		'marker-mid' : "url(#dot)"
-		'marker-end' : "url(#dot)"
-	# console.log trail
+	trail = add 'path', svg, {d:"", stroke:'red', 'stroke-width':1, fill:'none'}
+	# marker = add 'marker', svg, {id:'dot', viewBox:"0 0 10 10", refX:"5", refY:"5", markerWidth:"5", markerHeight:"5" }
+	# add 'circle', marker, {cx:"5", cy:"5", r:"5", fill:"yellow"}
+	# trail = add 'polyline', svg, {points : "",fill : "none",stroke : "red",'stroke-width':3,'marker-start' : "url(#dot)",'marker-mid' : "url(#dot)",'marker-end' : "url(#dot)"}
 
 startup = ->
 	parameters = getParameters()
-	if parameters.path 
-		points = decodeAll parameters.path # = (pair for pair in parameters.path.split '|')
-		#points = (p.split ',' for p in arr)
-		#points = ([parseInt(p[0]),parseInt(p[1])] for p in points)
-		#points.shift()
-	console.log points
+	if parameters.path then points = decodeAll parameters.path
 	initGPS()
-	console.log W,H,nw,nh
 	add 'rect',svg,{width:W, height:H, fill:'green'}
 
-	#position = (myRound p,6 for p in position)
-
 	grid = geodetic_to_grid position[0],position[1]
-	#center = (Math.round g for g in grid)
 	center = (g for g in grid)
 	center.reverse()
 
