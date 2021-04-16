@@ -108,6 +108,7 @@ class Path
 		@path = encodeAll @points
 		@hash = @hashCode @path
 		@box = @calcBox()
+		@distance = @calcDist()
 		for box in boxes
 			if box[0] == @hash then found = true
 		if not found
