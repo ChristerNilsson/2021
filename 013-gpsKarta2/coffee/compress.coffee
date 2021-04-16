@@ -44,12 +44,12 @@ ass [26,-26], decode 'Zz'
 
 encodeAll = (pairs) ->
 	[x,y] = pairs[0]
-	result = "#{x},#{y}," 
+	result = "#{x},#{y},"
 	for i in range 1,pairs.length
 		[x0,y0] = pairs[i-1]
 		[x1,y1] = pairs[i]
 		[dx,dy] = [x1-x0, y1-y0]
-		result += encode dx,dy
+		if dx != 0 or dy != 0 then result += encode dx,dy # removes [0,0]
 	result
 ass '1017,1373,aE0E', encodeAll [[1017,1373],[1016,1378],[1016,1383]]
 ass '1017,1373,', encodeAll [[1017,1373]]

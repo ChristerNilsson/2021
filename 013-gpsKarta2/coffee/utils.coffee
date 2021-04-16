@@ -6,7 +6,8 @@ map = (x, x0, x1, y0, y1) -> (x - x0) / (x1 - x0) * (y1 - y0) + y0
 ass 325,map 150,100,200,300,350
 ass 375,map 250,100,200,300,350
 
-degrees = (radians) -> radians * 180 / Math.PI
+degrees = (x) -> x * 180 / Math.PI
+radians = (x) -> x * Math.PI / 180
 
 #merp = (y1,y2,i,x1=0,x2=1) -> map i,x1,x2,y1,y2
 # interpolate = (a, b, c, d, value) -> c + value/b * (d-c)

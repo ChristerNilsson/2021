@@ -40,7 +40,7 @@ rects = []
 texts = []
 buttons = {}
 
-rec = 0
+record = 0
 
 distance = (p,q) ->
 	if p.length != 2 or q.length != 2 then return 0
@@ -104,7 +104,6 @@ class Path
 	save : ->
 		if @points.length == 0 then return
 		found = false
-		console.log 'save',@points,@path,@hash,@box
 		@path = encodeAll @points
 		@hash = @hashCode @path
 		@box = @calcBox()
@@ -112,6 +111,7 @@ class Path
 		for box in boxes
 			if box[0] == @hash then found = true
 		if not found
+			console.log 'save',@points,@path,@hash,@box,@distance
 			boxes.push [@hash,@box]
 			localStorage['boxes'] = JSON.stringify boxes
 			localStorage[@hash] = @path
@@ -128,19 +128,22 @@ class Path
 class Button 
 	constructor : (@x,@y,@prompt,event,color='#f000') ->
 		@r = 128
+		@circle0 = add 'circle',svg, {cx:@x, cy:@y, r:@r, fill:'none', stroke:'black', 'stroke-width':1}
 		if @prompt != ""
 			@text = add 'text',svg, {x:@x, y:@y+10, stroke:'black', fill:'black', 'stroke-width':1, 'text-anchor':'middle'}
 			@text.textContent = @prompt
 			@text.style.fontSize = '50px'
 			@text.style.userSelect = 'none'
-		@circle = add 'circle',svg, {cx:@x, cy:@y, r:@r, fill:color, stroke:'black', 'stroke-width':1, ontouchstart:event, onclick:event} #, ontouchmove:'nada(evt)', ontouchend:'nada(evt)'}
-	setColor : (color) -> setAttrs @circle, {fill:color}
+		@circle1 = add 'circle',svg, {cx:@x, cy:@y, r:@r, fill:color, stroke:'black', 'stroke-width':1, ontouchstart:event, onclick:event}
+	setColor : (color) -> setAttrs @circle1, {fill:color}
 	setTextFill : (color) -> setAttrs @text, {fill:color}
 	enable : -> 
-		setAttrs @circle, {cx:@x}
+		setAttrs @circle0, {cx:@x}
+		setAttrs @circle1, {cx:@x}
 		if @prompt!='' then setAttrs @text, {x:@x}
 	disable : -> 
-		setAttrs @circle, {cx:INVISIBLE}
+		setAttrs @circle0, {cx:INVISIBLE}
+		setAttrs @circle1, {cx:INVISIBLE}
 		if @prompt!='' then setAttrs @text, {x:INVISIBLE}
 
 class TargetButton extends Button
@@ -159,7 +162,7 @@ class TargetButton extends Button
 		@moveHard x,y
 
 	moveHard : (x,y) ->
-		setAttrs @circle, {cx:x, cy:y}
+		setAttrs @circle1, {cx:x, cy:y}
 		setAttrs @vline, {x1:x-@r, y1:y, x2:x+@r, y2:y}
 		setAttrs @hline, {x1:x, y1:y-@r, x2:x, y2:y+@r}
 
@@ -173,7 +176,7 @@ click = (s) ->
 	event.preventDefault()
 	if s=='in'  and SIZE > 64 then SIZE //= 2
 	if s=='out' and SIZE < 65536 then SIZE *= 2
-	if s=='ctr' then centrera()
+	if s=='center' then centrera()
 	if s=='aim' then aimEvent()
 	event.stopPropagation()
 	drawMap()
@@ -291,8 +294,8 @@ drawMap = ->
 		texts[1].textContent = if target.length==2 then "#{Math.round distance target,center} m" else ""
 
 		if currentPath
-			if rec == 0 then texts[2].textContent = "#{currentPath.points.length}"
-			if rec == 1 then texts[2].textContent = "Record #{currentPath.points.length}"
+			if record == 0 then texts[2].textContent = "#{currentPath.points.length}"
+			if record == 1 then texts[2].textContent = "Record #{currentPath.points.length}"
 		else
 			texts[2].textContent = "Boxes: #{boxes.length}"
 
@@ -357,18 +360,38 @@ deletePath = -> # tag bort current Path från localStorage
 	currentPath.delete()
 	more()
 
-recPath = -> # start/stopp av inspelning av path
-	rec = 1 - rec
-	if rec == 1 then currentPath = new Path ""
-	if rec == 0 then currentPath.save()
-	buttons.rec.setTextFill ['#000f','#f00f'][rec]
+recordPath = -> # start/stopp av inspelning av path
+	record = 1 - record
+	if record == 1 then currentPath = new Path ""
+	if record == 0 then currentPath.save()
+	buttons.record.setTextFill ['#000f','#f00f'][record]
 	texts[2].textContent = "#{currentPath.points.length}"
 	more()
 
 sharePath = ->
-	if currentPath.points.length > 0
+	header = ''
+	body = ''
+	if currentPath and currentPath.points.length > 0
 		header = "#{currentPath.points.length} points. #{currentPath.distance} meter."
-		sendMail header, "#{window.location.origin + window.location.pathname}?path=#{currentPath.path}"
+		body += "#{window.location.origin + window.location.pathname}?path=#{currentPath.path}"
+
+	body += "\n"
+	for box,i in boxes
+		[hash,[[xmin,ymin],[xmax,ymax]]] = box
+		body += "Box #{i+1}: xmin=#{xmin} ymin=#{ymin} xmax=#{xmax} ymax=#{ymax} hash=#{hash}\n"
+
+	#body += "\n"
+	total = 0
+	for i in range localStorage.length
+		key = localStorage.key i
+		if key=='boxes' then continue
+		bytes = localStorage[key].length
+		body += "\nLocalStorage #{key} (#{bytes} bytes)\n"
+		body += "#{localStorage[key]}\n"
+		total += bytes
+	body += "\nSize in bytes: #{total}\n"
+
+	sendMail header, body
 	more()
 
 #####
@@ -390,7 +413,7 @@ locationUpdate = (p) ->
 	grid = geodetic_to_grid position[0],position[1]
 	temp = (Math.round(g) for g in grid)
 	temp.reverse()
-	if rec == 1 then currentPath.points.push temp.slice()
+	if record == 1 then currentPath.points.push temp.slice()
 	if updateMode == 1 then center = temp
 	drawMap()
 
@@ -410,7 +433,8 @@ initTrail = ->
 
 more = () ->
 	moreMode = 1 - moreMode
-	for name in "fetch rec mark play clear delete share".split ' '
+	names = "fetch record mark play clear delete share"
+	for name in names.split ' '
 		if moreMode == 0 then buttons[name].disable()
 		if moreMode == 1 then buttons[name].enable()
 
@@ -460,28 +484,25 @@ startup = ->
 	y3 = H-128
 
 	buttons.target = new TargetButton INVISIBLE, INVISIBLE, '', '#f008'
-	buttons.aim = new TargetButton W/2, H/2, "click('aim')"
+	new TargetButton W/2, H/2, "click('aim')"
 	new Button x0, y0, 'in',  "click('in')"
 	new Button x2, y0, 'out', "click('out')"
-	new Button x0, y3, 'ctr', "click('ctr')"
-	buttons.more = new Button x2, y3, 'more', "more()"
-	buttons.rec = new Button x0, y1, 'rec', "recPath()"
-	buttons.mark = new Button x2, y1, 'mark', "mark()"
-	buttons.fetch = new Button x1, y0, 'fetch', "fetchPath()"
-	buttons.play = new Button x0, y2, 'play', "playPath()"
-	buttons.share = new Button x1, y3, 'share', "sharePath()"
-	buttons.clear = new Button x2-256, y2, 'clear', "clearPath()"
-	buttons.delete = new Button x2, y2, 'delete', "deletePath()"
+	new Button x0, y3, 'center', "click('center')"
+	new Button x2, y3, 'more', "more()"
 
-	# console.log grid_to_geodetic 6553600+128,655360+128
-	# console.log grid_to_geodetic 6553600+78*256,655360+88*256
-	# console.log grid_to_geodetic 6553600+(78+16)*256,655360+(88+16)*256
-	#console.log geodetic_to_grid 59.263331493465394, 18.122142177751353
+	x = (W/2 + 400 * Math.cos radians i for i in range 0,360,60)
+	y = (H/2 + 400 * Math.sin radians i for i in range 0,360,60)
 
+	buttons.fetch  = new Button W/2,  H/2,  'fetch', "fetchPath()", '#ff04'
+	buttons.mark   = new Button x[0], y[0], 'mark', "mark()", '#ff04'
+	buttons.delete = new Button x[1], y[1], 'delete', "deletePath()", '#ff04'
+	buttons.clear  = new Button x[2], y[2], 'clear', "clearPath()", '#ff04'
+	buttons.record = new Button x[3], y[3], 'record', "recordPath()", '#ff04'
+	buttons.play   = new Button x[4], y[4], 'play', "playPath()", '#ff04'
+	buttons.share  = new Button x[5], y[5], 'share', "sharePath()", '#ff04'
+	
 	initTrail()
-
 	more()
-
 	drawMap()
 
 startup()
