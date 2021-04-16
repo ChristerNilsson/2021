@@ -58,15 +58,22 @@ bearing = (p,q) ->
 class Path
 	constructor : (@path) ->
 		console.log 'Path',@path
-		@points = decodeAll @path
-		console.log 'points',@points
-		@hash = @hashCode @path
-		console.log 'hash',@hash
-		@distance = @calcDist() # in meters
-		console.log 'distance',@distance
-		@count = @points.length
-		@box = @calcBox()
-		console.log 'box',@box
+		if @path == ""
+			@points = []
+			@hash = 0
+			@distance = 0
+			@count = 0
+			@box = null
+		else
+			@points = decodeAll @path
+			console.log 'points',@points
+			@hash = @hashCode @path
+			console.log 'hash',@hash
+			@distance = @calcDist() # in meters
+			console.log 'distance',@distance
+			@count = @points.length
+			@box = @calcBox()
+			console.log 'box',@box
 
 	calcDist : ->
 		res = 0
@@ -95,13 +102,15 @@ class Path
 		hash
 
 	save : ->
-		found = false 
+		if @points.length == 0 then return
+		found = false
+		console.log 'save',@points,@path,@hash,@box
+		@path = encodeAll @points
+		@hash = @hashCode @path
+		@box = @calcBox()
 		for box in boxes
 			if box[0] == @hash then found = true
 		if not found
-			@path = encodeAll @points
-			@hash = @hashCode @path
-			@box = @calcBox()
 			boxes.push [@hash,@box]
 			localStorage['boxes'] = JSON.stringify boxes
 			localStorage[@hash] = @path
@@ -280,7 +289,12 @@ drawMap = ->
 		texts[0].textContent = if target.length==2 then "#{bearing target,center} º" else ""
 		texts[1].textContent = if target.length==2 then "#{Math.round distance target,center} m" else ""
 
-		if currentPath then texts[2].textContent = "#{currentPath.points.length}"
+		if currentPath
+			if rec == 0 then texts[2].textContent = "#{currentPath.points.length}"
+			if rec == 1 then texts[2].textContent = "Record #{currentPath.points.length}"
+		else
+			texts[2].textContent = "Boxes: #{boxes.length}"
+
 		texts[3].textContent = "#{SIZE} #{updateMode}"
 		texts[4].textContent = "#{position[0]}"
 		texts[5].textContent = "#{position[1]}"
@@ -351,9 +365,9 @@ recPath = -> # start/stopp av inspelning av path
 	more()
 
 sharePath = ->
-	if currentPath.points.length == 0 then return
-	header = "#{currentPath.points.length} points. #{currentPath.distance} meter."
-	sendMail header, "#{window.location.origin + window.location.pathname}?path=#{currentPath.path}"
+	if currentPath.points.length > 0
+		header = "#{currentPath.points.length} points. #{currentPath.distance} meter."
+		sendMail header, "#{window.location.origin + window.location.pathname}?path=#{currentPath.path}"
 	more()
 
 #####

@@ -52,6 +52,7 @@ encodeAll = (pairs) ->
 		result += encode dx,dy
 	result
 ass '1017,1373,aE0E', encodeAll [[1017,1373],[1016,1378],[1016,1383]]
+ass '1017,1373,', encodeAll [[1017,1373]]
 
 decodeAll = (s) ->
 	result = []
