@@ -97,29 +97,20 @@ class Path
 	save : ->
 		found = false 
 		for box in boxes
-			# console.log box
 			if box[0] == @hash then found = true
 		if not found
-			console.log 'save'
 			boxes.push [@hash,@box]
 			localStorage['boxes'] = JSON.stringify boxes
 			localStorage[@hash] = @path
-			console.log localStorage
-		# json = JSON.stringify [@path,@crc,]
-		# console.log json
-		#localStorage['paths'] = json
 	
 	delete : ->
 		localStorage.removeItem @hash
 		for i in range boxes.length
 			box = boxes[i]
-			console.log box
 			if box[0] == @hash
-				console.log 'splice'
 				boxes.splice i,1
 				currentPath = null
 				localStorage['boxes'] = JSON.stringify boxes
-				console.log 'delete',localStorage
 
 class Button 
 	constructor : (@x,@y,@prompt,event,color='#f000') ->
@@ -185,8 +176,6 @@ mousemove = (event) ->
 	dx = event.movementX
 	dy = event.movementY
 	mouse = [dx,dy]
-	# center[0] -= Math.round dx * factor
-	# center[1] += Math.round dy * factor
 	center[0] -= dx * factor
 	center[1] += dy * factor
 	updateMode = 0
@@ -217,8 +206,6 @@ touchmove = (event) ->
 	dx = touch.clientX - mouse[0]
 	dy = touch.clientY - mouse[1]
 	mouse = [touch.clientX,touch.clientY]
-	# center[0] -= Math.round dx * factor
-	# center[1] += Math.round dy * factor
 	center[0] -= dx * factor
 	center[1] += dy * factor
 	updateMode = 0
@@ -237,8 +224,6 @@ convert = ([x,y],size=SIZE) -> # sweref punkt
 	dy = y % size
 	x -= dx       # beräkna rutans SW hörn x,y (sweref)
 	y -= dy
-	# dx = Math.round map dx, 0,size, 0,TILE # map n,start1,stop1,start2,stop2
-	# dy = Math.round map dy, 0,size, 0,TILE
 	dx = map dx, 0,size, 0,TILE # map n,start1,stop1,start2,stop2
 	dy = map dy, 0,size, 0,TILE
 	[x,y, dx,dy]
@@ -296,8 +281,6 @@ drawMap = ->
 		texts[3].textContent = "#{SIZE} #{updateMode}"
 		texts[4].textContent = "#{position[0]}"
 		texts[5].textContent = "#{position[1]}"
-		#if points.length > 0
-		#	p = points[points.length-1]
 		texts[6].textContent = "#{Math.round center[0]}"
 		texts[7].textContent = "#{Math.round center[1]}"
 		
@@ -306,7 +289,6 @@ drawMap = ->
 centrera = ->
 	updateMode = 1
 	grid = geodetic_to_grid position[0],position[1]
-	#center = (Math.round g for g in grid)
 	center = (g for g in grid)
 	center.reverse()
 	drawMap()
@@ -322,16 +304,11 @@ aimEvent = ->
 #####
 
 loadPath = -> # url -> localStorage
-	if localStorage.boxes
-		boxes = JSON.parse localStorage.boxes
-	else
-		boxes = []
-	console.log 'boxes',boxes
+	boxes = if localStorage.boxes then JSON.parse localStorage.boxes else []
 	parameters = getParameters()
 	if not parameters.path then return
 	currentPath = new Path parameters.path
 	currentPath.save()
-	#deletePath()
 
 clearPath = ->
 	currentPath = null
@@ -342,7 +319,6 @@ fetchPath = -> # visa alla synliga paths. Närmaste gulmarkeras, övriga gråmar
 	bestDist = 9999999
 	besti = -1
 	for [key,[[x0,y0],[x1,y1]]],i in boxes
-		console.log key,x0,y0,x1,y1,i
 		for p in [[x0,y0],[x0,y1],[x1,y0],[x1,y1]]
 			d = distance p,center
 			if d < bestDist
@@ -357,7 +333,6 @@ fetchPath = -> # visa alla synliga paths. Närmaste gulmarkeras, övriga gråmar
 mark = -> # Spara center i localStorage
 	temp = new Path "#{Math.round center[0]},#{Math.round center[1]}"
 	temp.save()
-	console.log localStorage
 	more()
 
 deletePath = -> # tag bort current Path från localStorage
@@ -365,14 +340,14 @@ deletePath = -> # tag bort current Path från localStorage
 	more()
 
 recPath = -> # start/stopp av inspelning av path
-	currentPath = new Path ""
 	rec = 1 - rec
+	if rec == 1 then currentPath = new Path ""
+	if rec == 0 then currentPath.save()
 	buttons.rec.setTextFill ['#000f','#f00f'][rec]
-	#texts[2].textContent = "#{points.length}"
+	texts[2].textContent = "#{currentPath.points.length}"
 	more()
 
 sharePath = ->
-	console.log 'sharePath',currentPath.points.length
 	if currentPath.points.length == 0 then return
 	header = "#{currentPath.points.length} points. #{currentPath.distance} meter."
 	sendMail header, "#{window.location.origin + window.location.pathname}?path=#{currentPath.path}"
@@ -397,7 +372,6 @@ locationUpdate = (p) ->
 	grid = geodetic_to_grid position[0],position[1]
 	temp = (Math.round(g) for g in grid)
 	temp.reverse()
-	console.log 'rec',rec
 	if rec == 1 then currentPath.points.push temp.slice()
 	if updateMode == 1 then center = temp
 	drawMap()
@@ -417,7 +391,6 @@ initTrail = ->
 		trail = add 'polyline', svg, {points : "",fill : "none",stroke : "red",'stroke-width':1,'marker-start' : "url(#dot)",'marker-mid' : "url(#dot)",'marker-end' : "url(#dot)"}
 
 more = () ->
-	console.log 'more',moreMode
 	moreMode = 1 - moreMode
 	for name in "fetch rec mark play clear delete share".split ' '
 		if moreMode == 0 then buttons[name].disable()
