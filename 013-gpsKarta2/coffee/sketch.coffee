@@ -99,6 +99,9 @@ class Path
 		for box in boxes
 			if box[0] == @hash then found = true
 		if not found
+			@path = encodeAll @points
+			@hash = @hashCode @path
+			@box = @calcBox()
 			boxes.push [@hash,@box]
 			localStorage['boxes'] = JSON.stringify boxes
 			localStorage[@hash] = @path
