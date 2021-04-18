@@ -423,13 +423,36 @@ initGPS = ->
 		maximumAge: 30000
 		timeout: 27000
 
+makeMarker = (name,n) ->
+	result = add 'marker', svg, 
+		id : name
+		viewBox : "0 0 #{2*n+1} #{2*n+1}"
+		refX : n
+		refY : n
+		markerWidth : n
+		markerHeight : n
+	add 'circle', result,
+		cx : n
+		cy : n
+		r : n
+		fill : 'yellow'
+		stroke : 'black'
+	result
+
 initTrail = ->
 	if false
 		trail = add 'path', svg, {d:"", stroke:'red', 'stroke-width':1, fill:'none'}
 	else
-		marker = add 'marker', svg, {id:'dot', viewBox:"0 0 10 10", refX:"5", refY:"5", markerWidth:"5", markerHeight:"5" }
-		add 'circle', marker, {cx:"5", cy:"5", r:"5", fill:"yellow"}
-		trail = add 'polyline', svg, {points : "",fill : "none",stroke : "red",'stroke-width':1,'marker-start' : "url(#dot)",'marker-mid' : "url(#dot)",'marker-end' : "url(#dot)"}
+		makeMarker 'smalldot', 2
+		makeMarker 'bigdot', 8
+		trail = add 'polyline', svg, 
+			points : ''
+			fill : 'none'
+			stroke : 'red'
+			'stroke-width' : 2
+			'marker-start' : "url(#bigdot)"
+			'marker-mid' : "url(#smalldot)"
+			'marker-end' : "url(#bigdot)"
 
 more = () ->
 	moreMode = 1 - moreMode
