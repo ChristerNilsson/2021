@@ -252,7 +252,7 @@ recordPath = -> # start/stopp av inspelning av path
 sharePath = ->
 	header = ''
 	body = ''
-	body += messages.join "\n"
+	if messages then body += messages.join "\n"
 	body += "\n"
 
 	if currentPath and currentPath.points.length > 0
@@ -277,7 +277,7 @@ sharePath = ->
 	body += "\nSize in bytes: #{total}\n"
 
 	sendMail header, body
-	messages = []
+	messages.length = 0
 	more()
 
 #####
