@@ -1,5 +1,3 @@
-#n = points.length
-
 curr = 0
 lastword = ''
 speaker = null
@@ -9,7 +7,7 @@ voices = null
 window.speechSynthesis.onvoiceschanged = -> voices = window.speechSynthesis.getVoices()
 
 initSpeaker = ->
-	index = 5 #int getParameters().speaker || 5
+	index = 5
 	speaker = new SpeechSynthesisUtterance()
 	speaker.voiceURI = "native"
 	speaker.volume = 1

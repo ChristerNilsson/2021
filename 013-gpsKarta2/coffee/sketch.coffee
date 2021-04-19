@@ -228,8 +228,8 @@ fetchPath = -> # visa alla synliga paths. Närmaste gulmarkeras, övriga gråmar
 	drawMap()
 
 mark = -> # Spara center i localStorage
-	#temp = new Path "#{Math.round center[0]},#{Math.round center[1]}"
-	#temp.save()
+	temp = new Path "#{Math.round center[0]},#{Math.round center[1]}"
+	temp.save()
 	sayHint [678725-200,6573344]
 	more()
 
