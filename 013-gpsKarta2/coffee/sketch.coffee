@@ -228,8 +228,9 @@ fetchPath = -> # visa alla synliga paths. Närmaste gulmarkeras, övriga gråmar
 	drawMap()
 
 mark = -> # Spara center i localStorage
-	temp = new Path "#{Math.round center[0]},#{Math.round center[1]}"
-	temp.save()
+	#temp = new Path "#{Math.round center[0]},#{Math.round center[1]}"
+	#temp.save()
+	sayHint [678725,6573344]
 	more()
 
 playPath = ->
@@ -266,9 +267,10 @@ sharePath = ->
 		key = localStorage.key i
 		if key=='boxes' then continue
 		bytes = localStorage[key].length
-		body += "\nLocalStorage #{key} (#{bytes} bytes)\n"
-		body += "#{localStorage[key]}\n"
-		total += bytes
+		if bytes < 200
+			body += "\nLocalStorage #{key} (#{bytes} bytes)\n"
+			body += "#{localStorage[key]}\n"
+			total += bytes
 	body += "\nSize in bytes: #{total}\n"
 
 	body += messages.join "\n"
