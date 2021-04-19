@@ -10,6 +10,8 @@ nh = H//TILE
 
 updateMode = 0 # 0=manual 1=gps
 moreMode = 1
+playMode = 0
+record = 0
 
 boxes = []
 currentPath = null
@@ -39,8 +41,6 @@ images = []
 rects = []
 texts = []
 buttons = {}
-
-record = 0
 
 add = (type,parent,attrs) ->
 	obj = document.createElementNS svgurl, type
