@@ -230,7 +230,7 @@ fetchPath = -> # visa alla synliga paths. Närmaste gulmarkeras, övriga gråmar
 mark = -> # Spara center i localStorage
 	temp = new Path "#{Math.round center[0]},#{Math.round center[1]}"
 	temp.save()
-	sayHint [678725-200,6573344]
+	#sayHint [678725-200,6573344]
 	more()
 
 playPath = ->
@@ -299,10 +299,12 @@ locationUpdate = (p) ->
 	grid = geodetic_to_grid position[0],position[1]
 	temp = (Math.round(g) for g in grid)
 	temp.reverse()
+	gpsPoints.push temp.slice()
+	if gpsPoints.length > 10 then gpsPoints.shift()
 	messages.push "locationUpdate #{temp} #{record} #{updateMode} #{playMode}"
 	if record == 1 then currentPath.points.push temp.slice()
 	if updateMode == 1 then center = temp
-	if playMode == 1 then sayHint temp
+	if playMode == 1 then sayHint gpsPoints
 	drawMap()
 
 initGPS = ->

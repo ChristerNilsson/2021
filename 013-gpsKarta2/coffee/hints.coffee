@@ -39,7 +39,7 @@ say = (m) ->
 
 sayHint = (gpsPoints) ->
 	N = 5
-	if not currentPath then return
+	if not currentPath or gpsPoints.length == 0 then return
 	points = currentPath.points
 	last = gpsPoints.length-1
 	gps = gpsPoints[last]
@@ -50,6 +50,7 @@ sayHint = (gpsPoints) ->
 		word = 'Track is gone'
 		diff = 'nix'
 	else
+		if gpsPoints.length < N then return 
 		b0 = bearing gpsPoints[last],gpsPoints[last-N]
 		b1 = bearing points[curr+2*N],points[curr+N]
 		diff = b1-b0
