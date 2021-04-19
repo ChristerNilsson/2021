@@ -230,7 +230,6 @@ fetchPath = -> # visa alla synliga paths. Närmaste gulmarkeras, övriga gråmar
 mark = -> # Spara center i localStorage
 	temp = new Path "#{Math.round center[0]},#{Math.round center[1]}"
 	temp.save()
-	#sayHint [678725-200,6573344]
 	more()
 
 playPath = ->
@@ -264,7 +263,6 @@ sharePath = ->
 		[hash,[[xmin,ymin],[xmax,ymax]]] = box
 		body += "Box #{i+1}: xmin=#{xmin} ymin=#{ymin} xmax=#{xmax} ymax=#{ymax} hash=#{hash}\n"
 
-	#body += "\n"
 	total = 0
 	for i in range localStorage.length
 		key = localStorage.key i
@@ -301,7 +299,7 @@ locationUpdate = (p) ->
 	temp.reverse()
 	gpsPoints.push temp.slice()
 	if gpsPoints.length > 10 then gpsPoints.shift()
-	messages.push "locationUpdate #{temp} #{record} #{updateMode} #{playMode}"
+	#messages.push "locationUpdate #{temp} #{record} #{updateMode} #{playMode}"
 	if record == 1 then currentPath.points.push temp.slice()
 	if updateMode == 1 then center = temp
 	if playMode == 1 then sayHint gpsPoints

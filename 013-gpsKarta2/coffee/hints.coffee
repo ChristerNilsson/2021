@@ -47,7 +47,7 @@ sayHint = (gpsPoints) ->
 	messages.push "sayHint #{curr} #{dist} #{gps}"
 
 	if dist > 20 # meters
-		word = 'Track is gone'
+		word = 'No Track'
 		diff = 'nix'
 	else
 		if gpsPoints.length < N then return 
@@ -55,13 +55,20 @@ sayHint = (gpsPoints) ->
 		b1 = bearing points[curr+2*N],points[curr+N]
 		diff = b1-b0
 
-		word = ''
-		if diff < -45 then word = 'sharp left'
-		else if diff < -22 then word = 'left'
-		else if diff > 45 then word = 'sharp right'
-		else if diff > 22 then word = 'right'
+		if diff < -180 then diff += 360
+		if diff > 180 then diff -= 360
+		ass -180 <= diff <= 180
 
-	if lastword != word
+		word = ''
+		if diff < -60 then word = 'sharp left'
+		else if diff < -30 then word = 'left'
+		else if diff > 60 then word = 'sharp right'
+		else if diff > 30 then word = 'right'
+
+		if lastword == 'sharp left' and word='left' then word=''
+		if lastword == 'sharp right' and word='right' then word=''
+
+	if lastword != word and word != ''
 		messages.push "sayHint #{curr} of #{points.length} points:#{points[curr]}\n word:#{word}\n diff:#{diff} dist:#{dist}"
 		say word
 	lastword = word
