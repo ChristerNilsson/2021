@@ -253,7 +253,7 @@ sharePath = ->
 	header = ''
 	body = ''
 	if messages then body += messages.join "\n"
-	body += "\n"
+	body += "\n\n"
 
 	if currentPath and currentPath.points.length > 0
 		header = "#{currentPath.points.length} points. #{currentPath.distance} meter."
@@ -299,7 +299,7 @@ locationUpdate = (p) ->
 	grid = geodetic_to_grid position[0],position[1]
 	temp = (Math.round(g) for g in grid)
 	temp.reverse()
-	messages.push "locationUpdate #{temp}"
+	messages.push "locationUpdate #{temp} #{record} #{updateMode} #{playMode}"
 	if record == 1 then currentPath.points.push temp.slice()
 	if updateMode == 1 then center = temp
 	if playMode == 1 then sayHint temp
