@@ -252,6 +252,8 @@ recordPath = -> # start/stopp av inspelning av path
 sharePath = ->
 	header = ''
 	body = ''
+	body += messages.join "\n"
+
 	if currentPath and currentPath.points.length > 0
 		header = "#{currentPath.points.length} points. #{currentPath.distance} meter."
 		body += "#{window.location.origin + window.location.pathname}?path=#{currentPath.path}"
@@ -272,8 +274,6 @@ sharePath = ->
 			body += "#{localStorage[key]}\n"
 			total += bytes
 	body += "\nSize in bytes: #{total}\n"
-
-	body += messages.join "\n"
 
 	sendMail header, body
 	more()
@@ -297,6 +297,7 @@ locationUpdate = (p) ->
 	grid = geodetic_to_grid position[0],position[1]
 	temp = (Math.round(g) for g in grid)
 	temp.reverse()
+	messages.push "locationUpdate #{temp}"
 	if record == 1 then currentPath.points.push temp.slice()
 	if updateMode == 1 then center = temp
 	if playMode == 1 then sayHint temp
