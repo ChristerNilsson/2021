@@ -1,0 +1,69 @@
+class Path
+	constructor : (@path) ->
+		console.log 'Path',@path
+		if @path == ""
+			@points = []
+			@hash = 0
+			@distance = 0
+			@count = 0
+			@box = null
+		else
+			@points = decodeAll @path
+			console.log 'points',@points
+			@hash = @hashCode @path
+			console.log 'hash',@hash
+			@distance = @calcDist() # in meters
+			console.log 'distance',@distance
+			@count = @points.length
+			@box = @calcBox()
+			console.log 'box',@box
+
+	calcDist : ->
+		res = 0
+		for i in range 1,@points.length
+			[x0,y0] = @points[i-1]
+			[x1,y1] = @points[i]
+			dx = x0-x1
+			dy = y0-y1
+			res += Math.sqrt dx*dx+dy*dy
+		Math.round res
+
+	calcBox : ->
+		[xmin,ymin] = @points[0]
+		[xmax,ymax] = @points[0]
+		for [x,y] in @points
+			if x < xmin then xmin = x
+			if x > xmax then xmax = x
+			if y < ymin then ymin = y
+			if y > ymax then ymax = y
+		[[xmin,ymin],[xmax,ymax]]
+
+	hashCode : (path) ->
+		hash = 0
+		for i in range path.length
+			hash  = ((hash << 5) - hash) + path.charCodeAt i
+		hash
+
+	save : ->
+		if @points.length == 0 then return
+		found = false
+		@path = encodeAll @points
+		@hash = @hashCode @path
+		@box = @calcBox()
+		@distance = @calcDist()
+		for box in boxes
+			if box[0] == @hash then found = true
+		if not found
+			console.log 'save',@points,@path,@hash,@box,@distance
+			boxes.push [@hash,@box]
+			localStorage['boxes'] = JSON.stringify boxes
+			localStorage[@hash] = @path
+	
+	delete : ->
+		localStorage.removeItem @hash
+		for i in range boxes.length
+			box = boxes[i]
+			if box[0] == @hash
+				boxes.splice i,1
+				currentPath = null
+				localStorage['boxes'] = JSON.stringify boxes

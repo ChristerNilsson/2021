@@ -42,130 +42,6 @@ buttons = {}
 
 record = 0
 
-distance = (p,q) ->
-	if p.length != 2 or q.length != 2 then return 0
-	dx = p[0] - q[0]
-	dy = p[1] - q[1]
-	Math.sqrt dx * dx + dy * dy
-
-bearing = (p,q) ->
-	if p.length!=2 or q.length!=2 then return 0
-	dx = p[0] - q[0]
-	dy = p[1] - q[1]
-	res = 360 + Math.round degrees Math.atan2 dx,dy
-	res % 360
-
-class Path
-	constructor : (@path) ->
-		console.log 'Path',@path
-		if @path == ""
-			@points = []
-			@hash = 0
-			@distance = 0
-			@count = 0
-			@box = null
-		else
-			@points = decodeAll @path
-			console.log 'points',@points
-			@hash = @hashCode @path
-			console.log 'hash',@hash
-			@distance = @calcDist() # in meters
-			console.log 'distance',@distance
-			@count = @points.length
-			@box = @calcBox()
-			console.log 'box',@box
-
-	calcDist : ->
-		res = 0
-		for i in range 1,@points.length
-			[x0,y0] = @points[i-1]
-			[x1,y1] = @points[i]
-			dx = x0-x1
-			dy = y0-y1
-			res += Math.sqrt dx*dx+dy*dy
-		Math.round res
-
-	calcBox : ->
-		[xmin,ymin] = @points[0]
-		[xmax,ymax] = @points[0]
-		for [x,y] in @points
-			if x < xmin then xmin = x
-			if x > xmax then xmax = x
-			if y < ymin then ymin = y
-			if y > ymax then ymax = y
-		[[xmin,ymin],[xmax,ymax]]
-
-	hashCode : (path) ->
-		hash = 0
-		for i in range path.length
-			hash  = ((hash << 5) - hash) + path.charCodeAt i
-		hash
-
-	save : ->
-		if @points.length == 0 then return
-		found = false
-		@path = encodeAll @points
-		@hash = @hashCode @path
-		@box = @calcBox()
-		@distance = @calcDist()
-		for box in boxes
-			if box[0] == @hash then found = true
-		if not found
-			console.log 'save',@points,@path,@hash,@box,@distance
-			boxes.push [@hash,@box]
-			localStorage['boxes'] = JSON.stringify boxes
-			localStorage[@hash] = @path
-	
-	delete : ->
-		localStorage.removeItem @hash
-		for i in range boxes.length
-			box = boxes[i]
-			if box[0] == @hash
-				boxes.splice i,1
-				currentPath = null
-				localStorage['boxes'] = JSON.stringify boxes
-
-class Button 
-	constructor : (@x,@y,@prompt,event,color='#f000') ->
-		@r = 128
-		@circle0 = add 'circle',svg, {cx:@x, cy:@y, r:@r, fill:'none', stroke:'black', 'stroke-width':1}
-		if @prompt != ""
-			@text = add 'text',svg, {x:@x, y:@y+10, stroke:'black', fill:'black', 'stroke-width':1, 'text-anchor':'middle'}
-			@text.textContent = @prompt
-			@text.style.fontSize = '50px'
-			@text.style.userSelect = 'none'
-		@circle1 = add 'circle',svg, {cx:@x, cy:@y, r:@r, fill:color, stroke:'black', 'stroke-width':1, ontouchstart:event, onclick:event}
-	setColor : (color) -> setAttrs @circle1, {fill:color}
-	setTextFill : (color) -> setAttrs @text, {fill:color}
-	enable : -> 
-		setAttrs @circle0, {cx:@x}
-		setAttrs @circle1, {cx:@x}
-		if @prompt!='' then setAttrs @text, {x:@x}
-	disable : -> 
-		setAttrs @circle0, {cx:INVISIBLE}
-		setAttrs @circle1, {cx:INVISIBLE}
-		if @prompt!='' then setAttrs @text, {x:INVISIBLE}
-
-class TargetButton extends Button
-	constructor : (x,y,event,color) ->
-		super x,y,'',event,color
-		@vline = add 'line',svg, {x1:x-@r, y1:y, x2:x+@r, y2:y, stroke:'black', 'stroke-width':1}
-		@hline = add 'line',svg, {x1:x, y1:y-@r, x2:x, y2:y+@r, stroke:'black', 'stroke-width':1}
-
-	move : ->
-		if target.length == 0 then return
-		dx = target[0] - center[0]
-		dy = target[1] - center[1]
-		antal = SIZE/TILE
-		x = W/2 + dx / antal
-		y = H/2 - dy / antal
-		@moveHard x,y
-
-	moveHard : (x,y) ->
-		setAttrs @circle1, {cx:x, cy:y}
-		setAttrs @vline, {x1:x-@r, y1:y, x2:x+@r, y2:y}
-		setAttrs @hline, {x1:x, y1:y-@r, x2:x, y2:y+@r}
-
 add = (type,parent,attrs) ->
 	obj = document.createElementNS svgurl, type
 	parent.appendChild obj
@@ -356,6 +232,10 @@ mark = -> # Spara center i localStorage
 	temp.save()
 	more()
 
+playPath = ->
+	playMode = 1 - playMode
+	more()
+
 deletePath = -> # tag bort current Path från localStorage
 	currentPath.delete()
 	more()
@@ -391,6 +271,8 @@ sharePath = ->
 		total += bytes
 	body += "\nSize in bytes: #{total}\n"
 
+	body += messages.join "\n"
+
 	sendMail header, body
 	more()
 
@@ -415,6 +297,7 @@ locationUpdate = (p) ->
 	temp.reverse()
 	if record == 1 then currentPath.points.push temp.slice()
 	if updateMode == 1 then center = temp
+	if playMode == 1 then sayHint temp
 	drawMap()
 
 initGPS = ->
@@ -423,7 +306,7 @@ initGPS = ->
 		maximumAge: 30000
 		timeout: 27000
 
-makeMarker = (name,n) ->
+makeMarker = (name,n,color) ->
 	result = add 'marker', svg, 
 		id : name
 		viewBox : "0 0 #{2*n+1} #{2*n+1}"
@@ -435,7 +318,7 @@ makeMarker = (name,n) ->
 		cx : n
 		cy : n
 		r : n
-		fill : 'yellow'
+		fill : color
 		stroke : 'black'
 	result
 
@@ -443,18 +326,20 @@ initTrail = ->
 	if false
 		trail = add 'path', svg, {d:"", stroke:'red', 'stroke-width':1, fill:'none'}
 	else
-		makeMarker 'smalldot', 2
-		makeMarker 'bigdot', 8
+		makeMarker 'start', 8, 'green'
+		makeMarker 'dot', 2,'yellow'
+		makeMarker 'end', 8, 'red'
 		trail = add 'polyline', svg, 
 			points : ''
 			fill : 'none'
 			stroke : 'red'
 			'stroke-width' : 2
-			'marker-start' : "url(#bigdot)"
-			'marker-mid' : "url(#smalldot)"
-			'marker-end' : "url(#bigdot)"
+			'marker-start' : "url(#start)"
+			'marker-mid' : "url(#dot)"
+			'marker-end' : "url(#end)"
 
 more = () ->
+	if speaker == null then initSpeaker()
 	moreMode = 1 - moreMode
 	names = "fetch record mark play clear delete share"
 	for name in names.split ' '

@@ -9,6 +9,19 @@ ass 375,map 250,100,200,300,350
 degrees = (x) -> x * 180 / Math.PI
 radians = (x) -> x * Math.PI / 180
 
+distance = (p,q) ->
+	if p.length != 2 or q.length != 2 then return 0
+	dx = p[0] - q[0]
+	dy = p[1] - q[1]
+	Math.sqrt dx * dx + dy * dy
+
+bearing = (p,q) ->
+	if p.length!=2 or q.length!=2 then return 0
+	dx = p[0] - q[0]
+	dy = p[1] - q[1]
+	res = 360 + Math.round degrees Math.atan2 dx,dy
+	res % 360
+
 #merp = (y1,y2,i,x1=0,x2=1) -> map i,x1,x2,y1,y2
 # interpolate = (a, b, c, d, value) -> c + value/b * (d-c)
 # ass 16, interpolate 0,1024,0,256,64
