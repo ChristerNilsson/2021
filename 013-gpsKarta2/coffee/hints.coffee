@@ -39,13 +39,17 @@ sayHint = (gps) ->
 	if not currentPath then return
 	points = currentPath.points
 	[curr,dist] = findNearest gps,points
-	b0 = bearing(points[curr+N  ],points[curr  ])
-	b1 = bearing(points[curr+2*N],points[curr+N])
-	diff = clock b1-b0
 
-	if diff in [10,9,8,7] then word = 'left'
-	else if diff in [2,3,4,5] then word = 'right'
-	else word = 'straight'
+	if dist > 50 # meters
+		word = 'Track is gone'
+	else
+		b0 = bearing(points[curr+N  ],points[curr  ])
+		b1 = bearing(points[curr+2*N],points[curr+N])
+		diff = clock b1-b0
+
+		if diff in [10,9,8,7] then word = 'left'
+		else if diff in [2,3,4,5] then word = 'right'
+		else word = 'straight'
 
 	if lastword != word
 		messages.push "sayHint #{curr} of #{points.length} points:#{points[curr]} word:#{word} diff:#{diff} dist:#{dist}"
