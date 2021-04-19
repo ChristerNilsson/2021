@@ -44,6 +44,7 @@ sayHint = (gps) ->
 	if not currentPath then return
 	points = currentPath.points
 	[curr,dist] = findNearest gps,points
+	messages.push "sayHint #{curr} #{dist} #{gps}"
 
 	if dist > 50 # meters
 		word = 'Track is gone'

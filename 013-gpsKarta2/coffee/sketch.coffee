@@ -253,6 +253,7 @@ sharePath = ->
 	header = ''
 	body = ''
 	body += messages.join "\n"
+	body += "\n"
 
 	if currentPath and currentPath.points.length > 0
 		header = "#{currentPath.points.length} points. #{currentPath.distance} meter."
@@ -276,6 +277,7 @@ sharePath = ->
 	body += "\nSize in bytes: #{total}\n"
 
 	sendMail header, body
+	messages = []
 	more()
 
 #####
