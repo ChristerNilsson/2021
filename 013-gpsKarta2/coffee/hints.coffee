@@ -4,8 +4,12 @@ curr = 0
 lastword = ''
 speaker = null
 
+voices = null
+
+window.speechSynthesis.onvoiceschanged = -> voices = window.speechSynthesis.getVoices()
+
 initSpeaker = ->
-	index = 4 #int getParameters().speaker || 5
+	index = 5 #int getParameters().speaker || 5
 	speaker = new SpeechSynthesisUtterance()
 	speaker.voiceURI = "native"
 	speaker.volume = 1
@@ -13,6 +17,7 @@ initSpeaker = ->
 	speaker.pitch = 0
 	speaker.text = ''
 	speaker.lang = 'en-GB'
+	if voices and index <= voices.length-1 then speaker.voice = voices[index]
 	messages.push "Welcome!"
 	say "Welcome!"
 
