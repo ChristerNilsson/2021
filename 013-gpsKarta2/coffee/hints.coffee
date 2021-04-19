@@ -27,36 +27,40 @@ say = (m) ->
 	speaker.text = m
 	speechSynthesis.speak speaker
 
-clock = (d) ->
-	res = (12 + Math.round d/30) % 12
-	if res==0 then res = 12
-	res	
-ass 11, clock -30
-ass 12, clock -14
-ass 12, clock 0
-ass 12, clock 14
-ass 1, clock 30
-ass 1, clock 44
-ass 2, clock 46
+# clock = (d) ->
+# 	res = (12 + Math.round d/30) % 12
+# 	if res==0 then res = 12
+# 	res	
+# ass 11, clock -30
+# ass 12, clock -14
+# ass 12, clock 0
+# ass 12, clock 14
+# ass 1, clock 30
+# ass 1, clock 44
+# ass 2, clock 46
 
-sayHint = (gps) ->
-	N = 3
+sayHint = (gpsPoints) ->
+	N = 5
 	if not currentPath then return
 	points = currentPath.points
+	last = gpsPoints.length-1
+	gps = gpsPoints[last]
 	[curr,dist] = findNearest gps,points
 	messages.push "sayHint #{curr} #{dist} #{gps}"
 
-	if dist > 50 # meters
+	if dist > 20 # meters
 		word = 'Track is gone'
 		diff = 'nix'
 	else
-		b0 = bearing(points[curr+N  ],points[curr  ])
-		b1 = bearing(points[curr+2*N],points[curr+N])
-		diff = clock b1-b0
+		b0 = bearing gpsPoints[last],gpsPoints[last-N]
+		b1 = bearing points[curr+2*N],points[curr+N]
+		diff = b1-b0
 
-		if diff in [10,9,8,7] then word = 'left'
-		else if diff in [2,3,4,5] then word = 'right'
-		else word = 'straight'
+		word = ''
+		if diff < -45 then word = 'sharp left'
+		else if diff < -22 then word = 'left'
+		else if diff > 45 then word = 'sharp right'
+		else if diff > 22 then word = 'right'
 
 	if lastword != word
 		messages.push "sayHint #{curr} of #{points.length} points:#{points[curr]}\n word:#{word}\n diff:#{diff} dist:#{dist}"
