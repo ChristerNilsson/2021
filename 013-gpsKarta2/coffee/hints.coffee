@@ -7,6 +7,13 @@ lastSpoken = ''
 speaker = null
 hints = {}
 
+started = false
+ended = false
+startingTime = null
+endingTime = null
+elapsedTime = null
+userDistance = null
+
 voices = null
 
 window.speechSynthesis.onvoiceschanged = -> voices = window.speechSynthesis.getVoices()
@@ -107,8 +114,33 @@ sayHint = (gpsPoints) ->
 	[curr,dist] = findNearest gps,points
 	word = ''
 
+	if not started and dist < 25
+		started = true
+		startingTime = new Date()
+		say 'track started'
+		userDistance = 0
+		return
+
+	if not ended and curr == points.length-1
+		ended = true
+		endingTime = new Date()
+		elapsedTime = endingTime - startingTime
+		messages.push "elapsedTime #{elapsedTime}"
+		say 'track ended'
+		return
+
+	if ended then return
+
+	if last >= 1
+		userDistance += distance gpsPoints[last-1],gpsPoints[last]
+
+	if userDistance / currentPath.distance > 0.1
+		usedTime = new Date() - startingTime
+		ETA = usedTime * currentPath.distance / userDistance
+		messages.push "ETA #{ETA} = #{usedTime} * #{currentPath.distance} / #{userDistance}"
+
 	if dist > 25 # meters
-		word = 'No Track'
+		word = 'no track'
 	else
 		if curr+N of hints
 			word = hints[curr+N]
@@ -161,8 +193,7 @@ makeHints = ->
 		diff = diff %% 360 - 180
 
 		word = diffToWord diff
-		if word != ''
-			hints[i] = word
+		if word != '' then hints[i] = word
 			#console.log "#{i} #{points[i]} #{b0} #{b1} #{diff} #{word}"
 			#messages.push "#{i} #{word}"
 

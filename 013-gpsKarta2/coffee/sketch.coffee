@@ -352,7 +352,13 @@ more = () ->
 		if moreMode == 0 then buttons[name].disable()
 		if moreMode == 1 then buttons[name].enable()
 
+rensaLocalStorage = ->
+	for key in 'gpsKarta22B gpsKarta21C gpsKartaErstavik gpsKarta21A gpsKarta22A gpsKartaNackareservatet gpsKarta23A gpsKarta23C gpsKartags gpsKarta2020-SommarN gpsKartaSandakällan gpsKart gpsKarta23B'.split ' '
+		console.log key
+		localStorage.removeItem key
+
 startup = ->
+	rensaLocalStorage()
 	loadPath()
 	initGPS()
 	add 'rect',svg,{width:W, height:H, fill:'green'}
