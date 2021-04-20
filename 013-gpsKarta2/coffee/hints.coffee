@@ -105,6 +105,7 @@ sayHint = (gpsPoints) ->
 	last = gpsPoints.length-1
 	gps = gpsPoints[last]
 	[curr,dist] = findNearest gps,points
+	word = ''
 
 	if dist > 25 # meters
 		word = 'No Track'
@@ -113,7 +114,7 @@ sayHint = (gpsPoints) ->
 			word = hints[curr+N]
 			messages.push "sayHint #{curr} of #{points.length} points:#{points[curr]} word:#{word} dist:#{dist}"
 		else
-			lastSpoken = ''
+			word = ''
 	if lastSpoken != word
 		say word
 		lastSpoken = word
