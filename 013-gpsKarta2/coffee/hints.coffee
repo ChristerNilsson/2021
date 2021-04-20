@@ -108,16 +108,15 @@ sayHint = (gpsPoints) ->
 
 	if dist > 25 # meters
 		word = 'No Track'
-		diff = 'nix'
 	else
 		if curr+N in hints
 			word = hints[curr+N]
 			messages.push "sayHint #{curr} of #{points.length} points:#{points[curr]} word:#{word} dist:#{dist}"
-			if lastSpoken != word
-				say word
-				lastSpoken = word
 		else
 			lastSpoken = ''
+	if lastSpoken != word
+		say word
+		lastSpoken = word
 
 		# if gpsPoints.length < N then return 
 		# b0 = bearing gpsPoints[last],gpsPoints[last-N]
