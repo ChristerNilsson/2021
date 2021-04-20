@@ -1,5 +1,5 @@
-ZONE6 = true
-ZONE8 = false
+ZONE6 = false
+ZONE8 = true
 
 curr = 0
 lastWord = ''
