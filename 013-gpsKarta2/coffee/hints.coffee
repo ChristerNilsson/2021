@@ -1,5 +1,9 @@
+ZONE6 = false
+ZONE8 = true
+
 curr = 0
-lastword = ''
+lastWord = ''
+lastSpoken = ''
 speaker = null
 
 voices = null
@@ -44,7 +48,6 @@ sayHint = (gpsPoints) ->
 	last = gpsPoints.length-1
 	gps = gpsPoints[last]
 	[curr,dist] = findNearest gps,points
-	messages.push "sayHint #{curr} #{dist} #{gps}"
 
 	if dist > 25 # meters
 		word = 'No Track'
@@ -57,42 +60,39 @@ sayHint = (gpsPoints) ->
 		diff = b1 - b0 + 180
 		diff = diff %% 360 - 180
 
-		# if diff < -180 then diff += 360
-		# if diff > +180 then diff -= 360
-		# ass -180 <= diff <= 180
+		if ZONE6 # 6 * 60 degrees
+			if -150 < diff <= -90 then word = 'sharp left'
+			else if -90 < diff <= -30 then word = 'left'
+			else if -30 < diff <= 30 then word = ''
+			else if 30 < diff <= 90 then word = 'right'
+			else if 90 < diff <= 150 then word = 'sharp right'
+			else if 150 < diff or diff <= -150 then word = 'turn around'
+			if lastSpoken == 'sharp left'  and word == 'left'  then word = ''
+			if lastSpoken == 'sharp right' and word == 'right' then word = ''
 
-		# 6 * 60 degrees
-		if -150 < diff <= -90 then word = 'sharp left'
-		else if -90 < diff <= -30 then word = 'left'
-		else if -30 < diff <= 30 then word = ''
-		else if 30 < diff <= 90 then word = 'right'
-		else if 90 < diff <= 150 then word = 'sharp right'
-		else if 150 < diff or diff <= -150 then word = 'turn around'
-		if lastword == 'sharp left'  and word == 'left'  then word = ''
-		if lastword == 'sharp right' and word == 'right' then word = ''
+		if ZONE8 # 8 * 45 degrees
+			if -157.5 < diff <= -112.5 then word = 'sharp left'
+			if -112.5 < diff <= -67.5 then word = 'left'
+			else if -67.5 < diff <= -22.5 then word = 'slight left'
+			else if -22.5 < diff <= 22.5 then word = ''
+			else if 22.5 < diff <= 67.5 then word = 'slight right'
+			else if 67.5 < diff <= 112.5 then word = 'right'
+			else if 112.5 < diff <= 157.5 then word = 'sharp right'
+			else if 157.5 < diff or diff <= -157.5 then word = 'turn around'
 
-		# 8 * 45 degrees
-		# if -157.5 < diff <= -112.5 then word = 'sharp left'
-		# if -112.5 < diff <= -67.5 then word = 'left'
-		# else if -67.5 < diff <= -22.5 then word = 'slight left'
-		# else if -22.5 < diff <= 22.5 then word = ''
-		# else if 22.5 < diff <= 67.5 then word = 'slight right'
-		# else if 67.5 < diff <= 112.5 then word = 'right'
-		# else if 112.5 < diff <= 157.5 then word = 'sharp right'
-		# else word = 'turn around'
+			if lastSpoken == 'sharp left' and word == 'left' then word = ''
+			if lastSpoken == 'sharp left' and word == 'slight left' then word = ''
+			if lastSpoken == 'left'       and word == 'slight left' then word = ''
 
-		# if lastword == 'sharp left'  and word == 'left'  then word = ''
-		# if lastword == 'sharp left'  and word == 'slight left'  then word = ''
-		# if lastword == 'left'  and word == 'slight left'  then word = ''
+			if lastSpoken == 'sharp right' and word == 'right' then word = ''
+			if lastSpoken == 'sharp right' and word == 'slight right' then word = ''
+			if lastSpoken == 'right'       and word == 'slight right' then word = ''
 
-		# if lastword == 'sharp right'  and word == 'right'  then word = ''
-		# if lastword == 'sharp right'  and word == 'slight right'  then word = ''
-		# if lastword == 'right'  and word == 'slight right'  then word = ''
-
-	if lastword != word and word != ''
-		messages.push "sayHint #{curr} of #{points.length} points:#{points[curr]}\n word:#{word}\n diff:#{diff} dist:#{dist}"
+	if lastSpoken != word and word != ''
+		messages.push "sayHint #{curr} of #{points.length} points:#{points[curr]} word:#{word} diff:#{diff} dist:#{dist}"
 		say word
-	lastword = word
+		lastSpoken = word
+	lastWord = word
 
 findNearest = (p1,polygon) ->
 	index = 0
