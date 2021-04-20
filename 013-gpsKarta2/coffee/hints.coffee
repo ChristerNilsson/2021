@@ -150,6 +150,7 @@ findNearest = (p1,polygon) ->
 	[index, Math.round Math.sqrt best]
 
 makeHints = ->
+	console.log 'makeHints'
 	hints = {}
 	points = currentPath.points
 	for i in range 2,points.length - 3
