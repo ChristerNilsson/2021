@@ -234,6 +234,7 @@ mark = -> # Spara center i localStorage
 
 playPath = ->
 	playMode = 1 - playMode
+	makeHints()
 	more()
 
 deletePath = -> # tag bort current Path från localStorage

@@ -9,6 +9,16 @@ class Path
 			@box = null
 		else
 			@points = decodeAll @path
+
+			console.log "remove stand stills"
+			#lastx = 0
+			#lasty = 0
+			temp = [@points[0]]
+			for [x,y] in @points
+				[x0,y0] = temp[temp.length-1]
+				if x0!=x or y0!=y then temp.push [x,y]
+			@points = temp
+
 			console.log 'points',@points
 			@hash = @hashCode @path
 			console.log 'hash',@hash

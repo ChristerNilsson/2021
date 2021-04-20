@@ -17,8 +17,8 @@ distance = (p,q) ->
 
 bearing = (p,q) ->
 	if p.length!=2 or q.length!=2 then return 0
-	dx = p[0] - q[0]
-	dy = p[1] - q[1]
+	dx = q[0] - p[0]
+	dy = q[1] - p[1]
 	res = 360 + Math.round degrees Math.atan2 dx,dy
 	res % 360
 
