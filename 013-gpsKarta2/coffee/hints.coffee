@@ -15,6 +15,7 @@ elapsedTime = null
 userDistance = null
 
 voices = null
+lastETA = 0
 
 window.speechSynthesis.onvoiceschanged = -> voices = window.speechSynthesis.getVoices()
 
@@ -105,6 +106,19 @@ diffToWord = (diff) ->
 # 		lastSpoken = word
 # 	lastWord = word
 
+sayETA = (gpsPoints) ->
+	last = gpsPoints.length-1
+	if last >= 1
+		userDistance += distance gpsPoints[last-1],gpsPoints[last]
+
+	if userDistance / currentPath.distance > 0.1
+		usedTime = new Date() - startingTime
+		ETA = usedTime * currentPath.distance / userDistance
+		ETA = Math.round ETA/1000
+		if 10 <= abs ETA-lastETA
+			messages.push "ETA #{curr} #{ETA//60}m #{ETA%60}s"
+			lastETA = ETA # seconds
+
 sayHint = (gpsPoints) ->
 	N = 5
 	if not currentPath or gpsPoints.length == 0 then return
@@ -139,14 +153,7 @@ sayHint = (gpsPoints) ->
 	if not started then return
 	if ended then return
 
-	if last >= 1
-		userDistance += distance gpsPoints[last-1],gpsPoints[last]
-
-	if userDistance / currentPath.distance > 0.1
-		usedTime = new Date() - startingTime
-		ETA = usedTime * currentPath.distance / userDistance
-		ETA = Math.round ETA/1000
-		messages.push "ETA #{curr} #{ETA//60}m #{ETA%60}s"
+	sayETA gpsPoints
 
 	if dist > 25 # meters
 		word = 'no track'

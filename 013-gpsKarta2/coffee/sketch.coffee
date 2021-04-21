@@ -224,7 +224,7 @@ fetchPath = -> # visa alla synliga paths. Närmaste gulmarkeras, övriga gråmar
 	if besti != -1
 		currentPath = new Path localStorage[boxes[besti][0]]
 
-		current.path.reverse()
+		currentPath.points.reverse()
 
 		center = currentPath.points[0].slice()
 	more()
@@ -264,7 +264,7 @@ sharePath = ->
 		header = "#{currentPath.points.length} points. #{currentPath.distance} meter."
 		body += "#{window.location.origin + window.location.pathname}?path=#{currentPath.path}"
 
-	body += "\n"
+	body += "\n\n"
 	for box,i in boxes
 		[hash,[[xmin,ymin],[xmax,ymax]]] = box
 		body += "Box #{i+1}: xmin=#{xmin} ymin=#{ymin} xmax=#{xmax} ymax=#{ymax} hash=#{hash}\n"
