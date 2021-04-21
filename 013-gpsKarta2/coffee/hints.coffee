@@ -11,8 +11,8 @@ started = false
 ended = false
 startingTime = null
 endingTime = null
-elapsedTime = null
-userDistance = null
+elapsedTime = 0
+userDistance = 0
 
 voices = null
 lastETA = 0
@@ -29,8 +29,8 @@ initSpeaker = ->
 	speaker.text = ''
 	speaker.lang = 'en-GB'
 	if voices and index <= voices.length-1 then speaker.voice = voices[index]
-	messages.push "Welcome! Erik"
-	say "Welcome! Erik"
+	messages.push "Welcome! Philip"
+	say "Welcome! Philip"
 
 say = (m) ->
 	if speaker == null then return
@@ -116,7 +116,7 @@ sayETA = (gpsPoints) ->
 		ETA = usedTime * currentPath.distance / userDistance
 		ETA = Math.round ETA/1000
 		if 10 <= abs ETA-lastETA
-			messages.push "ETA #{curr} #{ETA//60}m #{ETA%60}s"
+			messages.push "ETA #{curr} #{ETA // 60}m #{ETA % 60}s"
 			lastETA = ETA # seconds
 
 sayHint = (gpsPoints) ->
@@ -155,7 +155,7 @@ sayHint = (gpsPoints) ->
 	if not started then return
 	if ended then return
 
-	sayETA gpsPoints
+	# sayETA gpsPoints
 
 	if dist > 25 # meters
 		word = 'no track'
@@ -169,18 +169,6 @@ sayHint = (gpsPoints) ->
 		messages.push "word #{word}"
 		say word
 		lastSpoken = word
-
-
-# sayHint 0 of 1367 points:679384,6573550 word:right dist:18
-# sayHint 0 of 1367 points:679384,6573550 word:right dist:13
-# sayHint 0 of 1367 points:679384,6573550 word:right dist:11
-# sayHint 0 of 1367 points:679384,6573550 word:right dist:11
-# sayHint 0 of 1367 points:679384,6573550 word:right dist:10
-# sayHint 0 of 1367 points:679384,6573550 word:right dist:8
-# sayHint 0 of 1367 points:679384,6573550 word:right dist:6
-# sayHint 0 of 1367 points:679384,6573550 word:right dist:3
-# sayHint 0 of 1367 points:679384,6573550 word:right dist:1
-
 
 		# if gpsPoints.length < N then return 
 		# b0 = bearing gpsPoints[last],gpsPoints[last-N]

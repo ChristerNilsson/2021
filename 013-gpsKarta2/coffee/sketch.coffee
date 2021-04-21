@@ -262,7 +262,6 @@ sharePath = ->
 	messages.push "curr #{curr}"
 	messages.push "lastWord #{lastWord}"
 	messages.push "lastSpoken #{lastSpoken}"
-	messages.push "hints #{hints}"
 	messages.push "started #{started}"
 	messages.push "ended #{ended}"
 	messages.push "startingTime #{startingTime}"
@@ -275,6 +274,11 @@ sharePath = ->
 	messages.push "moreMode #{moreMode}"
 	messages.push "playMode #{playMode}"
 	messages.push "record #{record}"
+
+	messages.push "hints: #{_.size hints}"
+	# for key of hints
+	# 	messages.push "#{key} #{hints[key]}"
+	# messages.push ""
 
 	if messages then body += messages.join "\n"
 	body += "\n\n"
