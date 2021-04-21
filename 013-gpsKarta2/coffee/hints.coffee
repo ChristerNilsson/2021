@@ -114,10 +114,20 @@ sayHint = (gpsPoints) ->
 	[curr,dist] = findNearest gps,points
 	word = ''
 
-	if not started and dist < 25
+	if not started and dist < 25 and curr==0
 		started = true
 		startingTime = new Date()
 		say 'track started'
+		userDistance = 0
+		return
+
+	if not started and dist < 25 and curr==points.length-1
+		current.path.reverse()
+		makeHints()
+		points = current.path
+		started = true
+		startingTime = new Date()
+		say 'reverse track started'
 		userDistance = 0
 		return
 
@@ -129,6 +139,7 @@ sayHint = (gpsPoints) ->
 		say 'track ended'
 		return
 
+	if not started then return
 	if ended then return
 
 	if last >= 1

@@ -1,14 +1,14 @@
 LETTERS = 'zyxwvutsrqponmlkjihgfedcba0ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
 # endimensionell komprimering
-# c b a 0 A B C = -3 -2 -1 0 1 2 3 
+# c b a 0 A B C = -3 -2 -1 0 1 2 3
 # Två tecken per koordinat
 
 # Exempel: 
 # [1017,1373] absolut
-# [1016,1378] (-1,5)
-# [1016,1383] (0,5)
-# [1017,1388] (1,5)
+# [1016,1378] (-1,5) aE
+# [1016,1383] (0,5) 0E
+# [1017,1388] (1,5) AE
 # Kodas: 1017,1373,aE0EAE
 
 encode = (x,y) ->
@@ -70,4 +70,4 @@ decodeAll = (s) ->
 	result
 ass [[1017,1373],[1016, 1378],[1016, 1383]], decodeAll '1017,1373,aE0E'
 ass [[0,0],[3,-8],[-15,-17],[-34,-37],[-39,-55]], decodeAll '0,0,Christer'
-ass [[1, 2],[4, -6],[-14, -15],[-33, -35],[-38, -53]], decodeAll '1,2,Christer'
+ass [[1,2],[4,-6],[-14,-15],[-33,-35],[-38,-53]], decodeAll '1,2,Christer'
