@@ -223,6 +223,9 @@ fetchPath = -> # visa alla synliga paths. Närmaste gulmarkeras, övriga gråmar
 				besti = i
 	if besti != -1
 		currentPath = new Path localStorage[boxes[besti][0]]
+
+		current.path.reverse()
+
 		center = currentPath.points[0].slice()
 	more()
 	drawMap()
@@ -234,6 +237,8 @@ mark = -> # Spara center i localStorage
 
 playPath = ->
 	playMode = 1 - playMode
+	started = false
+	ended = false
 	makeHints()
 	more()
 
@@ -353,7 +358,7 @@ more = () ->
 		if moreMode == 1 then buttons[name].enable()
 
 rensaLocalStorage = ->
-	for key in 'gpsKarta22B gpsKarta21C gpsKartaErstavik gpsKarta21A gpsKarta22A gpsKartaNackareservatet gpsKarta23A gpsKarta23C gpsKartags gpsKarta2020-SommarN gpsKartaSandakällan gpsKart gpsKarta23B'.split ' '
+	for key in 'gpsKarta'.split ' '
 		console.log key
 		localStorage.removeItem key
 

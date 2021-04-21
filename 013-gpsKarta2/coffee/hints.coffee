@@ -28,8 +28,8 @@ initSpeaker = ->
 	speaker.text = ''
 	speaker.lang = 'en-GB'
 	if voices and index <= voices.length-1 then speaker.voice = voices[index]
-	messages.push "Welcome! C"
-	say "Welcome! C"
+	messages.push "Welcome! David"
+	say "Welcome! David"
 
 say = (m) ->
 	if speaker == null then return
@@ -63,11 +63,11 @@ diffToWord = (diff) ->
 
 	if ZONE8 # 8 * 45 degrees
 		if -157.5 < diff <= -112.5 then res = 'sharp left'
-		else if -112.5 < diff <= -67.5 then res = 'left'
-		else if -67.5 < diff <= -22.5 then res = 'slight left'
+		else if -112.5 < diff <= -67.5 then res = 'medium left'
+		else if -67.5 < diff <= -22.5 then res = 'left'
 		else if -22.5 < diff <= 22.5 then res = ''
-		else if 22.5 < diff <= 67.5 then res = 'slight right'
-		else if 67.5 < diff <= 112.5 then res = 'right'
+		else if 22.5 < diff <= 67.5 then res = 'right'
+		else if 67.5 < diff <= 112.5 then res = 'medium right'
 		else if 112.5 < diff <= 157.5 then res = 'sharp right'
 		else if 157.5 < diff or diff <= -157.5 then res = 'turn around'
 
@@ -121,17 +121,14 @@ sayHint = (gpsPoints) ->
 		userDistance = 0
 		return
 
-	if not started and dist < 25 and curr==points.length-1
-		current.path.reverse()
-		makeHints()
-		points = current.path
-		started = true
-		startingTime = new Date()
-		say 'reverse track started'
-		userDistance = 0
-		return
+	# if not started and dist < 25 and curr == points.length-1
+	# 	started = true
+	# 	startingTime = new Date()
+	# 	say 'reverse track started'
+	# 	userDistance = 0
+	# 	return
 
-	if not ended and curr == points.length-1
+	if started and not ended and curr == points.length-1
 		ended = true
 		endingTime = new Date()
 		elapsedTime = endingTime - startingTime
@@ -148,7 +145,8 @@ sayHint = (gpsPoints) ->
 	if userDistance / currentPath.distance > 0.1
 		usedTime = new Date() - startingTime
 		ETA = usedTime * currentPath.distance / userDistance
-		messages.push "ETA #{ETA} = #{usedTime} * #{currentPath.distance} / #{userDistance}"
+		ETA = Math.round ETA/1000
+		messages.push "ETA #{curr} #{ETA//60}m #{ETA%60}s"
 
 	if dist > 25 # meters
 		word = 'no track'
