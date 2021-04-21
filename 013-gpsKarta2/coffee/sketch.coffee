@@ -225,6 +225,7 @@ fetchPath = -> # visa alla synliga paths. Närmaste gulmarkeras, övriga gråmar
 		currentPath = new Path localStorage[boxes[besti][0]]
 
 		currentPath.points.reverse()
+		messages.push "reverse"
 
 		center = currentPath.points[0].slice()
 	more()
@@ -257,6 +258,24 @@ recordPath = -> # start/stopp av inspelning av path
 sharePath = ->
 	header = ''
 	body = ''
+
+	messages.push "curr #{curr}"
+	messages.push "lastWord #{lastWord}"
+	messages.push "lastSpoken #{lastSpoken}"
+	messages.push "hints #{hints}"
+	messages.push "started #{started}"
+	messages.push "ended #{ended}"
+	messages.push "startingTime #{startingTime}"
+	messages.push "endingTime #{endingTime}"
+	messages.push "elapsedTime #{elapsedTime}"
+	messages.push "userDistance #{userDistance}"
+	messages.push "lastETA #{lastETA}"
+
+	messages.push "updateMode #{updateMode}"
+	messages.push "moreMode #{moreMode}"
+	messages.push "playMode #{playMode}"
+	messages.push "record #{record}"
+
 	if messages then body += messages.join "\n"
 	body += "\n\n"
 
