@@ -10,6 +10,7 @@ startingTime = null
 endingTime = null
 elapsedTime = 0
 userDistance = 0
+onTrack = true
 
 voices = null
 lastETA = 0
@@ -80,29 +81,33 @@ sayHint = (gpsPoints) ->
 	if started and not ended then messages.push "gps #{curr} #{dist}"
 	word = ''
 
-	if not started and dist < 25 and curr==0
+	if not started and 25 > distance gps,points[0]
 		started = true
 		startingTime = new Date()
-		say 'track started'
 		messages.push "trackStarted #{startingTime}"
+		say 'track started!'
 		userDistance = 0
+		onTrack = true
 		return
 
-	if started and not ended and curr == points.length-1
+	if started and not ended and 25 > distance points[points.length-1]
 		ended = true
 		endingTime = new Date()
 		elapsedTime = endingTime - startingTime
 		messages.push "elapsedTime #{elapsedTime}"
-		say 'track ended'
+		say 'track ended!'
 		return
 
-	if not started then return
-	if ended then return
+	if not started or ended then return
 
 	sayETA gpsPoints
 
-	if dist > 25 # meters
-		word = 'no track'
+	if not onTrack and dist < 10 # meters
+		word 'track found!'
+		onTrack = true
+	else if dist > 25 # meters
+		word = 'track lost!'
+		onTrack = false 
 	else
 		if curr+N of hints
 			word = hints[curr+N]

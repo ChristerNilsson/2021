@@ -276,9 +276,9 @@ sharePath = ->
 	messages.push "record #{record}"
 
 	messages.push "hints: #{_.size hints}"
-	# for key of hints
-	# 	messages.push "#{key} #{hints[key]}"
-	# messages.push ""
+	for key of hints
+		messages.push "#{key} #{hints[key]}"
+	messages.push ""
 
 	if messages then body += messages.join "\n"
 	body += "\n\n"
@@ -381,7 +381,7 @@ more = () ->
 		if moreMode == 1 then buttons[name].enable()
 
 rensaLocalStorage = ->
-	for key in 'gpsKarta'.split ' '
+	for key in ''.split ' '
 		console.log key
 		localStorage.removeItem key
 
