@@ -271,19 +271,18 @@ sharePath = ->
 	messages.push "elapsedTime #{elapsedTime}"
 	messages.push "userDistance #{userDistance}"
 	messages.push "lastETA #{lastETA}"
-
 	messages.push "updateMode #{updateMode}"
 	messages.push "moreMode #{moreMode}"
 	messages.push "playMode #{playMode}"
 	messages.push "record #{record}"
-
+	messages.push ""
 	messages.push "hints: #{_.size hints}"
 	for key of hints
 		messages.push "#{key} #{hints[key]}"
 	messages.push ""
 
 	if messages then body += messages.join "\n"
-	body += "\n\n"
+	body += "\n"
 
 	if currentPath and currentPath.points.length > 0
 		header = "#{currentPath.points.length} points. #{currentPath.distance} meter."

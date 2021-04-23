@@ -56,13 +56,14 @@ ass 'turn around',diffToWord 158
 ass 'turn around',diffToWord 180
 
 sayETA = (gpsPoints) ->
+	messages.push "sayETA #{gpsPoints.length}"
 	if gpsPoints.length < 2 then return 
 	if startingTime == null then return
 	if currentPath.distance == 0 then return 
 
 	n = gpsPoints.length
 	userDistance += distance gpsPoints[n-2],gpsPoints[n-1]
-	#if userDistance == 0 then return 
+	if userDistance == 0 then return 
 	if userDistance / currentPath.distance > 0.1
 		usedTime = new Date() - startingTime
 		ETA = usedTime * currentPath.distance / userDistance
@@ -90,7 +91,7 @@ sayHint = (gpsPoints) ->
 		onTrack = true
 		return
 
-	if started and not ended and 25 > distance gps,points[points.length-1]
+	if started and not ended and 10 > distance gps,points[points.length-1]
 		ended = true
 		endingTime = new Date()
 		elapsedTime = endingTime - startingTime
@@ -101,10 +102,10 @@ sayHint = (gpsPoints) ->
 	if not started then return
 	if ended then return
 
-	# try
-	# 	sayETA gpsPoints
-	# catch err
-	# 	messages.push "#{err}"
+	try
+		sayETA gpsPoints
+	catch err
+		messages.push "#{err}"
 
 	if not onTrack and dist < 10 # meters
 		word = 'track found!'
