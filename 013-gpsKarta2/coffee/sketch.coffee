@@ -322,9 +322,10 @@ nada = (event) ->
 locationUpdateFail = (error) ->	if error.code == error.PERMISSION_DENIED then messages = ['','','','','','Check location permissions']
 
 locationUpdate = (p) ->
-	position = [myRound(p.coords.latitude,6), myRound(p.coords.longitude,6)]
+	#position = [myRound(p.coords.latitude,6), myRound(p.coords.longitude,6)]
+	position = [p.coords.latitude, p.coords.longitude]
 	grid = geodetic_to_grid position[0],position[1]
-	temp = (Math.round(g) for g in grid)
+	#temp = (Math.round(g) for g in grid)
 	temp.reverse()
 	gpsPoints.push temp.slice()
 	if gpsPoints.length > 10 then gpsPoints.shift()

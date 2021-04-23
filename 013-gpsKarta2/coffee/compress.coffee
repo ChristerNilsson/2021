@@ -42,16 +42,20 @@ ass [0,1], decode '0A'
 ass [7,7], decode 'GG'
 ass [26,-26], decode 'Zz'
 
-encodeAll = (pairs) ->
+encodeAll = (pairs) -> # pairs of floating point
 	[x,y] = pairs[0]
-	result = "#{x},#{y},"
+	[ix,iy] = [Math.round(x), Math.round(y)]
+	[ex,ey] = [x-ix,y-iy] # hanterar det ackumulerade felet pga avrundning
+	result = "#{ix},#{iy},"
 	for i in range 1,pairs.length
 		[x0,y0] = pairs[i-1]
 		[x1,y1] = pairs[i]
-		[dx,dy] = [x1-x0, y1-y0]
-		if dx != 0 or dy != 0 then result += encode dx,dy # removes [0,0]
+		[dx,dy] = [ex+x1-x0, ey+y1-y0]
+		[ix,iy] = [Math.round(dx), Math.round(dy)]
+		[ex,ey] = [dx-ix,dy-iy]
+		if ix != 0 or iy != 0 then result += encode ix,iy # removes [0,0]
 	result
-ass '1017,1373,aE0E', encodeAll [[1017,1373],[1016,1378],[1016,1383]]
+ass '1018,1373,bFAD', encodeAll [[1017.9,1373.1],[1016.1,1378.9],[1016.9,1383.1]]
 ass '1017,1373,', encodeAll [[1017,1373]]
 
 decodeAll = (s) ->
@@ -68,6 +72,6 @@ decodeAll = (s) ->
 		y += dy
 		result.push [x,y]
 	result
-ass [[1017,1373],[1016, 1378],[1016, 1383]], decodeAll '1017,1373,aE0E'
+ass [[1018,1373],[1016, 1379],[1017, 1383]], decodeAll '1018,1373,bFAD'
 ass [[0,0],[3,-8],[-15,-17],[-34,-37],[-39,-55]], decodeAll '0,0,Christer'
 ass [[1,2],[4,-6],[-14,-15],[-33,-35],[-38,-53]], decodeAll '1,2,Christer'

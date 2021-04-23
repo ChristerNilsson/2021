@@ -11,22 +11,16 @@ class Path
 			@points = decodeAll @path
 
 			console.log "remove stand stills"
-			#lastx = 0
-			#lasty = 0
 			temp = [@points[0]]
 			for [x,y] in @points
 				[x0,y0] = temp[temp.length-1]
 				if x0!=x or y0!=y then temp.push [x,y]
 			@points = temp
 
-			console.log 'points',@points
 			@hash = @hashCode @path
-			console.log 'hash',@hash
 			@distance = @calcDist() # in meters
-			console.log 'distance',@distance
 			@count = @points.length
 			@box = @calcBox()
-			console.log 'box',@box
 
 	calcDist : ->
 		res = 0
@@ -77,3 +71,6 @@ class Path
 				boxes.splice i,1
 				currentPath = null
 				localStorage['boxes'] = JSON.stringify boxes
+
+# temp  = new Path 'Christer'
+# ass 1979511370, temp.hashCode 'Christer'
