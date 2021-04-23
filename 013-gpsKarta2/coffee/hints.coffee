@@ -27,8 +27,8 @@ initSpeaker = ->
 	speaker.text = ''
 	speaker.lang = 'en-GB'
 	if voices and index <= voices.length-1 then speaker.voice = voices[index]
-	messages.push "Welcome! Igor"
-	say "Welcome! Igor"
+	messages.push "Welcome! Jacob"
+	say "Welcome! Jacob"
 
 say = (m) ->
 	if speaker == null then return
@@ -90,7 +90,7 @@ sayHint = (gpsPoints) ->
 		onTrack = true
 		return
 
-	if started and not ended and 25 > distance points[points.length-1]
+	if started and not ended and 25 > distance gps,points[points.length-1]
 		ended = true
 		endingTime = new Date()
 		elapsedTime = endingTime - startingTime
@@ -98,24 +98,22 @@ sayHint = (gpsPoints) ->
 		say 'track ended!'
 		return
 
-	if not started or ended then return
+	if not started then return
+	if ended then return
 
-	try
-		sayETA gpsPoints
-	catch err
-		messages.push "#{err}"
+	# try
+	# 	sayETA gpsPoints
+	# catch err
+	# 	messages.push "#{err}"
 
 	if not onTrack and dist < 10 # meters
-		word 'track found!'
+		word = 'track found!'
 		onTrack = true
 	else if dist > 25 # meters
 		word = 'track lost!'
 		onTrack = false 
 	else
-		if curr+N of hints
-			word = hints[curr+N]
-		else
-			word = ''
+		word = if curr+N of hints then hints[curr+N] else ''
 	if lastSpoken != word
 		messages.push "hint #{curr} #{points[curr]} #{word} #{dist}"
 		say word
