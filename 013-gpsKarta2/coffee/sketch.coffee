@@ -224,8 +224,10 @@ fetchPath = -> # visa alla synliga paths. Närmaste gulmarkeras, övriga gråmar
 	if besti != -1
 		currentPath = new Path localStorage[boxes[besti][0]]
 
-		currentPath.points.reverse()
-		messages.push "reverse"
+		console.log currentPath.points
+
+		# currentPath.points.reverse()
+		# messages.push "reverse"
 
 		center = currentPath.points[0].slice()
 	more()
