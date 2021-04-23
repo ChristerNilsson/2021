@@ -176,10 +176,10 @@ drawMap = ->
 			texts[2].textContent = "Boxes: #{boxes.length}"
 
 		texts[3].textContent = "#{SIZE} #{updateMode}"
-		texts[4].textContent = "#{position[0]}"
-		texts[5].textContent = "#{position[1]}"
-		texts[6].textContent = "#{Math.round center[0]}"
-		texts[7].textContent = "#{Math.round center[1]}"
+		texts[4].textContent = "#{myRound position[0],6}"
+		texts[5].textContent = "#{myRound position[1],6}"
+		texts[6].textContent = "#{myRound center[0]}"
+		texts[7].textContent = "#{myRound center[1]}"
 		
 		if buttons.target then buttons.target.move()
 
@@ -322,14 +322,14 @@ nada = (event) ->
 locationUpdateFail = (error) ->	if error.code == error.PERMISSION_DENIED then messages = ['','','','','','Check location permissions']
 
 locationUpdate = (p) ->
-	#position = [myRound(p.coords.latitude,6), myRound(p.coords.longitude,6)]
 	position = [p.coords.latitude, p.coords.longitude]
 	grid = geodetic_to_grid position[0],position[1]
-	#temp = (Math.round(g) for g in grid)
+	temp = grid
 	temp.reverse()
 	gpsPoints.push temp.slice()
 	if gpsPoints.length > 10 then gpsPoints.shift()
-	#messages.push "locationUpdate #{temp} #{record} #{updateMode} #{playMode}"
+	console.log gpsPoints
+	messages.push "locationUpdate #{temp}"
 	if record == 1 then currentPath.points.push temp.slice()
 	if updateMode == 1 then center = temp
 	if playMode == 1 then sayHint gpsPoints
