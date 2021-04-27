@@ -285,7 +285,7 @@ sharePath = ->
 	body += "\n"
 
 	if currentPath and currentPath.points.length > 0
-		header = "#{elapsedTime} seconds #{userDistance} meter."
+		header = "#{myRound elapsedTime/1000} seconds #{myRound userDistance} meter."
 		body += "#{window.location.origin + window.location.pathname}?path=#{currentPath.path}"
 
 	body += "\n\n"
@@ -330,7 +330,7 @@ locationUpdate = (p) ->
 	gpsPoints.push temp.slice()
 	if gpsPoints.length > 10 then gpsPoints.shift()
 	console.log gpsPoints
-	messages.push "locationUpdate #{temp}"
+	messages.push "locationUpdate #{myRound temp[0]} #{myRound temp[1]}"
 	if record == 1 then currentPath.points.push temp.slice()
 	if updateMode == 1 then center = temp
 	if playMode == 1 then sayHint gpsPoints

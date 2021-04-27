@@ -57,7 +57,6 @@ ass 'turn around',diffToWord 158
 ass 'turn around',diffToWord 180
 
 sayETA = (gpsPoints) ->
-	messages.push "sayETA"
 	if gpsPoints.length < 2 then return 
 	if startingTime == null then return
 	if currentPath.distance == 0 then return 
