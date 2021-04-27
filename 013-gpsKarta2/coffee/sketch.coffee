@@ -182,8 +182,8 @@ drawMap = ->
 		texts[5].textContent = "#{myRound position[1],6}"
 		texts[6].textContent = "#{myRound center[0]}"
 		texts[7].textContent = "#{myRound center[1]}"
-		texts[8].textContent = if playMode==1 then "Play: ##{curr} of #{playPath.points.length} (#{myRound curr/playPath.points.length}%) #{playPath.distance}m ETA #{ETA}s" else ""
-		texts[9].textContent = if record == 1 then "Rec: #3 475s 1203m" else ""
+		texts[8].textContent = if playMode==1 then "P: ##{curr} of #{playPath.points.length} (#{myRound 100*curr/playPath.points.length}%) #{playPath.distance}m ETA #{myRound ETA}s" else ""
+		texts[9].textContent = if record == 1 then "R: #3 475s 1203m" else ""
 		
 		if buttons.target then buttons.target.move()
 
@@ -441,12 +441,12 @@ startup = ->
 	x0 = 0.36 * W
 	x1 = 0.64 * W
 	x2 = 0.50 * W
-	y0 = 120 + 10
-	y1 = H-300+10
-	y2 = H-240+10
-	y3 = H-180+10
-	y4 = H-120+10
-	y5 = H-60+ 10
+	y0 = H*0.2
+	y1 = H*0.75
+	y2 = H*0.8
+	y3 = H*0.85
+	y4 = H*0.9
+	y5 = H*0.95
 
 	makeText x0, y0
 	makeText x1, y0
@@ -459,16 +459,16 @@ startup = ->
 	makeText x2, y4
 	makeText x2, y5
 
-	x0 = 128
-	x1 = W/2
-	x2 = W-128
-	y0 = 128
-	y1 = 256+128
-	y2 = 512+128
-	y3 = H-128
+	x0 = W * 0.10
+	x1 = W * 0.50
+	x2 = W * 0.90
+	y0 = H * 0.15
+	y1 = H * 0.45
+	#y2 = 512+128
+	y3 = H * 0.75
 
 	buttons.target = new TargetButton INVISIBLE, INVISIBLE, '', '#f008'
-	new TargetButton W/2, H/2, "click('aim')"
+	new TargetButton x1, y1, "click('aim')"
 	new Button x0, y0, 'in',  "click('in')"
 	new Button x2, y0, 'out', "click('out')"
 	new Button x0, y3, 'center', "click('center')"
