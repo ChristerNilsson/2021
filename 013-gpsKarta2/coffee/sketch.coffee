@@ -386,10 +386,21 @@ rensaLocalStorage = ->
 	for key in ''.split ' '
 		console.log key
 		localStorage.removeItem key
+	i = boxes.length-1
+	while i >= 0
+		box = boxes[i]
+		#console.log 'rensaLocalStorage',boxes
+		[[a,b],[c,d]] = box[1]
+		#console.log 'rensaLocalStorage',a,b,c,d
+		if a == null or b == null or c == null or d == null
+			console.log 'splice',box
+			boxes.splice i,1
+		i -= 1
+	localStorage.boxes = JSON.stringify boxes
 
 startup = ->
-	rensaLocalStorage()
 	loadPath()
+	rensaLocalStorage()
 	initGPS()
 	add 'rect',svg,{width:W, height:H, fill:'green'}
 

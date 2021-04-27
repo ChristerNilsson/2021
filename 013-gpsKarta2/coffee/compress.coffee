@@ -46,7 +46,8 @@ encodeAll = (pairs) -> # pairs of floating point
 	[x,y] = pairs[0]
 	[ix,iy] = [Math.round(x), Math.round(y)]
 	[ex,ey] = [x-ix,y-iy] # hanterar det ackumulerade felet pga avrundning
-	result = "#{ix},#{iy},"
+	result = "#{ix},#{iy}"
+	if pairs.length > 1 then result += ','
 	for i in range 1,pairs.length
 		[x0,y0] = pairs[i-1]
 		[x1,y1] = pairs[i]
@@ -56,7 +57,7 @@ encodeAll = (pairs) -> # pairs of floating point
 		if ix != 0 or iy != 0 then result += encode ix,iy # removes [0,0]
 	result
 ass '1018,1373,bFAD', encodeAll [[1017.9,1373.1],[1016.1,1378.9],[1016.9,1383.1]]
-ass '1017,1373,', encodeAll [[1017,1373]]
+ass '1017,1373', encodeAll [[1017,1373]]
 
 decodeAll = (s) ->
 	result = []
@@ -67,7 +68,7 @@ decodeAll = (s) ->
 	if not points then return result
 	for i in range 0,points.length,2
 		xy = points.slice i,i+2
-		[dx,dy] = decode xy
+		[dx,dy] = decode xy 
 		x += dx
 		y += dy
 		result.push [x,y]

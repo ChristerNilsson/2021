@@ -60,17 +60,19 @@ class Path
 		if not found
 			console.log 'save',@points,@path,@hash,@box,@distance
 			boxes.push [@hash,@box]
-			localStorage['boxes'] = JSON.stringify boxes
+			localStorage.boxes = JSON.stringify boxes
 			localStorage[@hash] = @path
 	
 	delete : ->
 		localStorage.removeItem @hash
 		for i in range boxes.length
 			box = boxes[i]
+			console.log i,box
 			if box[0] == @hash
 				boxes.splice i,1
 				currentPath = null
-				localStorage['boxes'] = JSON.stringify boxes
+				localStorage.boxes = JSON.stringify boxes
+				return
 
 # temp  = new Path 'Christer'
 # ass 1979511370, temp.hashCode 'Christer'
