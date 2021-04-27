@@ -46,7 +46,7 @@ add = (type,parent,attrs) ->
 	setAttrs obj,attrs
 	obj
 
-click = (s) -> 
+click = (s) ->
 	event.preventDefault()
 	if s=='in'  and SIZE > 64 then SIZE //= 2
 	if s=='out' and SIZE < 65536 then SIZE *= 2
@@ -73,7 +73,7 @@ mousemove = (event) ->
 
 touchstart = (event) ->
 	event.preventDefault()
-	touches = event.targetTouches 
+	touches = event.targetTouches
 	if touches.length != 1 then return
 	touch = touches[0]
 	mouse = [touch.clientX,touch.clientY]
@@ -86,7 +86,7 @@ touchend = (event) ->
 touchmove = (event) ->
 	event.preventDefault()
 	if mouse.length == 0 then return
-	touches = event.targetTouches 
+	touches = event.targetTouches
 	if touches.length != 1 then return
 	touch = touches[0]
 	factor = 2
@@ -133,7 +133,7 @@ ass [655360,6553600,100,125], convert [655360+400,6553600+500],1024
 updateTrail = (baseX,baseY,dx,dy) ->
 	if not playPath
 		setAttrs trail, {points:''}
-		return 
+		return
 
 	x0 = baseX - SIZE
 	x1 = baseX + SIZE
@@ -164,23 +164,22 @@ drawMap = ->
 
 	updateTrail Math.round(baseX),Math.round(baseY),Math.round(dx),Math.round(dy)
 
-	if texts.length == 10
+	if texts.length == 8
 		texts[0].textContent = if target.length==2 then "#{bearing target,center} º" else ""
 		texts[1].textContent = if target.length==2 then "#{Math.round distance target,center} m" else ""
 
-		if playPath
-			if record == 0 then texts[2].textContent = "#{playPath.points.length}"
-			if record == 1 then texts[2].textContent = "Record #{recordPath.points.length}"
-		else
-			texts[2].textContent = "Boxes: #{boxes.length}"
+		texts[2].textContent = if playMode==1 then "P: ##{curr} of #{playPath.points.length} (#{myRound 100*curr/playPath.points.length}%) #{playPath.distance}m ETA #{myRound ETA}s" else ""
+		texts[3].textContent = if record == 1 then "R: #3 475s 1203m" else "Recording placeholder"
 
-		texts[3].textContent = "#{SIZE} #{updateMode}#{playMode}#{record}"
-		texts[4].textContent = "#{myRound center[0]}"
-		texts[5].textContent = "#{myRound center[1]}"
-		texts[6].textContent = "#{myRound position[0],6}"
-		texts[7].textContent = "#{myRound position[1],6}"
-		texts[8].textContent = if playMode==1 then "P: ##{curr} of #{playPath.points.length} (#{myRound 100*curr/playPath.points.length}%) #{playPath.distance}m ETA #{myRound ETA}s" else ""
-		texts[9].textContent = if record == 1 then "R: #3 475s 1203m" else "Recording placeholder"
+		if playPath
+			if record == 0 then texts[4].textContent = "#{playPath.points.length}"
+			if record == 1 then texts[4].textContent = "Record #{recordPath.points.length}"
+		else
+			texts[4].textContent = "Boxes: #{boxes.length}"
+
+		texts[5].textContent = "#{SIZE} #{updateMode}#{playMode}#{record}"
+		texts[6].textContent = "#{myRound center[0]} #{myRound center[1]}"
+		texts[7].textContent = "#{myRound position[0],6} #{myRound position[1],6}"
 		
 		if buttons.target then buttons.target.move()
 
@@ -451,14 +450,12 @@ startup = ->
 	makeText x0, y0 # 0
 	makeText x1, y0 # 1
 
-	makeText x2, y3 # 2
-	makeText x2, y4 # 3
-	makeText x0, y5 # 4
-	makeText x1, y5 # 5
-	makeText x0, y6 # 6
-	makeText x1, y6 # 7
-	makeText x2, y1 # 8
-	makeText x2, y2 # 9
+	makeText x2, y1 # 2
+	makeText x2, y2 # 3
+	makeText x2, y3 # 4
+	makeText x2, y4 # 5
+	makeText x2, y5 # 6
+	makeText x2, y6 # 7
 
 	x0 = H * 0.10
 	x1 = W * 0.50
