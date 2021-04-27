@@ -1,6 +1,3 @@
-W = window.innerWidth
-H = window.innerHeight
-
 INVISIBLE = -200
 SIZE = 256 # 64..65536 # rutornas storlek i meter
 TILE = 256 # rutornas storlek i pixels
@@ -441,31 +438,34 @@ startup = ->
 	x0 = 0.36 * W
 	x1 = 0.64 * W
 	x2 = 0.50 * W
-	y0 = H*0.2
+
+	y0 = H*0.05
+
 	y1 = H*0.75
 	y2 = H*0.8
 	y3 = H*0.85
 	y4 = H*0.9
 	y5 = H*0.95
 
-	makeText x0, y0
-	makeText x1, y0
-	makeText x0, y1
-	makeText x1, y1
-	makeText x0, y2
-	makeText x1, y2
-	makeText x0, y3
-	makeText x1, y3
-	makeText x2, y4
-	makeText x2, y5
+	makeText x0, y0 # 0
+	makeText x1, y0 # 1
 
-	x0 = W * 0.10
+	makeText x0, y3 # 2
+	makeText x1, y3 # 3
+	makeText x0, y4 # 4
+	makeText x1, y4 # 5
+	makeText x0, y5 # 6
+	makeText x1, y5 # 7
+	makeText x2, y1 # 8
+	makeText x2, y2 # 9
+
+	x0 = H * 0.10
 	x1 = W * 0.50
-	x2 = W * 0.90
-	y0 = H * 0.15
-	y1 = H * 0.45
+	x2 = W - x0
+	y0 = H * 0.10
+	y1 = H * 0.50
 	#y2 = 512+128
-	y3 = H * 0.75
+	y3 = H * 0.90
 
 	buttons.target = new TargetButton INVISIBLE, INVISIBLE, '', '#f008'
 	new TargetButton x1, y1, "click('aim')"
@@ -474,8 +474,8 @@ startup = ->
 	new Button x0, y3, 'center', "click('center')"
 	new Button x2, y3, 'more', "more(-1)"
 
-	x = (W/2 + 400 * Math.cos radians i for i in range 0,360,60)
-	y = (H/2 + 400 * Math.sin radians i for i in range 0,360,60)
+	x = (W/2 + H*0.25 * Math.cos radians i for i in range 0,360,60)
+	y = (H/2 + H*0.25 * Math.sin radians i for i in range 0,360,60)
 
 	buttons.fetch  = new Button W/2,  H/2,  'fetch', "fetchThePath()", '#ff04'
 	buttons.mark   = new Button x[0], y[0], 'mark', "mark()", '#ff04'

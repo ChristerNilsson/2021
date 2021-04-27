@@ -1,6 +1,6 @@
 class Button 
 	constructor : (@x,@y,@prompt,event,color='#f000') ->
-		@r = 128
+		@r = H * 0.1
 		@circle0 = add 'circle',svg, {cx:@x, cy:@y, r:@r, fill:'none', stroke:'black', 'stroke-width':1}
 		if @prompt != ""
 			@text = add 'text',svg, {x:@x, y:@y+10, stroke:'black', fill:'black', 'stroke-width':1, 'text-anchor':'middle'}
