@@ -285,7 +285,7 @@ sharePath = ->
 	body += "\n"
 
 	if currentPath and currentPath.points.length > 0
-		header = "#{currentPath.points.length} points. #{currentPath.distance} meter."
+		header = "#{elapsedTime} seconds #{userDistance} meter."
 		body += "#{window.location.origin + window.location.pathname}?path=#{currentPath.path}"
 
 	body += "\n\n"

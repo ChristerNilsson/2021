@@ -27,14 +27,15 @@ initSpeaker = ->
 	speaker.text = ''
 	speaker.lang = 'en-GB'
 	if voices and index <= voices.length-1 then speaker.voice = voices[index]
-	messages.push "Welcome! Jacob"
-	say "Welcome! Jacob"
+	messages.push "Welcome! Karl"
+	say "Welcome! Karl"
 
 say = (m) ->
 	if speaker == null then return
 	speechSynthesis.cancel()
 	speaker.text = m
 	speechSynthesis.speak speaker
+	console.log 'say: ' + m
 
 diffToWord = (diff) ->
 	WORDS = ['turn around','sharp left','medium left','left','','right','medium right','sharp right','turn around']
@@ -56,7 +57,7 @@ ass 'turn around',diffToWord 158
 ass 'turn around',diffToWord 180
 
 sayETA = (gpsPoints) ->
-	messages.push "sayETA #{gpsPoints.length}"
+	messages.push "sayETA"
 	if gpsPoints.length < 2 then return 
 	if startingTime == null then return
 	if currentPath.distance == 0 then return 
@@ -68,8 +69,9 @@ sayETA = (gpsPoints) ->
 		usedTime = new Date() - startingTime
 		ETA = usedTime * currentPath.distance / userDistance
 		ETA = Math.round ETA/1000
-		if 10 <= abs ETA-lastETA
+		if 10 <= Math.abs ETA-lastETA
 			messages.push "ETA #{curr} #{ETA // 60}m #{ETA % 60}s"
+			say "ETA #{ETA // 60}minutes and #{ETA % 60}seconds"
 			lastETA = ETA # seconds
 
 sayHint = (gpsPoints) ->
@@ -106,6 +108,7 @@ sayHint = (gpsPoints) ->
 		sayETA gpsPoints
 	catch err
 		messages.push "#{err}"
+		messages.push "#{err.stack}"
 
 	if not onTrack and dist < 10 # meters
 		word = 'track found!'
