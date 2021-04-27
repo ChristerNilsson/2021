@@ -167,7 +167,7 @@ drawMap = ->
 
 	updateTrail Math.round(baseX),Math.round(baseY),Math.round(dx),Math.round(dy)
 
-	if texts.length == 8 
+	if texts.length == 10
 		texts[0].textContent = if target.length==2 then "#{bearing target,center} º" else ""
 		texts[1].textContent = if target.length==2 then "#{Math.round distance target,center} m" else ""
 
@@ -177,11 +177,13 @@ drawMap = ->
 		else
 			texts[2].textContent = "Boxes: #{boxes.length}"
 
-		texts[3].textContent = "#{SIZE} #{updateMode}"
+		texts[3].textContent = "#{SIZE} #{updateMode}#{playMode}#{record}"
 		texts[4].textContent = "#{myRound position[0],6}"
 		texts[5].textContent = "#{myRound position[1],6}"
 		texts[6].textContent = "#{myRound center[0]}"
 		texts[7].textContent = "#{myRound center[1]}"
+		texts[8].textContent = if playMode==1 then "Play: ##{curr} of #{playPath.points.length} (#{myRound curr/playPath.points.length}%) #{playPath.distance}m ETA #{ETA}s" else ""
+		texts[9].textContent = if record == 1 then "Rec: #3 475s 1203m" else ""
 		
 		if buttons.target then buttons.target.move()
 
@@ -436,12 +438,16 @@ startup = ->
 		images.push irow
 		rects.push rrow
 
-	x0 = 0.36*W
-	x1 = 0.64*W
-	y0 = 120+10
-	y1 = H-180+10
-	y2 = H-120+10
-	y3 = H-60+10
+	x0 = 0.36 * W
+	x1 = 0.64 * W
+	x2 = 0.50 * W
+	y0 = 120 + 10
+	y1 = H-300+10
+	y2 = H-240+10
+	y3 = H-180+10
+	y4 = H-120+10
+	y5 = H-60+ 10
+
 	makeText x0, y0
 	makeText x1, y0
 	makeText x0, y1
@@ -450,6 +456,8 @@ startup = ->
 	makeText x1, y2
 	makeText x0, y3
 	makeText x1, y3
+	makeText x2, y4
+	makeText x2, y5
 
 	x0 = 128
 	x1 = W/2

@@ -14,6 +14,7 @@ onTrack = true
 
 voices = null
 lastETA = 0
+ETA = 0
 
 window.speechSynthesis.onvoiceschanged = -> voices = window.speechSynthesis.getVoices()
 
@@ -67,7 +68,7 @@ sayETA = (gpsPoints) ->
 	if userDistance / playPath.distance > 0.1
 		usedTime = new Date() - startingTime
 		ETA = usedTime * playPath.distance / userDistance # ms
-		ETA = Math.round ETA/1000 # secs
+		ETA /= 1000 # secs
 		nextETA = "ETA #{ETA // 60} colon #{myRound(ETA,-1) % 60}"
 		if lastETA != nextETA
 			messages.push nextETA
