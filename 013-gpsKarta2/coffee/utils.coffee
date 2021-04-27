@@ -1,6 +1,7 @@
 range = _.range
 ass = (a,b=true) -> chai.assert.deepEqual a, b
 myRound = (x,dec=0) -> Math.round(x*10**dec)/10**dec
+ass 50,myRound 47,-1
 
 map = (x, x0, x1, y0, y1) -> (x - x0) / (x1 - x0) * (y1 - y0) + y0
 ass 325,map 150,100,200,300,350

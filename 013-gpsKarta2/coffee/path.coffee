@@ -70,7 +70,7 @@ class Path
 			console.log i,box
 			if box[0] == @hash
 				boxes.splice i,1
-				currentPath = null
+				playPath = null
 				localStorage.boxes = JSON.stringify boxes
 				return
 

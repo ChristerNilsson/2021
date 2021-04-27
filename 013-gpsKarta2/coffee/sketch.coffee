@@ -9,12 +9,13 @@ nw = W//TILE
 nh = H//TILE
 
 updateMode = 0 # 0=manual 1=gps
-moreMode = 1
+moreMode = 0 # 0 1=fetch... 2=reverse
 playMode = 0
 record = 0
 
 boxes = []
-currentPath = null
+playPath = null
+recordPath = null
 trail = null # M256,256 l100,100 l50,0
 
 sendMail = (subject,body) ->
@@ -133,7 +134,7 @@ ass [655360,6553600,16,16], convert [655360+64,6553600+64],1024
 ass [655360,6553600,100,125], convert [655360+400,6553600+500],1024
 
 updateTrail = (baseX,baseY,dx,dy) ->
-	if not currentPath
+	if not playPath
 		setAttrs trail, {points:''}
 		return 
 
@@ -143,7 +144,8 @@ updateTrail = (baseX,baseY,dx,dy) ->
 	y1 = baseY + SIZE
 
 	s = []
-	for [x,y] in currentPath.points
+	for [x,y],i in playPath.points
+		if i % 5 != 0 then continue
 		xx = map x, x0,x1, W/2 - TILE, W/2 + TILE
 		yy = map y, y0,y1, H/2 - TILE, H/2 + TILE
 		s.push "#{Math.round xx-dx},#{Math.round H+dy-yy}"
@@ -169,9 +171,9 @@ drawMap = ->
 		texts[0].textContent = if target.length==2 then "#{bearing target,center} º" else ""
 		texts[1].textContent = if target.length==2 then "#{Math.round distance target,center} m" else ""
 
-		if currentPath
-			if record == 0 then texts[2].textContent = "#{currentPath.points.length}"
-			if record == 1 then texts[2].textContent = "Record #{currentPath.points.length}"
+		if playPath
+			if record == 0 then texts[2].textContent = "#{playPath.points.length}"
+			if record == 1 then texts[2].textContent = "Record #{recordPath.points.length}"
 		else
 			texts[2].textContent = "Boxes: #{boxes.length}"
 
@@ -200,19 +202,19 @@ aimEvent = ->
 
 #####
 
-loadPath = -> # url -> localStorage
+loadThePath = -> # url -> localStorage
 	boxes = if localStorage.boxes then JSON.parse localStorage.boxes else []
 	parameters = getParameters()
 	if not parameters.path then return
-	currentPath = new Path parameters.path
-	currentPath.save()
+	playPath = new Path parameters.path
+	playPath.save()
 
-clearPath = ->
-	currentPath = null
+clearThePath = ->
+	playPath = null
 	drawMap()
-	more()
+	more 0
 
-fetchPath = -> # visa alla synliga paths. Närmaste gulmarkeras, övriga gråmarkeras
+fetchThePath = -> # visa alla synliga paths. Närmaste gulmarkeras, övriga gråmarkeras
 	bestDist = 9999999
 	besti = -1
 	for [key,[[x0,y0],[x1,y1]]],i in boxes
@@ -222,42 +224,39 @@ fetchPath = -> # visa alla synliga paths. Närmaste gulmarkeras, övriga gråmar
 				bestDist = d
 				besti = i
 	if besti != -1
-		currentPath = new Path localStorage[boxes[besti][0]]
+		playPath = new Path localStorage[boxes[besti][0]]
 
-		console.log currentPath.points
+		console.log playPath.points
 
-		# currentPath.points.reverse()
-		# messages.push "reverse"
-
-		center = currentPath.points[0].slice()
-	more()
+		center = playPath.points[0].slice()
+	more 0
 	drawMap()
 
 mark = -> # Spara center i localStorage
 	temp = new Path "#{Math.round center[0]},#{Math.round center[1]}"
 	temp.save()
-	more()
+	more 0
 
-playPath = ->
+playThePath = ->
 	playMode = 1 - playMode
 	started = false
 	ended = false
 	makeHints()
-	more()
+	more 0
 
-deletePath = -> # tag bort current Path från localStorage
-	currentPath.delete()
-	more()
+deleteThePath = -> # tag bort current Path från localStorage
+	playPath.delete()
+	more 0
 
-recordPath = -> # start/stopp av inspelning av path
+recordThePath = -> # start/stopp av inspelning av path
 	record = 1 - record
-	if record == 1 then currentPath = new Path ""
-	if record == 0 then currentPath.save()
+	if record == 1 then recordPath = new Path ""
+	if record == 0 then recordPath.save()
 	buttons.record.setTextFill ['#000f','#f00f'][record]
-	texts[2].textContent = "#{currentPath.points.length}"
-	more()
+	texts[2].textContent = "#{recordPath.points.length}"
+	more 0
 
-sharePath = ->
+shareThePath = ->
 	header = ''
 	body = ''
 
@@ -284,9 +283,9 @@ sharePath = ->
 	if messages then body += messages.join "\n"
 	body += "\n"
 
-	if currentPath and currentPath.points.length > 0
+	if playPath and playPath.points.length > 0
 		header = "#{myRound elapsedTime/1000} seconds #{myRound userDistance} meter."
-		body += "#{window.location.origin + window.location.pathname}?path=#{currentPath.path}"
+		body += "#{window.location.origin + window.location.pathname}?path=#{playPath.path}"
 
 	body += "\n\n"
 	for box,i in boxes
@@ -306,7 +305,13 @@ sharePath = ->
 
 	sendMail header, body
 	messages.length = 0
-	more()
+	more 0
+
+reverseThePath = ->
+	playPath.points.reverse()
+	messages.push "reverse"
+	drawMap()
+	more 0
 
 #####
 
@@ -331,7 +336,7 @@ locationUpdate = (p) ->
 	if gpsPoints.length > 10 then gpsPoints.shift()
 	console.log gpsPoints
 	messages.push "locationUpdate #{myRound temp[0]} #{myRound temp[1]}"
-	if record == 1 then currentPath.points.push temp.slice()
+	if record == 1 then recordPath.points.push temp.slice()
 	if updateMode == 1 then center = temp
 	if playMode == 1 then sayHint gpsPoints
 	drawMap()
@@ -374,13 +379,23 @@ initTrail = ->
 			'marker-mid' : "url(#dot)"
 			'marker-end' : "url(#end)"
 
-more = () ->
+more = (next) ->
+	#console.log 'moreA',moreMode,next
 	if speaker == null then initSpeaker()
-	moreMode = 1 - moreMode
-	names = "fetch record mark play clear delete share"
-	for name in names.split ' '
-		if moreMode == 0 then buttons[name].disable()
-		if moreMode == 1 then buttons[name].enable()
+	names1 = "fetch record mark play clear delete share".split ' '
+	names2 = "reverse".split ' '
+	#console.log names1.concat names2
+	for name in names1.concat names2
+		buttons[name].disable()
+	if next == -1 then next = (moreMode+1) % 3
+	moreMode = next
+	if moreMode == 1
+		for name in names1
+			buttons[name].enable()
+	if moreMode == 2
+		for name in names2
+			buttons[name].enable()
+	#console.log 'moreB',moreMode,next
 
 rensaLocalStorage = ->
 	for key in ''.split ' '
@@ -399,7 +414,7 @@ rensaLocalStorage = ->
 	localStorage.boxes = JSON.stringify boxes
 
 startup = ->
-	loadPath()
+	loadThePath()
 	rensaLocalStorage()
 	initGPS()
 	add 'rect',svg,{width:W, height:H, fill:'green'}
@@ -449,21 +464,24 @@ startup = ->
 	new Button x0, y0, 'in',  "click('in')"
 	new Button x2, y0, 'out', "click('out')"
 	new Button x0, y3, 'center', "click('center')"
-	new Button x2, y3, 'more', "more()"
+	new Button x2, y3, 'more', "more(-1)"
 
 	x = (W/2 + 400 * Math.cos radians i for i in range 0,360,60)
 	y = (H/2 + 400 * Math.sin radians i for i in range 0,360,60)
 
-	buttons.fetch  = new Button W/2,  H/2,  'fetch', "fetchPath()", '#ff04'
+	buttons.fetch  = new Button W/2,  H/2,  'fetch', "fetchThePath()", '#ff04'
 	buttons.mark   = new Button x[0], y[0], 'mark', "mark()", '#ff04'
-	buttons.delete = new Button x[1], y[1], 'delete', "deletePath()", '#ff04'
-	buttons.clear  = new Button x[2], y[2], 'clear', "clearPath()", '#ff04'
-	buttons.record = new Button x[3], y[3], 'record', "recordPath()", '#ff04'
-	buttons.play   = new Button x[4], y[4], 'play', "playPath()", '#ff04'
-	buttons.share  = new Button x[5], y[5], 'share', "sharePath()", '#ff04'
+	buttons.delete = new Button x[1], y[1], 'delete', "deleteThePath()", '#ff04'
+	buttons.clear  = new Button x[2], y[2], 'clear', "clearThePath()", '#ff04'
+	buttons.record = new Button x[3], y[3], 'record', "recordThePath()", '#ff04'
+	buttons.play   = new Button x[4], y[4], 'play', "playThePath()", '#ff04'
+	buttons.share  = new Button x[5], y[5], 'share', "shareThePath()", '#ff04'
 	
+	buttons.reverse  = new Button W/2,  H/2,  'reverse', "reverseThePath()", '#ff04'
+
 	initTrail()
-	more()
+	more 0
+	console.log boxes.length
 	drawMap()
 
 startup()

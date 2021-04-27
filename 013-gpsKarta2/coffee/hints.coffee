@@ -57,26 +57,27 @@ ass 'turn around',diffToWord 158
 ass 'turn around',diffToWord 180
 
 sayETA = (gpsPoints) ->
-	if gpsPoints.length < 2 then return 
+	if gpsPoints.length < 2 then return
 	if startingTime == null then return
-	if currentPath.distance == 0 then return 
+	if playPath.distance == 0 then return
 
 	n = gpsPoints.length
 	userDistance += distance gpsPoints[n-2],gpsPoints[n-1]
 	if userDistance == 0 then return 
-	if userDistance / currentPath.distance > 0.1
+	if userDistance / playPath.distance > 0.1
 		usedTime = new Date() - startingTime
-		ETA = usedTime * currentPath.distance / userDistance
-		ETA = Math.round ETA/1000
-		if 10 <= Math.abs ETA-lastETA
-			messages.push "ETA #{curr} #{ETA // 60}m #{ETA % 60}s"
-			say "ETA #{ETA // 60}minutes and #{ETA % 60}seconds"
-			lastETA = ETA # seconds
+		ETA = usedTime * playPath.distance / userDistance # ms
+		ETA = Math.round ETA/1000 # secs
+		nextETA = "ETA #{ETA // 60} colon #{myRound(ETA,-1) % 60}"
+		if lastETA != nextETA
+			messages.push nextETA
+			say nextETA
+			lastETA = nextETA
 
 sayHint = (gpsPoints) ->
 	N = 5
-	if not currentPath or gpsPoints.length == 0 then return
-	points = currentPath.points
+	if not playPath or gpsPoints.length == 0 then return
+	points = playPath.points
 	last = gpsPoints.length-1
 	gps = gpsPoints[last]
 	[curr,dist] = findNearest gps,points
@@ -142,7 +143,7 @@ findNearest = (p1,polygon) ->
 makeHints = ->
 	console.log 'makeHints'
 	hints = {}
-	points = currentPath.points
+	points = playPath.points
 	console.log points
 	for i in range 2,points.length - 3
 		b0 = bearing points[i-2],points[i]
