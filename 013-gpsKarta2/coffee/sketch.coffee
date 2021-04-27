@@ -175,12 +175,12 @@ drawMap = ->
 			texts[2].textContent = "Boxes: #{boxes.length}"
 
 		texts[3].textContent = "#{SIZE} #{updateMode}#{playMode}#{record}"
-		texts[4].textContent = "#{myRound position[0],6}"
-		texts[5].textContent = "#{myRound position[1],6}"
-		texts[6].textContent = "#{myRound center[0]}"
-		texts[7].textContent = "#{myRound center[1]}"
+		texts[4].textContent = "#{myRound center[0]}"
+		texts[5].textContent = "#{myRound center[1]}"
+		texts[6].textContent = "#{myRound position[0],6}"
+		texts[7].textContent = "#{myRound position[1],6}"
 		texts[8].textContent = if playMode==1 then "P: ##{curr} of #{playPath.points.length} (#{myRound 100*curr/playPath.points.length}%) #{playPath.distance}m ETA #{myRound ETA}s" else ""
-		texts[9].textContent = if record == 1 then "R: #3 475s 1203m" else ""
+		texts[9].textContent = if record == 1 then "R: #3 475s 1203m" else "Recording placeholder"
 		
 		if buttons.target then buttons.target.move()
 
@@ -442,20 +442,21 @@ startup = ->
 	y0 = H*0.05
 
 	y1 = H*0.75
-	y2 = H*0.8
-	y3 = H*0.85
-	y4 = H*0.9
-	y5 = H*0.95
+	y2 = H*0.79
+	y3 = H*0.84
+	y4 = H*0.89
+	y5 = H*0.94
+	y6 = H*0.99
 
 	makeText x0, y0 # 0
 	makeText x1, y0 # 1
 
-	makeText x0, y3 # 2
-	makeText x1, y3 # 3
-	makeText x0, y4 # 4
-	makeText x1, y4 # 5
-	makeText x0, y5 # 6
-	makeText x1, y5 # 7
+	makeText x2, y3 # 2
+	makeText x2, y4 # 3
+	makeText x0, y5 # 4
+	makeText x1, y5 # 5
+	makeText x0, y6 # 6
+	makeText x1, y6 # 7
 	makeText x2, y1 # 8
 	makeText x2, y2 # 9
 
