@@ -313,9 +313,9 @@ reverseThePath = ->
 
 #####
 
-makeText = (x,y) ->
-	text = add 'text',svg, {x:x, y:y, stroke:'black', 'stroke-width':1, 'text-anchor':'middle'}
-	text.style.fontSize = '50px'
+makeText = (x,y,color='black') ->
+	text = add 'text',svg, {x:x, y:y, fill:color, stroke:'none', 'stroke-width':1, 'text-anchor':'middle'}
+	text.style.fontSize = '40px'
 	text.style.userSelect = 'none'
 	texts.push text
 
@@ -451,7 +451,7 @@ startup = ->
 	makeText x1, y0 # 1
 
 	makeText x2, y1 # 2
-	makeText x2, y2 # 3
+	makeText x2, y2, 'red' # 3
 	makeText x2, y3 # 4
 	makeText x2, y4 # 5
 	makeText x2, y5 # 6

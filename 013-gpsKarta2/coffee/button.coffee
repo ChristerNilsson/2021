@@ -3,7 +3,7 @@ class Button
 		@r = H * 0.1
 		@circle0 = add 'circle',svg, {cx:@x, cy:@y, r:@r, fill:'none', stroke:'black', 'stroke-width':1}
 		if @prompt != ""
-			@text = add 'text',svg, {x:@x, y:@y+10, stroke:'black', fill:'black', 'stroke-width':1, 'text-anchor':'middle'}
+			@text = add 'text',svg, {x:@x, y:@y+10, stroke:'none', fill:'black', 'stroke-width':1, 'text-anchor':'middle'}
 			@text.textContent = @prompt
 			@text.style.fontSize = '50px'
 			@text.style.userSelect = 'none'

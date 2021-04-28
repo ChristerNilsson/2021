@@ -36,7 +36,7 @@ say = (m) ->
 	speechSynthesis.cancel()
 	speaker.text = m
 	speechSynthesis.speak speaker
-	console.log 'say: ' + m
+	messages.push 'say: ' + m
 
 diffToWord = (diff) ->
 	WORDS = ['turn around','sharp left','medium left','left','','right','medium right','sharp right','turn around']
@@ -65,15 +65,17 @@ sayETA = (gpsPoints) ->
 	n = gpsPoints.length
 	userDistance += distance gpsPoints[n-2],gpsPoints[n-1]
 	if userDistance == 0 then return 
-	if userDistance / playPath.distance > 0.1
-		usedTime = new Date() - startingTime
-		ETA = usedTime * playPath.distance / userDistance # ms
-		ETA /= 1000 # secs
-		nextETA = "ETA #{ETA // 60} colon #{myRound(ETA,-1) % 60}"
-		if lastETA != nextETA
-			messages.push nextETA
-			say nextETA
-			lastETA = nextETA
+	progress = userDistance / playPath.distance
+	resolution = if progress < 0.5 then 60 else 10
+	usedTime = new Date() - startingTime
+	ETA = usedTime * playPath.distance / userDistance # ms
+	ETA /= 1000 # secs
+	if resolution == 60 then nextETA = "#{ETA // 60}"
+	if resolution == 10 then nextETA = "#{ETA // 60} #{myRound(ETA,-1) % 60}"
+	if lastETA != nextETA
+		#messages.push nextETA
+		say nextETA
+		lastETA = nextETA
 
 sayHint = (gpsPoints) ->
 	N = 5

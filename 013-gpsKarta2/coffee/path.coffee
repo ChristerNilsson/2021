@@ -40,7 +40,7 @@ class Path
 			if x > xmax then xmax = x
 			if y < ymin then ymin = y
 			if y > ymax then ymax = y
-		[[xmin,ymin],[xmax,ymax]]
+		[[myRound(xmin),myRound(ymin)],[myRound(xmax),myRound(ymax)]]
 
 	hashCode : (path) ->
 		hash = 0
