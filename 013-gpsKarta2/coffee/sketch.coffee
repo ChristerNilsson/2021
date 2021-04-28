@@ -295,10 +295,10 @@ shareThePath = ->
 		key = localStorage.key i
 		if key=='boxes' then continue
 		bytes = localStorage[key].length
-		if bytes < 200
-			body += "\nLocalStorage #{key} (#{bytes} bytes)\n"
-			body += "#{localStorage[key]}\n"
-			total += bytes
+		#if bytes < 200
+		body += "\nLocalStorage #{key} (#{bytes} bytes)\n"
+		#body += "#{localStorage[key]}\n"
+		total += bytes
 	body += "\nSize in bytes: #{total}\n"
 
 	sendMail header, body
@@ -333,7 +333,7 @@ locationUpdate = (p) ->
 	gpsPoints.push temp.slice()
 	if gpsPoints.length > 10 then gpsPoints.shift()
 	console.log gpsPoints
-	messages.push "locationUpdate #{myRound temp[0]} #{myRound temp[1]}"
+	messages.push "LU #{myRound temp[0]} #{myRound temp[1]}"
 	if record == 1 then recordPath.points.push temp.slice()
 	if updateMode == 1 then center = temp
 	if playMode == 1 then sayHint gpsPoints

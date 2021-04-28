@@ -28,7 +28,6 @@ initSpeaker = ->
 	speaker.text = ''
 	speaker.lang = 'en-GB'
 	if voices and index <= voices.length-1 then speaker.voice = voices[index]
-	messages.push "Welcome! Karl"
 	say "Welcome! Karl"
 
 say = (m) ->
@@ -36,7 +35,7 @@ say = (m) ->
 	speechSynthesis.cancel()
 	speaker.text = m
 	speechSynthesis.speak speaker
-	messages.push 'say: ' + m
+	messages.push 'SAY ' + m
 
 diffToWord = (diff) ->
 	WORDS = ['turn around','sharp left','medium left','left','','right','medium right','sharp right','turn around']
@@ -122,7 +121,7 @@ sayHint = (gpsPoints) ->
 	else
 		word = if curr+N of hints then hints[curr+N] else ''
 	if lastSpoken != word
-		messages.push "hint #{curr} #{points[curr]} #{word} #{dist}"
+		messages.push "HINT #{curr} #{points[curr]} #{word} #{dist}"
 		say word
 		lastSpoken = word
 
@@ -156,6 +155,4 @@ makeHints = ->
 
 		word = diffToWord diff
 		if word != '' then hints[i] = word
-			#console.log "#{i} #{points[i]} #{b0} #{b1} #{diff} #{word}"
-			#messages.push "#{i} #{word}"
 	console.log hints
