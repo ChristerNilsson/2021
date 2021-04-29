@@ -1,7 +1,9 @@
-VERSION = '29B'
+VERSION = '29.3'
 INVISIBLE = -200
 SIZE = 256 # 64..65536 # rutornas storlek i meter
 TILE = 256 # rutornas storlek i pixels
+
+RESOLUTION = 3 # separation in meter between gps-points
 
 nw = W//TILE
 nh = H//TILE
@@ -21,7 +23,7 @@ svg = document.getElementById 'svgOne'
 
 #position = [59.09443087294174, 17.7142975294884] # 6553600,655360
 position = [59.265196, 18.132748] # Home (lat long)
-grid = []
+#grid = []
 
 center = [] # skärmens mittpunkt (sweref). Påverkas av pan (x y) (6 7)
 target = [] # målkoordinater (sweref)
@@ -329,19 +331,19 @@ locationUpdateFail = (error) ->	if error.code == error.PERMISSION_DENIED then me
 
 locationUpdate = (p) ->
 	position = [p.coords.latitude, p.coords.longitude]
-	grid = geodetic_to_grid position[0],position[1]
-	temp = grid
-	temp.reverse()
-	gpsPoints.push temp.slice()
+	xy = geodetic_to_grid position[0],position[1]
+	xy.reverse()
+	n = gpsPoints.length
+	if n > 0 and RESOLUTION > distance xy,gpsPoints[n-1] then return 
+	gpsPoints.push xy.slice()
 	if gpsPoints.length > 10 then gpsPoints.shift()
-	# console.log gpsPoints
-	messages.push "LU #{myRound temp[0]} #{myRound temp[1]}"
+	messages.push "LU #{myRound xy[0]} #{myRound xy[1]}"
 	if record == 1
-		recordPath.points.push temp.slice()
+		recordPath.points.push xy.slice()
 		n = gpsPoints.length
 		if n > 1 then userDistanceRecord += distance gpsPoints[n-2],gpsPoints[n-1]
 
-	if updateMode == 1 then center = temp
+	if updateMode == 1 then center = xy
 	if playMode == 1 then sayHint gpsPoints
 	drawMap()
 
