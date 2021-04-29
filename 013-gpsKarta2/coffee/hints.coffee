@@ -14,6 +14,7 @@ onTrack = true
 
 voices = null
 lastETA = 0
+lastETAtimestamp = 0 # seconds since startingTime
 ETA = 0
 
 window.speechSynthesis.onvoiceschanged = -> voices = window.speechSynthesis.getVoices()
@@ -28,7 +29,7 @@ initSpeaker = ->
 	speaker.text = ''
 	speaker.lang = 'en-GB'
 	if voices and index <= voices.length-1 then speaker.voice = voices[index]
-	say "Welcome! Karl"
+	say "Welcome! 29A"
 
 say = (m) ->
 	if speaker == null then return
@@ -65,16 +66,17 @@ sayETA = (gpsPoints) ->
 	userDistance += distance gpsPoints[n-2],gpsPoints[n-1]
 	if userDistance == 0 then return 
 	progress = userDistance / playPath.distance
-	resolution = if progress < 0.5 then 60 else 10
-	usedTime = new Date() - startingTime
+	currTime = new Date()
+	usedTime = currTime - startingTime
 	ETA = usedTime * playPath.distance / userDistance # ms
 	ETA /= 1000 # secs
+	resolution = if progress < 0.5 then 60 else 10
 	if resolution == 60 then nextETA = "#{ETA // 60}"
 	if resolution == 10 then nextETA = "#{ETA // 60} #{myRound(ETA,-1) % 60}"
-	if lastETA != nextETA
-		#messages.push nextETA
-		say nextETA
+	if lastETA != nextETA and usedTime - lastETAtimestamp > 10000 # 10 seconds
+		lastETAtimestamp = usedTime
 		lastETA = nextETA
+		say nextETA
 
 sayHint = (gpsPoints) ->
 	N = 5

@@ -167,20 +167,20 @@ drawMap = ->
 	if texts.length == 8
 		texts[0].textContent = if target.length==2 then "#{bearing target,center} º" else ""
 		texts[1].textContent = if target.length==2 then "#{Math.round distance target,center} m" else ""
-		texts[2].textContent = if playMode==1 then "P: ##{curr} of #{playPath.points.length} (#{myRound 100*curr/playPath.points.length}%) #{playPath.distance}m ETA #{myRound ETA}s" else ""
+		texts[2].textContent = if playMode==1 then "P ##{curr} of #{playPath.points.length} (#{myRound 100*curr/playPath.points.length}%) #{playPath.distance}m ETA #{myRound ETA}s" else ""
 		t = new Date()
 		elapsedTime = (t - startingTime)/1000 # secs
-		texts[3].textContent = if record == 1 then "R: ##{recordPath.points.length} #{myRound elapsedTime}s #{myRound userDistance}m" else ""
+		texts[3].textContent = if record == 1 then "R ##{recordPath.points.length} #{myRound elapsedTime}s #{myRound userDistance}m" else ""
 
-		if playPath
-			if record == 0 then texts[4].textContent = "#{playPath.points.length}"
-			if record == 1 then texts[4].textContent = "Record #{recordPath.points.length}"
-		else
-			texts[4].textContent = "Tracks: #{boxes.length}"
+		# if playPath
+		# 	if record == 0 then texts[4].textContent = "#{playPath.points.length}"
+		# 	if record == 1 then texts[4].textContent = "Record #{recordPath.points.length}"
+		# else
+		texts[4].textContent = "Tracks: #{boxes.length}"
 
-		texts[5].textContent = "#{SIZE} #{updateMode}#{playMode}#{record}"
-		texts[6].textContent = "#{myRound center[0]} #{myRound center[1]}"
-		texts[7].textContent = "#{myRound position[0],6} #{myRound position[1],6}"
+		texts[5].textContent = "Z#{SIZE} #{updateMode} #{playMode} #{record}"
+		texts[6].textContent = "X#{myRound center[0]} Y#{myRound center[1]}"
+		texts[7].textContent = "N#{myRound position[0],6} E#{myRound position[1],6}"
 		
 		if buttons.target then buttons.target.move()
 
@@ -331,7 +331,7 @@ locationUpdate = (p) ->
 	temp.reverse()
 	gpsPoints.push temp.slice()
 	if gpsPoints.length > 10 then gpsPoints.shift()
-	console.log gpsPoints
+	# console.log gpsPoints
 	messages.push "LU #{myRound temp[0]} #{myRound temp[1]}"
 	if record == 1 then recordPath.points.push temp.slice()
 	if updateMode == 1 then center = temp
@@ -486,7 +486,7 @@ startup = ->
 
 	initTrail()
 	more 0
-	console.log boxes.length
+	# console.log boxes.length
 	drawMap()
 
 startup()
