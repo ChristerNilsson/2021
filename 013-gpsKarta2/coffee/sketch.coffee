@@ -167,15 +167,16 @@ drawMap = ->
 	if texts.length == 8
 		texts[0].textContent = if target.length==2 then "#{bearing target,center} º" else ""
 		texts[1].textContent = if target.length==2 then "#{Math.round distance target,center} m" else ""
-
 		texts[2].textContent = if playMode==1 then "P: ##{curr} of #{playPath.points.length} (#{myRound 100*curr/playPath.points.length}%) #{playPath.distance}m ETA #{myRound ETA}s" else ""
-		texts[3].textContent = if record == 1 then "R: #3 475s 1203m" else "Recording placeholder"
+		t = new Date()
+		elapsedTime = (t - startingTime)/1000 # secs
+		texts[3].textContent = if record == 1 then "R: ##{recordPath.points.length} #{myRound elapsedTime}s #{myRound userDistance}m" else ""
 
 		if playPath
 			if record == 0 then texts[4].textContent = "#{playPath.points.length}"
 			if record == 1 then texts[4].textContent = "Record #{recordPath.points.length}"
 		else
-			texts[4].textContent = "Boxes: #{boxes.length}"
+			texts[4].textContent = "Tracks: #{boxes.length}"
 
 		texts[5].textContent = "#{SIZE} #{updateMode}#{playMode}#{record}"
 		texts[6].textContent = "#{myRound center[0]} #{myRound center[1]}"
@@ -254,6 +255,17 @@ recordThePath = -> # start/stopp av inspelning av path
 	texts[2].textContent = "#{recordPath.points.length}"
 	more 0
 
+showBoxes = (body) ->
+
+	total = 0
+	for box,i in boxes
+		[hash,[[xmin,ymin],[xmax,ymax]]] = box
+		bytes = localStorage[hash].length
+		body += "Track #{i+1}: xmin=#{xmin} ymin=#{ymin} xmax=#{xmax} ymax=#{ymax} hash=#{hash} bytes=#{bytes}\n"
+		total += bytes
+	body += "\nSize in bytes: #{total}\n"
+	return body
+
 shareThePath = ->
 	header = ''
 	body = ''
@@ -265,8 +277,8 @@ shareThePath = ->
 	messages.push "ended #{ended}"
 	messages.push "startingTime #{startingTime}"
 	messages.push "endingTime #{endingTime}"
-	messages.push "elapsedTime #{elapsedTime}"
-	messages.push "userDistance #{userDistance}"
+	messages.push "elapsedTime #{myRound elapsedTime/1000}"
+	messages.push "userDistance #{myRound userDistance}"
 	messages.push "lastETA #{lastETA}"
 	messages.push "updateMode #{updateMode}"
 	messages.push "moreMode #{moreMode}"
@@ -286,20 +298,7 @@ shareThePath = ->
 		body += "#{window.location.origin + window.location.pathname}?path=#{playPath.path}"
 
 	body += "\n\n"
-	for box,i in boxes
-		[hash,[[xmin,ymin],[xmax,ymax]]] = box
-		body += "Box #{i+1}: xmin=#{xmin} ymin=#{ymin} xmax=#{xmax} ymax=#{ymax} hash=#{hash}\n"
-
-	total = 0
-	for i in range localStorage.length
-		key = localStorage.key i
-		if key=='boxes' then continue
-		bytes = localStorage[key].length
-		#if bytes < 200
-		body += "\nLocalStorage #{key} (#{bytes} bytes)\n"
-		#body += "#{localStorage[key]}\n"
-		total += bytes
-	body += "\nSize in bytes: #{total}\n"
+	body = showBoxes body
 
 	sendMail header, body
 	messages.length = 0
