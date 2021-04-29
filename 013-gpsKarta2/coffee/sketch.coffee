@@ -1,4 +1,4 @@
-VERSION = '29.3'
+VERSION = '29.5'
 INVISIBLE = -200
 SIZE = 256 # 64..65536 # rutornas storlek i meter
 TILE = 256 # rutornas storlek i pixels
@@ -252,7 +252,9 @@ deleteThePath = -> # tag bort current Path från localStorage
 
 recordThePath = -> # start/stopp av inspelning av path
 	record = 1 - record
-	if record == 1 then recordPath = new Path ""
+	if record == 1
+		recordPath = new Path ""
+		startingTimeRecord = new Date()
 	if record == 0 then recordPath.save()
 	buttons.record.setTextFill ['#000f','#f00f'][record]
 	texts[2].textContent = "#{recordPath.points.length}"
@@ -273,14 +275,15 @@ shareThePath = ->
 	header = ''
 	body = ''
 
+	messages.push "RESOLUTION #{RESOLUTION}"
 	messages.push "curr #{curr}"
 	messages.push "lastWord #{lastWord}"
 	messages.push "lastSpoken #{lastSpoken}"
 	messages.push "started #{started}"
 	messages.push "ended #{ended}"
-	messages.push "startingTimePlay #{startingTimePlay}"
-	messages.push "startingTimeRecord #{startingTimeRecord}"
-	messages.push "endingTime #{endingTime}"
+	if startingTimePlay then messages.push "startingTimePlay #{startingTimePlay.toLocaleString sv}"
+	if startingTimeRecord then messages.push "startingTimeRecord #{startingTimeRecord.toLocaleString sv}"
+	if endingTime then messages.push "endingTime #{endingTime.toLocaleString sv}"
 	messages.push "elapsedTime #{myRound elapsedTime/1000}"
 	messages.push "userDistancePlay #{myRound userDistancePlay}"
 	messages.push "userDistanceRecord #{myRound userDistanceRecord}"
@@ -327,14 +330,16 @@ nada = (event) ->
 	event.preventDefault()
 	event.stopPropagation()
 
-locationUpdateFail = (error) ->	if error.code == error.PERMISSION_DENIED then messages = ['','','','','','Check location permissions']
+locationUpdateFail = (error) ->	messages.push "locationUpdateFail #{error}" 
 
 locationUpdate = (p) ->
 	position = [p.coords.latitude, p.coords.longitude]
 	xy = geodetic_to_grid position[0],position[1]
 	xy.reverse()
 	n = gpsPoints.length
-	if n > 0 and RESOLUTION > distance xy,gpsPoints[n-1] then return 
+	if n > 0 and RESOLUTION > distance xy,gpsPoints[n-1]
+		messages.push "skipped #{xy[0]} #{xy[1]}"
+		return 
 	gpsPoints.push xy.slice()
 	if gpsPoints.length > 10 then gpsPoints.shift()
 	messages.push "LU #{myRound xy[0]} #{myRound xy[1]}"
