@@ -1,3 +1,4 @@
+VERSION = '29B'
 INVISIBLE = -200
 SIZE = 256 # 64..65536 # rutornas storlek i meter
 TILE = 256 # rutornas storlek i pixels
@@ -15,15 +16,6 @@ playPath = null
 recordPath = null
 trail = null # M256,256 l100,100 l50,0
 
-sendMail = (subject,body) ->
-	mail.href = "mailto:janchrister.nilsson@gmail.com?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body)
-	mail.click()
-
-setAttrs = (obj,attrs) ->
-	if not obj then return 
-	for key of attrs
-		obj.setAttributeNS null, key, attrs[key]
-
 svgurl = "http://www.w3.org/2000/svg"
 svg = document.getElementById 'svgOne'
 
@@ -39,6 +31,15 @@ images = []
 rects = []
 texts = []
 buttons = {}
+
+sendMail = (subject,body) ->
+	mail.href = "mailto:janchrister.nilsson@gmail.com?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body)
+	mail.click()
+
+setAttrs = (obj,attrs) ->
+	if not obj then return 
+	for key of attrs
+		obj.setAttributeNS null, key, attrs[key]
 
 add = (type,parent,attrs) ->
 	obj = document.createElementNS svgurl, type
@@ -169,8 +170,8 @@ drawMap = ->
 		texts[1].textContent = if target.length==2 then "#{Math.round distance target,center} m" else ""
 		texts[2].textContent = if playMode==1 then "P ##{curr} of #{playPath.points.length} (#{myRound 100*curr/playPath.points.length}%) #{playPath.distance}m ETA #{myRound ETA}s" else ""
 		t = new Date()
-		elapsedTime = (t - startingTime)/1000 # secs
-		texts[3].textContent = if record == 1 then "R ##{recordPath.points.length} #{myRound elapsedTime}s #{myRound userDistance}m" else ""
+		elapsedTime = (t - startingTimeRecord)/1000 # secs
+		texts[3].textContent = if record == 1 then "R ##{recordPath.points.length} #{myRound elapsedTime}s #{myRound userDistanceRecord}m" else ""
 
 		# if playPath
 		# 	if record == 0 then texts[4].textContent = "#{playPath.points.length}"
@@ -178,7 +179,7 @@ drawMap = ->
 		# else
 		texts[4].textContent = "Tracks: #{boxes.length}"
 
-		texts[5].textContent = "Z#{SIZE} #{updateMode} #{playMode} #{record}"
+		texts[5].textContent = "Z#{SIZE} #{updateMode} #{playMode} #{record} #{VERSION}"
 		texts[6].textContent = "X#{myRound center[0]} Y#{myRound center[1]}"
 		texts[7].textContent = "N#{myRound position[0],6} E#{myRound position[1],6}"
 		
@@ -275,10 +276,12 @@ shareThePath = ->
 	messages.push "lastSpoken #{lastSpoken}"
 	messages.push "started #{started}"
 	messages.push "ended #{ended}"
-	messages.push "startingTime #{startingTime}"
+	messages.push "startingTimePlay #{startingTimePlay}"
+	messages.push "startingTimeRecord #{startingTimeRecord}"
 	messages.push "endingTime #{endingTime}"
 	messages.push "elapsedTime #{myRound elapsedTime/1000}"
-	messages.push "userDistance #{myRound userDistance}"
+	messages.push "userDistancePlay #{myRound userDistancePlay}"
+	messages.push "userDistanceRecord #{myRound userDistanceRecord}"
 	messages.push "lastETA #{lastETA}"
 	messages.push "updateMode #{updateMode}"
 	messages.push "moreMode #{moreMode}"
@@ -294,7 +297,7 @@ shareThePath = ->
 	body += "\n"
 
 	if playPath and playPath.points.length > 0
-		header = "#{myRound elapsedTime/1000} seconds #{myRound userDistance} meter."
+		header = "#{myRound elapsedTime/1000} seconds #{myRound userDistancePlay} meter."
 		body += "#{window.location.origin + window.location.pathname}?path=#{playPath.path}"
 
 	body += "\n\n"
@@ -333,7 +336,11 @@ locationUpdate = (p) ->
 	if gpsPoints.length > 10 then gpsPoints.shift()
 	# console.log gpsPoints
 	messages.push "LU #{myRound temp[0]} #{myRound temp[1]}"
-	if record == 1 then recordPath.points.push temp.slice()
+	if record == 1
+		recordPath.points.push temp.slice()
+		n = gpsPoints.length
+		if n > 1 then userDistanceRecord += distance gpsPoints[n-2],gpsPoints[n-1]
+
 	if updateMode == 1 then center = temp
 	if playMode == 1 then sayHint gpsPoints
 	drawMap()

@@ -6,15 +6,17 @@ hints = {}
 
 started = false
 ended = false
-startingTime = null
+startingTimePlay = null
+startingTimeRecord = null
 endingTime = null
 elapsedTime = 0
-userDistance = 0
+userDistancePlay = 0
+userDistanceRecord = 0
 onTrack = true
 
 voices = null
 lastETA = 0
-lastETAtimestamp = 0 # seconds since startingTime
+lastETAtimestamp = 0 # seconds since startingTimePlay
 ETA = 0
 
 window.speechSynthesis.onvoiceschanged = -> voices = window.speechSynthesis.getVoices()
@@ -29,7 +31,7 @@ initSpeaker = ->
 	speaker.text = ''
 	speaker.lang = 'en-GB'
 	if voices and index <= voices.length-1 then speaker.voice = voices[index]
-	say "Welcome! 29A"
+	say "Welcome! #{VERSION}"
 
 say = (m) ->
 	if speaker == null then return
@@ -59,16 +61,16 @@ ass 'turn around',diffToWord 180
 
 sayETA = (gpsPoints) ->
 	if gpsPoints.length < 2 then return
-	if startingTime == null then return
+	if startingTimePlay == null then return
 	if playPath.distance == 0 then return
 
 	n = gpsPoints.length
-	userDistance += distance gpsPoints[n-2],gpsPoints[n-1]
-	if userDistance == 0 then return 
-	progress = userDistance / playPath.distance
+	userDistancePlay += distance gpsPoints[n-2],gpsPoints[n-1]
+	if userDistancePlay == 0 then return 
+	progress = userDistancePlay / playPath.distance
 	currTime = new Date()
-	usedTime = currTime - startingTime
-	ETA = usedTime * playPath.distance / userDistance # ms
+	usedTime = currTime - startingTimePlay
+	ETA = usedTime * playPath.distance / userDistancePlay # ms
 	ETA /= 1000 # secs
 	resolution = if progress < 0.5 then 60 else 10
 	if resolution == 60 then nextETA = "#{ETA // 60}"
@@ -90,17 +92,17 @@ sayHint = (gpsPoints) ->
 
 	if not started and 25 > distance gps,points[0]
 		started = true
-		startingTime = new Date()
-		messages.push "trackStarted #{startingTime}"
+		startingTimePlay = new Date()
+		messages.push "trackStarted #{startingTimePlay}"
 		say 'track started!'
-		userDistance = 0
+		userDistancePlay = 0
 		onTrack = true
 		return
 
 	if started and not ended and 10 > distance gps,points[points.length-1]
 		ended = true
 		endingTime = new Date()
-		elapsedTime = endingTime - startingTime
+		elapsedTime = endingTime - startingTimePlay
 		messages.push "elapsedTime #{elapsedTime}"
 		say 'track ended!'
 		return
