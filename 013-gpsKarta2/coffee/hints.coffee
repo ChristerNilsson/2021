@@ -7,7 +7,6 @@ hints = {}
 started = false
 ended = false
 startingTimePlay = null
-startingTimeRecord = null
 endingTime = null
 elapsedTime = 0
 userDistancePlay = 0

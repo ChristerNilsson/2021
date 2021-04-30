@@ -1,9 +1,9 @@
-VERSION = '29.5'
+VERSION = '29.6'
 INVISIBLE = -200
 SIZE = 256 # 64..65536 # rutornas storlek i meter
 TILE = 256 # rutornas storlek i pixels
 
-RESOLUTION = 3 # separation in meter between gps-points
+RESOLUTION = 4 # separation in meter between gps-points
 
 nw = W//TILE
 nh = H//TILE
@@ -17,6 +17,8 @@ boxes = []
 playPath = null
 recordPath = null
 trail = null # M256,256 l100,100 l50,0
+
+startingTimeRecord = null
 
 svgurl = "http://www.w3.org/2000/svg"
 svg = document.getElementById 'svgOne'
@@ -273,14 +275,16 @@ shareThePath = ->
 	header = ''
 	body = ''
 
-	messages.push 'Explanations:'
-	messages.push 'HINT index x y (distance in meter)'
-	messages.push 'SAY text'
-	messages.push 'LU x y (gps location in SWEREF)'
-	messages.push 'gps index (distance in meter) closest point in track being played'
-	messages.push 'trackStarted yyyy-mm-dd hh:mm:ss'
-	messages.push 'trackEnded   yyyy-mm-dd hh:mm:ss'
 	messages.push ''
+	messages.push 'Explanations:'
+	messages.push ' HINT index x y (distance in meter)'
+	messages.push ' SAY text'
+	messages.push ' LU x y (gps location in SWEREF)'
+	messages.push ' gps index (distance in meter) closest point in track being played'
+	messages.push ' trackStarted yyyy-mm-dd hh:mm:ss'
+	messages.push ' trackEnded   yyyy-mm-dd hh:mm:ss'
+	messages.push ''
+	messages.push "VERSION #{VERSION}"
 	messages.push "RESOLUTION #{RESOLUTION}"
 	messages.push "curr #{curr}"
 	messages.push "lastWord #{lastWord}"
@@ -348,7 +352,7 @@ locationUpdate = (p) ->
 	xy.reverse()
 	n = gpsPoints.length
 	if n > 0 and RESOLUTION > distance xy,gpsPoints[n-1]
-		messages.push "skipped #{xy[0]} #{xy[1]}"
+		messages.push "skipped #{myRound xy[0]} #{myRound xy[1]}"
 		return 
 	gpsPoints.push xy.slice()
 	if gpsPoints.length > 10 then gpsPoints.shift()

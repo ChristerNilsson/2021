@@ -4,10 +4,14 @@
 * visa hastighet just nu
 * Kolla att ETA och verklig tid stämmer i slutet.
 
-* Lagra skippade punkter komprimerat? T ex 00 (följt av upp till 27 sekunder)
-	* Kan ev underlätta tidräkning. Gissning av uppförbacke och nerförbacke
+* Lagra skippade punkter komprimerat? T ex 00 (ev följt av upp till 27 sekunder, t ex 00 0Z eller bara 01 för varje sekund)
+	* Kan ev underlätta tidräkning. Undviker gissning av uppförbacke och nerförbacke
 
 * Flytta in vissa variabler till klassen Path:
 	* startingTime
 	* endingTime
 	* userDistance
+
+* inför addPoint i klassen Path.
+
+* Visa Total körtid efter avslutning, både för Play och Record
