@@ -1,9 +1,9 @@
-VERSION = '29.7'
+VERSION = '29.8'
 INVISIBLE = -200
 SIZE = 256 # 64..65536 # rutornas storlek i meter
 TILE = 256 # rutornas storlek i pixels
 
-RESOLUTION = 4 # separation in meter between gps-points
+RESOLUTION = 5 # separation in meter between gps-points
 
 nw = W//TILE
 nh = H//TILE
