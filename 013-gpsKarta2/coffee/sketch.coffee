@@ -1,4 +1,4 @@
-VERSION = '29.8'
+VERSION = '29.9'
 INVISIBLE = -200
 SIZE = 256 # 64..65536 # rutornas storlek i meter
 TILE = 256 # rutornas storlek i pixels
@@ -277,13 +277,14 @@ shareThePath = ->
 		body = ''
 
 		messages.push ''
-		messages.push 'Explanations:'
+		messages.push 'Explanations: #####'
 		messages.push ' HINT index x y (distance in meter)'
 		messages.push ' SAY text'
 		messages.push ' LU x y (gps location in SWEREF)'
 		messages.push ' gps index (distance in meter) closest point in track being played'
 		messages.push ' trackStarted yyyy-mm-dd hh:mm:ss'
 		messages.push ' trackEnded   yyyy-mm-dd hh:mm:ss'
+		messages.push '###################'
 		messages.push ''
 		messages.push "VERSION #{VERSION}"
 		messages.push "RESOLUTION #{RESOLUTION}"
@@ -292,9 +293,9 @@ shareThePath = ->
 		messages.push "lastSpoken #{lastSpoken}"
 		messages.push "started #{started}"
 		messages.push "ended #{ended}"
-		if startingTimePlay then messages.push "startingTimePlay #{startingTimePlay.toLocaleString sv}"
-		if startingTimeRecord then messages.push "startingTimeRecord #{startingTimeRecord.toLocaleString sv}"
-		if endingTime then messages.push "endingTime #{endingTime.toLocaleString sv}"
+		# if startingTimePlay then messages.push "startingTimePlay #{startingTimePlay.toLocaleString sv}"
+		# if startingTimeRecord then messages.push "startingTimeRecord #{startingTimeRecord.toLocaleString sv}"
+		# if endingTime then messages.push "endingTime #{endingTime.toLocaleString sv}"
 		messages.push "elapsedTime #{myRound elapsedTime/1000}"
 		messages.push "userDistancePlay #{myRound userDistancePlay}"
 		messages.push "userDistanceRecord #{myRound userDistanceRecord}"
@@ -312,13 +313,13 @@ shareThePath = ->
 		if messages then body += messages.join "\n"
 		body += "\n"
 
-		if playPath and playPath.points.length > 0
-			header += "P #{myRound userDistancePlay} meter #{playPath.points.length} points"
-			body += "Play #{window.location.origin + window.location.pathname}?path=#{playPath.path}\n"
+		# if playPath and playPath.points.length > 0
+		# 	header += "P #{myRound userDistancePlay} meter #{playPath.points.length} points"
+		# 	body += "Play #{window.location.origin + window.location.pathname}?path=#{playPath.path}\n"
 
-		if recordPath and recordPath.points.length > 0
-			header += "R #{myRound userDistanceRecord} meter #{recordPath.points.length} points"
-			body += "Record #{window.location.origin + window.location.pathname}?path=#{recordPath.path}\n"
+		# if recordPath and recordPath.points.length > 0
+		# 	header += "R #{myRound userDistanceRecord} meter #{recordPath.points.length} points"
+		# 	body += "Record #{window.location.origin + window.location.pathname}?path=#{recordPath.path}\n"
 
 		body += "\n"
 		body = showBoxes body
