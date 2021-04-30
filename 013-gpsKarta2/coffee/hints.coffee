@@ -31,7 +31,7 @@ initSpeaker = ->
 	speaker.text = ''
 	speaker.lang = 'en-GB'
 	if voices and index <= voices.length-1 then speaker.voice = voices[index]
-	say "Welcome! #{VERSION}"
+	say "#{VERSION}"
 
 say = (m) ->
 	if speaker == null then return

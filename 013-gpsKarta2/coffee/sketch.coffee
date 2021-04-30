@@ -145,7 +145,7 @@ updateTrail = (baseX,baseY,dx,dy) ->
 
 	s = []
 	for [x,y],i in playPath.points
-		if i % 5 != 0 then continue
+		#if i % 5 != 0 then continue
 		xx = map x, x0,x1, W/2 - TILE, W/2 + TILE
 		yy = map y, y0,y1, H/2 - TILE, H/2 + TILE
 		s.push "#{Math.round xx-dx},#{Math.round H+dy-yy}"
@@ -167,6 +167,9 @@ drawMap = ->
 
 	updateTrail Math.round(baseX),Math.round(baseY),Math.round(dx),Math.round(dy)
 
+	updateTexts()
+
+updateTexts = ->
 	if texts.length == 8
 		texts[0].textContent = if target.length==2 then "#{bearing target,center} º" else ""
 		texts[1].textContent = if target.length==2 then "#{Math.round distance target,center} m" else ""
@@ -174,14 +177,9 @@ drawMap = ->
 		t = new Date()
 		elapsedTime = (t - startingTimeRecord)/1000 # secs
 		texts[3].textContent = if record == 1 then "R ##{recordPath.points.length} #{myRound elapsedTime}s #{myRound userDistanceRecord}m" else ""
-
-		# if playPath
-		# 	if record == 0 then texts[4].textContent = "#{playPath.points.length}"
-		# 	if record == 1 then texts[4].textContent = "Record #{recordPath.points.length}"
-		# else
 		texts[4].textContent = "Tracks: #{boxes.length}"
 
-		texts[5].textContent = "Z#{SIZE} #{updateMode} #{playMode} #{record} #{VERSION}"
+		texts[5].textContent = "Z#{SIZE} U#{updateMode} P#{playMode} R#{record} V#{VERSION}"
 		texts[6].textContent = "X#{myRound center[0]} Y#{myRound center[1]}"
 		texts[7].textContent = "N#{myRound position[0],6} E#{myRound position[1],6}"
 		
@@ -275,6 +273,14 @@ shareThePath = ->
 	header = ''
 	body = ''
 
+	messages.push 'Explanations:'
+	messages.push 'HINT index x y (distance in meter)'
+	messages.push 'SAY text'
+	messages.push 'LU x y (gps location in SWEREF)'
+	messages.push 'gps index (distance in meter) closest point in track being played'
+	messages.push 'trackStarted yyyy-mm-dd hh:mm:ss'
+	messages.push 'trackEnded   yyyy-mm-dd hh:mm:ss'
+	messages.push ''
 	messages.push "RESOLUTION #{RESOLUTION}"
 	messages.push "curr #{curr}"
 	messages.push "lastWord #{lastWord}"
@@ -302,10 +308,14 @@ shareThePath = ->
 	body += "\n"
 
 	if playPath and playPath.points.length > 0
-		header = "#{myRound elapsedTime/1000} seconds #{myRound userDistancePlay} meter."
-		body += "#{window.location.origin + window.location.pathname}?path=#{playPath.path}"
+		header += "P #{myRound userDistancePlay} meter #{playPath.points.length} points"
+		body += "Play #{window.location.origin + window.location.pathname}?path=#{playPath.path}\n"
 
-	body += "\n\n"
+	if recordPath and recordPath.points.length > 0
+		header += "R #{myRound userDistanceRecord} meter #{recordPath.points.length} points"
+		body += "Record #{window.location.origin + window.location.pathname}?path=#{recordPath.path}\n"
+
+	body += "\n"
 	body = showBoxes body
 
 	sendMail header, body
@@ -361,7 +371,7 @@ initGPS = ->
 makeMarker = (name,n,color) ->
 	result = add 'marker', svg, 
 		id : name
-		viewBox : "0 0 #{2*n+1} #{2*n+1}"
+		viewBox : "-1 -1 #{2*n+1} #{2*n+1}"
 		refX : n
 		refY : n
 		markerWidth : n
@@ -379,7 +389,7 @@ initTrail = ->
 		trail = add 'path', svg, {d:"", stroke:'red', 'stroke-width':1, fill:'none'}
 	else
 		makeMarker 'start', 8, 'green'
-		makeMarker 'dot', 2,'yellow'
+		makeMarker 'dot', 4,'yellow'
 		makeMarker 'end', 8, 'red'
 		trail = add 'polyline', svg, 
 			points : ''
@@ -391,11 +401,9 @@ initTrail = ->
 			'marker-end' : "url(#end)"
 
 more = (next) ->
-	#console.log 'moreA',moreMode,next
 	if speaker == null then initSpeaker()
 	names1 = "fetch record mark play clear delete share".split ' '
 	names2 = "reverse".split ' '
-	#console.log names1.concat names2
 	for name in names1.concat names2
 		buttons[name].disable()
 	if next == -1 then next = (moreMode+1) % 3
@@ -406,7 +414,6 @@ more = (next) ->
 	if moreMode == 2
 		for name in names2
 			buttons[name].enable()
-	#console.log 'moreB',moreMode,next
 
 rensaLocalStorage = ->
 	for key in ''.split ' '
