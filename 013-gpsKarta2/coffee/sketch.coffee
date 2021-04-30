@@ -1,4 +1,4 @@
-VERSION = '29.9'
+VERSION = '7'
 INVISIBLE = -200
 SIZE = 256 # 64..65536 # rutornas storlek i meter
 TILE = 256 # rutornas storlek i pixels
@@ -272,7 +272,8 @@ showBoxes = (body) ->
 	return body
 
 shareThePath = ->
-	try
+	try # verkar inte hitta undefined variable sv
+
 		header = ''
 		body = ''
 
@@ -293,9 +294,11 @@ shareThePath = ->
 		messages.push "lastSpoken #{lastSpoken}"
 		messages.push "started #{started}"
 		messages.push "ended #{ended}"
-		# if startingTimePlay then messages.push "startingTimePlay #{startingTimePlay.toLocaleString sv}"
-		# if startingTimeRecord then messages.push "startingTimeRecord #{startingTimeRecord.toLocaleString sv}"
-		# if endingTime then messages.push "endingTime #{endingTime.toLocaleString sv}"
+
+		if startingTimePlay then messages.push "startingTimePlay #{startingTimePlay.toLocaleString 'sv'}"
+		if startingTimeRecord then messages.push "startingTimeRecord #{startingTimeRecord.toLocaleString 'sv'}"
+		if endingTime then messages.push "endingTime #{endingTime.toLocaleString 'sv'}"
+
 		messages.push "elapsedTime #{myRound elapsedTime/1000}"
 		messages.push "userDistancePlay #{myRound userDistancePlay}"
 		messages.push "userDistanceRecord #{myRound userDistanceRecord}"
@@ -313,13 +316,13 @@ shareThePath = ->
 		if messages then body += messages.join "\n"
 		body += "\n"
 
-		# if playPath and playPath.points.length > 0
-		# 	header += "P #{myRound userDistancePlay} meter #{playPath.points.length} points"
-		# 	body += "Play #{window.location.origin + window.location.pathname}?path=#{playPath.path}\n"
+		if playPath and playPath.points.length > 0
+			header += "P #{myRound userDistancePlay} meter #{playPath.points.length} points"
+			body += "Play #{window.location.origin + window.location.pathname}?path=#{playPath.path}\n"
 
-		# if recordPath and recordPath.points.length > 0
-		# 	header += "R #{myRound userDistanceRecord} meter #{recordPath.points.length} points"
-		# 	body += "Record #{window.location.origin + window.location.pathname}?path=#{recordPath.path}\n"
+		if recordPath and recordPath.points.length > 0
+			header += "R #{myRound userDistanceRecord} meter #{recordPath.points.length} points"
+			body += "Record #{window.location.origin + window.location.pathname}?path=#{recordPath.path}\n"
 
 		body += "\n"
 		body = showBoxes body
@@ -327,9 +330,11 @@ shareThePath = ->
 		sendMail header, body
 		messages.length = 0
 		more 0
+
 	catch err
-		messages.push err.message
-		messages.push err.stack
+		console.log err
+		messages.push "ERROR #{err.message}"
+		messages.push "STACK #{err.stack}"
 
 reverseThePath = ->
 	playPath.points.reverse()
@@ -357,7 +362,8 @@ locationUpdate = (p) ->
 	xy.reverse()
 	n = gpsPoints.length
 	if n > 0 and RESOLUTION > distance xy,gpsPoints[n-1]
-		messages.push "skipped #{myRound xy[0]} #{myRound xy[1]}"
+		# messages.push "skipped #{myRound xy[0]} #{myRound xy[1]}"
+		messages.push "."
 		return 
 	gpsPoints.push xy.slice()
 	if gpsPoints.length > 10 then gpsPoints.shift()

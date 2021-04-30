@@ -92,7 +92,7 @@ sayHint = (gpsPoints) ->
 	if not started and 25 > distance gps,points[0]
 		started = true
 		startingTimePlay = new Date()
-		messages.push "trackStarted #{startingTimePlay.toLocaleString sv}"
+		messages.push "trackStarted #{startingTimePlay.toLocaleString 'sv'}"
 		say 'track started!'
 		userDistancePlay = 0
 		onTrack = true
