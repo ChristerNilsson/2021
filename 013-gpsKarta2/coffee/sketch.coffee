@@ -1,4 +1,4 @@
-VERSION = '8'
+VERSION = '9'
 INVISIBLE = -200
 SIZE = 256 # 64..65536 # rutornas storlek i meter
 TILE = 256 # rutornas storlek i pixels
@@ -365,10 +365,10 @@ locationUpdate = (p) ->
 	xy = geodetic_to_grid position[0],position[1]
 	xy.reverse()
 	n = gpsPoints.length
-	if n > 0 and RESOLUTION > distance xy,gpsPoints[n-1]
+	if n > 0 and RESOLUTION > distance xy,gpsPoints[n-1] then return
 		# messages.push "skipped #{myRound xy[0]} #{myRound xy[1]}"
-		messages.push "."
-		return 
+		# messages.push "."
+		# return 
 	gpsPoints.push xy.slice()
 	if gpsPoints.length > 10 then gpsPoints.shift()
 	messages.push "LU #{myRound xy[0]} #{myRound xy[1]}"

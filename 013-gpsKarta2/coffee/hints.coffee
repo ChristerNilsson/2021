@@ -98,7 +98,7 @@ sayHint = (gpsPoints) ->
 		onTrack = true
 		return
 
-	if started and not ended and 10 > distance gps,points[points.length-1]
+	if started and not ended and 10 > distance(gps,points[points.length-1]) and userDistancePlay > 0.5 * playPath.distance
 		ended = true
 		endingTime = new Date()
 		elapsedTime = endingTime - startingTimePlay
