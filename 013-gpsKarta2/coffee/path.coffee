@@ -7,6 +7,11 @@ class Path
 			@distance = 0
 			@count = 0
 			@box = null
+			
+			#@startingTime
+			#@endingTime
+			#* userDistance
+
 		else
 			@points = decodeAll @path
 
@@ -21,6 +26,9 @@ class Path
 			@distance = @calcDist() # in meters
 			@count = @points.length
 			@box = @calcBox()
+
+	addPoint : (xy) ->
+		@points.push xy
 
 	calcDist : ->
 		res = 0

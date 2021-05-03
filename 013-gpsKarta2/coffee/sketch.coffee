@@ -1,4 +1,4 @@
-VERSION = '7'
+VERSION = '8'
 INVISIBLE = -200
 SIZE = 256 # 64..65536 # rutornas storlek i meter
 TILE = 256 # rutornas storlek i pixels
@@ -175,12 +175,16 @@ updateTexts = ->
 	if texts.length == 8
 		texts[0].textContent = if target.length==2 then "#{bearing target,center} º" else ""
 		texts[1].textContent = if target.length==2 then "#{Math.round distance target,center} m" else ""
-		texts[2].textContent = if playMode==1 then "P ##{curr} of #{playPath.points.length} (#{myRound 100*curr/playPath.points.length}%) #{playPath.distance}m ETA #{myRound ETA}s" else ""
+
+		texts[2].textContent = if playMode==1 then "P ##{curr} of #{playPath.points.length} (#{myRound 100*curr/playPath.points.length}%) #{playPath.distance}m ETA #{myRound ETA}s" else "play off"
+		setAttrs texts[2], {fill:['#000f','#060f'][playMode]}
+
 		t = new Date()
 		elapsedTime = (t - startingTimeRecord)/1000 # secs
-		texts[3].textContent = if record == 1 then "R ##{recordPath.points.length} #{myRound elapsedTime}s #{myRound userDistanceRecord}m" else ""
-		texts[4].textContent = "Tracks: #{boxes.length}"
+		texts[3].textContent = if record == 1 then "R ##{recordPath.points.length} #{myRound elapsedTime}s #{myRound userDistanceRecord}m" else "record off"
+		setAttrs texts[3], {fill:['#000f','#f00f'][record]}
 
+		texts[4].textContent = "Tracks: #{boxes.length}"
 		texts[5].textContent = "Z#{SIZE} U#{updateMode} P#{playMode} R#{record} V#{VERSION}"
 		texts[6].textContent = "X#{myRound center[0]} Y#{myRound center[1]}"
 		texts[7].textContent = "N#{myRound position[0],6} E#{myRound position[1],6}"
@@ -369,7 +373,8 @@ locationUpdate = (p) ->
 	if gpsPoints.length > 10 then gpsPoints.shift()
 	messages.push "LU #{myRound xy[0]} #{myRound xy[1]}"
 	if record == 1
-		recordPath.points.push xy.slice()
+		#recordPath.addPoint xy
+		recordPath.points.push xy
 		n = gpsPoints.length
 		if n > 1 then userDistanceRecord += distance gpsPoints[n-2],gpsPoints[n-1]
 

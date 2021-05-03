@@ -12,10 +12,6 @@
 	* endingTime
 	* userDistance
 
-* inför addPoint i klassen Path.
-
 * Visa Total körtid efter avslutning, både för Play och Record
 
 * Efter fetch ska texts[4] visa antal punkter samt sträcka.
-
-* Aktiv play visas med grönt.
