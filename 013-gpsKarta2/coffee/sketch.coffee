@@ -1,4 +1,4 @@
-VERSION = '9'
+VERSION = '10'
 INVISIBLE = -200
 SIZE = 256 # 64..65536 # rutornas storlek i meter
 TILE = 256 # rutornas storlek i pixels
@@ -512,8 +512,8 @@ startup = ->
 	new Button x0, y3, 'center', "click('center')"
 	new Button x2, y3, 'more', "more(-1)"
 
-	x = (W/2 + H*0.25 * Math.cos radians i for i in range 0,360,60)
-	y = (H/2 + H*0.25 * Math.sin radians i for i in range 0,360,60)
+	x = (W/2 + H*0.2 * Math.cos radians i for i in range 0,360,60)
+	y = (H/2 + H*0.2 * Math.sin radians i for i in range 0,360,60)
 
 	buttons.fetch  = new Button W/2,  H/2,  'fetch', "fetchThePath()", '#ff04'
 	buttons.mark   = new Button x[0], y[0], 'mark', "mark()", '#ff04'
