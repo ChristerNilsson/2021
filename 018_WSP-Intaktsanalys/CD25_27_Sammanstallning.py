@@ -21,11 +21,11 @@ class Sammanstallning:
     def totala_intakter(self,andel): #2.6
         # intäkter per biljettslag/produkttyp - 'alt'
         self.df_intakter = self.resandedata_long[['okalibrerad_intakt_JA','Ypred','alt']].groupby(['alt']).sum()/andel #Utdata task #14 per biljettslag nivå, Ypred är antal resenärer
-        
+
     def kalibreringsfaktorer(self,kalibreringsmal): #2.7
         ##summerar de två sista raderna (enkel_app och -_accesskort) och byter namn##
         summa_enkelbiljett = kalibreringsmal.iloc[3:].sum()[0]
-        kalibreringsmal = kalibreringsmal.iloc[:3,:]
+        kalibreringsmal = kalibreringsmal.iloc[:3,:].copy() # eliminates mutation warning
         kalibreringsmal.loc['enkelbiljett',:] = summa_enkelbiljett
         
         ##Läser in skattad intäkt från intäktsberäkningen##
