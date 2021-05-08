@@ -26,9 +26,10 @@ def compare(filename):
             print(' Comparing column',colname)
             dtype1 = csv1[colname].dtype
             dtype2 = csv1[colname].dtype
+            if dtype1=='float': continue
             col1 = csv1[colname]
             col2 = csv2[colname]
-            for j in range(min(10000,rows)):
+            for j in range(rows):
                 cell1 = col1[j]
                 cell2 = col2[j]
                 if dtype1 == 'float':

@@ -42,7 +42,8 @@ class Bearbetning:
     
     def indatakontroll(self):
         #Byter ut å,ä,ö
-        self.all_data.replace({ 'ö' : 'o', 'å' : 'a', 'ä' : 'a' , 'Ö' : 'O' , 'Ä' : 'A' , 'Å' : 'A' }, inplace=True, regex=False); #I datan
+        self.all_data = self.all_data.replace({ 'ö' : 'o', 'å' : 'a', 'ä' : 'a' , 'Ö' : 'O' , 'Ä' : 'A' , 'Å' : 'A' }, regex=True); #I datan
+        #self.all_data.replace({ 'ö' : 'o', 'å' : 'a', 'ä' : 'a' , 'Ö' : 'O' , 'Ä' : 'A' , 'Å' : 'A' }, inplace=True, regex=False); #I datan
         self.all_data.columns = [c.replace('ö', 'o').replace('ä', 'a').replace('å', 'a').replace('Ö', 'O').replace('Ä', 'A').replace('Å', 'A').replace(' ', '_') for c in self.all_data.columns.tolist()]; #I kolumnhuvuden0
         #Hanterar kolumn 10-99 som anger antal resor per dag och period på dygnet
         kolumner=self.all_data.columns.tolist()
