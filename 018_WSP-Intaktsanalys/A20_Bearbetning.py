@@ -5,9 +5,10 @@
 
 
 import pandas as pd
-import numpy as np
-import pickle
-import sys
+# import numpy as np
+# import pickle
+# import sys
+import time
 
 
 # In[2]:
@@ -22,6 +23,8 @@ import sys
 
 class Bearbetning:
     def __init__(self, resmonsterfil, inkludera_manader=False):
+        print("Reading",resmonsterfil)
+        start = time.time()
         self.resmonsterfil = resmonsterfil
         #Initierar attribut
         self.all_data = pd.DataFrame()
@@ -32,7 +35,8 @@ class Bearbetning:
         self.indatakontroll()
         self.bearbeta_resandedata(inkludera_manader)
         self.dela_upp_alder()
-        
+        print(" CPU:",time.time()-start)
+
     def importera_data(self):
         #Importerar resandedata
         self.all_data=pd.read_csv(self.resmonsterfil,parse_dates=['DatumFörstaBlipp','DatumSistaBlipp'])
@@ -42,8 +46,8 @@ class Bearbetning:
     
     def indatakontroll(self):
         #Byter ut å,ä,ö
-        self.all_data = self.all_data.replace({ 'ö' : 'o', 'å' : 'a', 'ä' : 'a' , 'Ö' : 'O' , 'Ä' : 'A' , 'Å' : 'A' }, regex=True); #I datan
-        #self.all_data.replace({ 'ö' : 'o', 'å' : 'a', 'ä' : 'a' , 'Ö' : 'O' , 'Ä' : 'A' , 'Å' : 'A' }, inplace=True, regex=False); #I datan
+        #self.all_data = self.all_data.replace({ 'ö' : 'o', 'å' : 'a', 'ä' : 'a' , 'Ö' : 'O' , 'Ä' : 'A' , 'Å' : 'A' }, regex=True); #I datan
+        self.all_data.replace({ 'ö' : 'o', 'å' : 'a', 'ä' : 'a' , 'Ö' : 'O' , 'Ä' : 'A' , 'Å' : 'A' }, inplace=True, regex=True); #I datan
         self.all_data.columns = [c.replace('ö', 'o').replace('ä', 'a').replace('å', 'a').replace('Ö', 'O').replace('Ä', 'A').replace('Å', 'A').replace(' ', '_') for c in self.all_data.columns.tolist()]; #I kolumnhuvuden0
         #Hanterar kolumn 10-99 som anger antal resor per dag och period på dygnet
         kolumner=self.all_data.columns.tolist()
@@ -68,19 +72,29 @@ class Bearbetning:
     def bearbeta_resandedata(self,inkludera_manader):
         #Filtrera bort de med 0 resor per månad och som började gälla utanför rätt period
         if inkludera_manader:
-            print(str(len(self.all_data[~(self.all_data.DatumForstaBlipp.dt.month.isin(inkludera_manader))]))+" rad(er) plockas bort på grund av att de ligger utanför perioden.")
-            self.all_data=self.all_data[(self.all_data.DatumForstaBlipp.dt.month.isin(inkludera_manader))]
-        print(str(len(self.all_data[(self.all_data.Antal_resor_per_manad==0)]))+" rad(er) plockas bort på grund av 0 antal resor per månad.")
-        self.all_data=self.all_data[(self.all_data.Antal_resor_per_manad!=0)]
+
+            antal = len(self.all_data[~(self.all_data.DatumForstaBlipp.dt.month.isin(inkludera_manader))])
+            print(f" {antal} rad(er) plockas bort på grund av att de ligger utanför perioden.")
+            self.all_data = self.all_data[(self.all_data.DatumForstaBlipp.dt.month.isin(inkludera_manader))]
+
+        antal = len(self.all_data[(self.all_data.Antal_resor_per_manad == 0)])
+        print(f" {antal} rad(er) plockas bort på grund av 0 antal resor per månad.")
+        self.all_data = self.all_data[(self.all_data.Antal_resor_per_manad != 0)]
         #Rader där antal resor per månad och summerat antal resor på 30 dagar inte överensstämmer plockas bort
-        print(str(len(self.all_data[self.all_data.loc[:,"antalresor_dag_1":"antalresor_dag_30"].sum(1)!=self.all_data.Antal_resor_per_manad]))+" rad(er) plockas bort på grund av fel antal resor per månad.")
-        print(str(len(self.all_data[self.all_data.loc[:,"antalresor_rus_dag_1":"antalresor_rus_dag_30"].sum(1)!=self.all_data.Antal_resor_per_manad_under_rusningstid]))+" rad(er) plockas bort på grund av fel antal resor per månad under rusningstid.")
-        print(str(len(self.all_data[self.all_data.loc[:,"antalresor_lag_dag_1":"antalresor_lag_dag_30"].sum(1)!=self.all_data.Antal_resor_per_manad_under_lagtrafik]))+" rad(er) plockas bort på grund av fel antal resor per månad under lågtrafik.")
+
+        antal = len(self.all_data[self.all_data.loc[:,"antalresor_dag_1":"antalresor_dag_30"].sum(1)!=self.all_data.Antal_resor_per_manad])
+        print(f" {antal} rad(er) plockas bort på grund av fel antal resor per månad.")
+
+        antal = len(self.all_data[self.all_data.loc[:,"antalresor_rus_dag_1":"antalresor_rus_dag_30"].sum(1)!=self.all_data.Antal_resor_per_manad_under_rusningstid])
+        print(str()+f" {antal} rad(er) plockas bort på grund av fel antal resor per månad under rusningstid.")
+
+        antal = len(self.all_data[self.all_data.loc[:,"antalresor_lag_dag_1":"antalresor_lag_dag_30"].sum(1)!=self.all_data.Antal_resor_per_manad_under_lagtrafik])
+        print(f" {antal} rad(er) plockas bort på grund av fel antal resor per månad under lågtrafik.")
         self.all_data=self.all_data[(self.all_data.loc[:,"antalresor_dag_1":"antalresor_dag_30"].sum(1)==self.all_data.Antal_resor_per_manad)&
                 (self.all_data.loc[:,"antalresor_rus_dag_1":"antalresor_rus_dag_30"].sum(1)==self.all_data.Antal_resor_per_manad_under_rusningstid)&
                 (self.all_data.loc[:,"antalresor_lag_dag_1":"antalresor_lag_dag_30"].sum(1)==self.all_data.Antal_resor_per_manad_under_lagtrafik)]
         #Kortval definieras beroende på typ av biljett
-        self.all_data['kortval']=None
+        self.all_data['kortval'] = None
         self.all_data.loc[self.all_data.SalesProductName.str.startswith('30'), 'kortval'] = 1
         self.all_data.loc[self.all_data.SalesProductName.str.startswith('90')|self.all_data.SalesProductName.str.startswith('Ars'), 'kortval'] = 2
         self.all_data.loc[self.all_data.SalesProductName.str.startswith('Reskassa'), 'kortval'] = 3

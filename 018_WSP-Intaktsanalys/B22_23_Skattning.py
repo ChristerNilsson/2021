@@ -1,9 +1,8 @@
-import statsmodels.api as sm           # statistic package, requires Pip install at VSC terminal. 
-import statsmodels.formula.api as smf
-from sklearn import linear_model       # model package, requires Pip install at VSC terminal
-from patsy import dmatrices            # matrix package, requires Pip install at VSC terminal
-
-import matplotlib.pyplot as plt        #ploting package, requires Pip install at VSC terminal
+# import statsmodels.api as sm           # statistic package, requires Pip install at VSC terminal.
+# import statsmodels.formula.api as smf
+# from sklearn import linear_model       # model package, requires Pip install at VSC terminal
+#from patsy import dmatrices            # matrix package, requires Pip install at VSC terminal
+#import matplotlib.pyplot as plt        #ploting package, requires Pip install at VSC terminal
  
 from collections import OrderedDict    # Dictionary for param estimation in Pylogit package
 import pylogit as pl                   # For MNL model estimation (conditional logit), requires Pip install at VSC terminal 
@@ -78,7 +77,7 @@ class Skattning:
     
     def skapa_dummier(self):
         dummies = pd.get_dummies(self.resandedata_just_long['alt'],drop_first=True) # use the first alternative (månadskort) as reference level
-        self.resandedata_just_long = pd.concat([self.resandedata_just_long, dummies], axis=1)              # make dummies of alternative as equivalent to N-1 factor 
+        self.resandedata_just_long = pd.concat([self.resandedata_just_long, dummies], axis=1) # make dummies of alternative as equivalent to N-1 factor
         self.resandedata_just_long.rename(columns = {2:'alt2',3:'alt3',4:'alt4'}, inplace = True) #Renaming dummy columns: alt 2: LPK, alt 3: reskassan, alt 4: enkelbiljett
         
     def mnl(self): #2.3 & 2.4
@@ -106,7 +105,9 @@ class Skattning:
 
         # Estimate the given model, starting from a point of all zeros
         # as the initial values.
-        model_results = model.fit_mle(np.zeros(4),just_point=True)  #modell coefficients stored in model_results #RuntimeWarning: Method BFGS does not use Hessian information (hess).
+        # modell coefficients stored in model_results
+        # RuntimeWarning: Method BFGS does not use Hessian information (hess).
+        model_results = model.fit_mle(np.zeros(4),just_point=True)
 
         ## Look at the estimation summaries, not in use due to limit of RAM
         #df_model.get_statsmodels_summary()
@@ -114,7 +115,8 @@ class Skattning:
         mle_params = model_results['x'] # x - parameters
         self.param_list = [mle_params,None,None,None] #Utdata #11
         # följer med ordning:Kortvalsparameter för Långa_periodbiljetter,Förköp_enkel,Direktköp_enkel och Kostnader per biljettslag
-        
-        predictions = model.predict(self.resandedata_just_long, param_list=self.param_list) #FutureWarning: arrays to stack must be passed as a "sequence" type such as list or tuple. Support for non-sequence iterables such as generators is deprecated as of NumPy 1.16 and will raise an error in the future.
-        self.resandedata_just_long['Ypred'] = pd.Series(predictions,index=self.resandedata_just_long.index) #utdata #12
 
+        # FutureWarning: arrays to stack must be passed as a "sequence" type such as list or tuple.
+        # Support for non-sequence iterables such as generators is deprecated as of NumPy 1.16 and will raise an error in the future.
+        predictions = model.predict(self.resandedata_just_long, param_list=self.param_list)
+        self.resandedata_just_long['Ypred'] = pd.Series(predictions,index=self.resandedata_just_long.index) #utdata #12

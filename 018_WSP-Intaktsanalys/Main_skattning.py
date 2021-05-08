@@ -7,6 +7,9 @@
 
 import pandas as pd
 import numpy as np
+import time
+
+start = time.time()
 
 from A20_Bearbetning import *
 
@@ -79,3 +82,5 @@ del skattning_rp.param_list
 
 np.savetxt("data\\skattning_ASCs_hp.csv", skattning_hp.ASCs, fmt="%s", delimiter=",")
 np.savetxt("data\\skattning_ASCs_rp.csv", skattning_rp.ASCs, fmt="%s", delimiter=",")
+
+print(time.time()-start)

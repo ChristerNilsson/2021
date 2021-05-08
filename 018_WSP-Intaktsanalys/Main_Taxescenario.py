@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-import pandas as pd
-import numpy as np
+# import pandas as pd
+# import numpy as np
 
 from A20_Bearbetning import *
 
@@ -13,14 +13,17 @@ resmonsterfil_JA = "data\\LeveransTillWSP_75_min_20200915.csv"
 
 #resandedata_JA.*p bör läsas in från nuläget om resmonsterfil_UA == resmonsterfil_JA
 #När scenarierna körs från olika filer kommer den köra om oavsett.
-try:
-    if resmonsterfil_UA != resmonsterfil_JA:
-    #7 Läser in resandedatan och bearbetar den
-        resandedata_UA = Bearbetning(resmonsterfil=resmonsterfil_UA,inkludera_manader=[9])
-    else:
-        resandedata_UA = Bearbetning(resmonsterfil=resmonsterfil_UA,inkludera_manader=[9])
-except:
-    resandedata_UA = Bearbetning(resmonsterfil=resmonsterfil_UA,inkludera_manader=[9])
+resandedata_UA = Bearbetning(resmonsterfil=resmonsterfil_UA, inkludera_manader=[9])
+resandedata_JA = resandedata_UA
+
+# try:
+#     if resmonsterfil_UA != resmonsterfil_JA:
+#     #7 Läser in resandedatan och bearbetar den
+#         resandedata_UA = Bearbetning(resmonsterfil=resmonsterfil_UA,inkludera_manader=[9])
+#     else:
+#         resandedata_UA = Bearbetning(resmonsterfil=resmonsterfil_UA,inkludera_manader=[9])
+# except:
+#     resandedata_UA = Bearbetning(resmonsterfil=resmonsterfil_UA,inkludera_manader=[9])
 
 #Data som inte behöver lagras
 del resandedata_UA.all_data

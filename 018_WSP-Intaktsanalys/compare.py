@@ -26,7 +26,7 @@ def compare(filename):
             print(' Comparing column',colname)
             dtype1 = csv1[colname].dtype
             dtype2 = csv1[colname].dtype
-            if dtype1=='float': continue
+            #if dtype1=='float': continue
             col1 = csv1[colname]
             col2 = csv2[colname]
             for j in range(rows):
@@ -39,7 +39,23 @@ def compare(filename):
         else:
             print(' Missing column',colname)
 
-compare('kalibreringsfaktorer_hp')
-compare('kalibreringsfaktorer_rp')
-compare('resandedata_long_hp_nulage')
-compare('resandedata_long_rp_nulage')
+def simple(filename):
+    print()
+    print('Comparing simple',filename)
+    with open(DIR1 + filename + '.csv') as f: lines1 = f.readlines()
+    with open(DIR2 + filename + '.csv') as f: lines2 = f.readlines()
+    ass(len(lines1),len(lines2),'number of lines')
+    for i in range(len(lines1)):
+        cell1 = float(lines1[i])
+        cell2 = float(lines2[i])
+        ass(f'{cell1:.8e}', f'{cell2:.8e}', f"[{i}]")
+
+simple('skattning_ASCs_hp')
+simple('skattning_ASCs_rp')
+
+compare('Resultat_smabiljett')
+
+# compare('kalibreringsfaktorer_hp')
+# compare('kalibreringsfaktorer_rp')
+# compare('resandedata_long_hp_nulage')
+# compare('resandedata_long_rp_nulage')
