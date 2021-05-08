@@ -38,5 +38,4 @@ class Smabiljetter:
         elif prisf < .2:index = 5
         elif prisf < .3:index = 6
         else: index = 7
-        print('Elasticiteter',prisf,index,self.df_elast.iloc[0,index])
         return self.df_elast.iloc[0,index]

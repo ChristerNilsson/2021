@@ -169,11 +169,18 @@ del resultat_rp.kalibrerad_intakt
 
 from J_Smabiljetter import *
 
+def justifyShape(df):
+    # Make shape reflect the true values derived from actual matrix size.
+    # This is a combination of Excel storing the wrong dimensions
+    # and pandas.read_excel not checking the real dimensions.
+    df.dropna(axis='columns', how='all', inplace=True)
+    return df
+
 #INDATA
 df_elast = pd.read_excel('data\\alla_indata.xlsx',sheet_name='elasticiteter_smabiljett') #Priselasticiteter per biljettslag
-df_prisf = pd.read_excel('data\\alla_indata.xlsx',sheet_name='prisforandring_smabiljett',index_col=0) #Prisförändring per biljettslag
+df_prisf = justifyShape(pd.read_excel('data\\alla_indata.xlsx',sheet_name='prisforandring_smabiljett',index_col=0)) #Prisförändring per biljettslag
 df_efterfr = pd.read_excel('data\\alla_indata.xlsx',sheet_name='intakt_smabiljett',index_col=0) #Intäkter per biljett
-df_korr = pd.read_excel('data\\alla_indata.xlsx',sheet_name='korrigering_smabiljett',index_col=0) #Korrigering per biljettyp
+df_korr = justifyShape(pd.read_excel('data\\alla_indata.xlsx',sheet_name='korrigering_smabiljett',index_col=0)) #Korrigering per biljettyp
 
 smabiljettintakter = Smabiljetter(df_elast,df_prisf,df_efterfr,df_korr)
 

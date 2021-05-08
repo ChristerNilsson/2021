@@ -111,4 +111,3 @@ class Bearbetning:
         self.rp = self.all_data[self.all_data.SalesProductPriceRange == 'Rabatterad'].reset_index(drop=True)
         self.hp['id']=range(1,len(self.hp)+1)
         self.rp['id']=range(1,len(self.rp)+1)
-
