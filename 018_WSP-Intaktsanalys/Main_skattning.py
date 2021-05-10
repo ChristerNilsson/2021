@@ -11,14 +11,14 @@ import time
 
 start = time.time()
 
-from A20_Bearbetning import *
+import A20_Bearbetning as A20
 
 #INDATA
-resmonsterfil_JA = "data\\LeveransTillWSP_75_min_20200915.csv" #2
+resmonsterfil_JA = "data\\LeveransTillWSP_75_min_20200915_small.csv" #2
 inkludera_manader = [9]
 
 #Läser in resandedatan och bearbetar den
-resandedata_JA = Bearbetning(resmonsterfil=resmonsterfil_JA,inkludera_manader=inkludera_manader)
+resandedata_JA = A20.Bearbetning(resmonsterfil=resmonsterfil_JA,inkludera_manader=inkludera_manader)
 
 #Data som inte behöver lagras
 del resandedata_JA.all_data
@@ -28,7 +28,7 @@ del resandedata_JA.resmonsterfil
 #resandedata_JA.hp #7
 #resandedata_JA.rp #7
 
-from A21_Produktval_kostnad import *
+import A21_Produktval_kostnad as A21
 
 #resandedata_JA.hp #7
 #resandedata_JA.rp #7
@@ -42,8 +42,8 @@ biljetter_JA_hp = biljetter_JA[biljetter_JA['Aldersgrupp'] == "Vuxen"]
 biljetter_JA_rp = biljetter_JA[biljetter_JA['Aldersgrupp'] == "Rabatterad"]
 
 #Räknar ut kostnad för ett specifikt scenario
-JA_hp = Produktval_kostnad(resandedata_JA.hp, pristak_JA_hp, biljetter_JA_hp)
-JA_rp = Produktval_kostnad(resandedata_JA.rp, pristak_JA_rp, biljetter_JA_rp)
+JA_hp = A21.Produktval_kostnad(resandedata_JA.hp, pristak_JA_hp, biljetter_JA_hp)
+JA_rp = A21.Produktval_kostnad(resandedata_JA.rp, pristak_JA_rp, biljetter_JA_rp)
 
 #Data som inte behöver lagras:
 del biljetter_JA
@@ -57,7 +57,7 @@ del JA_rp.biljetter
 #UTDATA
 #JA_*p.resandedata #9 Tabell med resandedata och deras kostnader enl taxor indatafilen
 
-from B22_23_Skattning import *
+import B22_23_Skattning as B22
 
 kalibreringsmal_app_hp = pd.read_excel('data\\alla_indata.xlsx',sheet_name='enkel_app_justeringar').set_index('Kortsval_mkr').iloc[0,0]
 
@@ -67,8 +67,8 @@ kalibreringsmal_app_hp = pd.read_excel('data\\alla_indata.xlsx',sheet_name='enke
 kalibreringsmal_app_rp = pd.read_excel('data\\alla_indata.xlsx',sheet_name='enkel_app_justeringar').set_index('Kortsval_mkr').iloc[1,0] #Saknar nummer i programstrukturen
 andel = pd.read_excel('data\\alla_indata.xlsx',sheet_name='andel_uttag').set_index('namn').iloc[0,0] #enbart ett värde
 
-skattning_hp = Skattning(JA_hp.resandedata,kalibreringsmal_app_hp,andel)
-skattning_rp = Skattning(JA_rp.resandedata,kalibreringsmal_app_rp,andel)
+skattning_hp = B22.Skattning(JA_hp.resandedata,kalibreringsmal_app_hp,andel)
+skattning_rp = B22.Skattning(JA_rp.resandedata,kalibreringsmal_app_rp,andel)
 
 del skattning_hp.resandedata
 del skattning_rp.resandedata

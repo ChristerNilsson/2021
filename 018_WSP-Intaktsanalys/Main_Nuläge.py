@@ -6,14 +6,14 @@ import time
 
 start = time.time()
 
-from A20_Bearbetning import *
+import A20_Bearbetning as A20
 
 #INDATA
-resmonsterfil_JA = "data\LeveransTillWSP_75_min_20200915.csv" #2
+resmonsterfil_JA = "data\LeveransTillWSP_75_min_20200915_small.csv" #2
 inkludera_manader = [9]
 
 #Läser in resandedatan och bearbetar den
-resandedata_JA = Bearbetning(resmonsterfil=resmonsterfil_JA,inkludera_manader=inkludera_manader)
+resandedata_JA = A20.Bearbetning(resmonsterfil=resmonsterfil_JA,inkludera_manader=inkludera_manader)
 
 #Data som inte behöver lagras
 del resandedata_JA.all_data
@@ -26,7 +26,7 @@ del resandedata_JA.resmonsterfil
 # del sys.modules["A21_Produktval_kostnad"]
 # del Produktval_kostnad
 
-from A21_Produktval_kostnad import *
+import A21_Produktval_kostnad as A21
 
 #INDATA
 #resandedata_JA.hp #7
@@ -40,8 +40,8 @@ biljetter_JA_rp = biljetter_JA[biljetter_JA['Aldersgrupp']=="Rabatterad"]
 #aldersgrupp = "Vuxen" or "Rabatterad #för att
 
 #Räknar ut kostnad för ett specifikt scenario
-JA_hp = Produktval_kostnad(resandedata_JA.hp, pristak_JA_hp, biljetter_JA_hp)
-JA_rp = Produktval_kostnad(resandedata_JA.rp, pristak_JA_rp, biljetter_JA_rp)
+JA_hp = A21.Produktval_kostnad(resandedata_JA.hp, pristak_JA_hp, biljetter_JA_hp)
+JA_rp = A21.Produktval_kostnad(resandedata_JA.rp, pristak_JA_rp, biljetter_JA_rp)
 
 #Data som inte behöver lagras:
 del biljetter_JA
@@ -57,7 +57,7 @@ del JA_rp.biljetter
 
 # del sys.modules["B2_Sannolikhet"]
 # del Sannolikhet
-from B24_Sannolikhet import *
+import B24_Sannolikhet as B24
 
 #INDATA
 # JA_*p.resandedata #17 Resandedata med kostnader per biljettslag
@@ -65,8 +65,8 @@ skattning_ASCs_hp = pd.read_csv("data\skattning_ASCs_hp.csv", header=None).to_nu
 skattning_ASCs_rp = pd.read_csv("data\skattning_ASCs_rp.csv", header=None).to_numpy()[:, 0] #11
 
 #Räknar ut snl för kortval per individ baserat på skattningen
-snl_hp = Sannolikhet(JA_hp.resandedata,skattning_ASCs_hp)
-snl_rp = Sannolikhet(JA_rp.resandedata,skattning_ASCs_rp)
+snl_hp = B24.Sannolikhet(JA_hp.resandedata,skattning_ASCs_hp)
+snl_rp = B24.Sannolikhet(JA_rp.resandedata,skattning_ASCs_rp)
 
 del snl_hp.resandedata
 del snl_rp.resandedata
@@ -76,13 +76,13 @@ del snl_rp.resandedata
 
 # del sys.modules["CD25_27_Sammanstallning"]
 # del Sammanstallning
-from CD25_27_Sammanstallning import *
+import CD25_27_Sammanstallning as CD25
 
 #INDATA
 #snl_*p.resandedata_long #12 med snl (Ypred) och pris och id
 andel = pd.read_excel('data\\alla_indata.xlsx',sheet_name='andel_uttag').set_index('namn').iloc[0,0] #enbart ett värde
-resultat_JA_hp = Sammanstallning(snl_hp.resandedata_long)
-resultat_JA_rp = Sammanstallning(snl_rp.resandedata_long)
+resultat_JA_hp = CD25.Sammanstallning(snl_hp.resandedata_long)
+resultat_JA_rp = CD25.Sammanstallning(snl_rp.resandedata_long)
 
 resultat_JA_hp.forvantad_kostnad_intakt() #2.5
 resultat_JA_rp.forvantad_kostnad_intakt() #2.5

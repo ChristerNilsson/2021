@@ -4,27 +4,38 @@ import time
 # Du kan styra jämförandet på flera olika sätt:
 #  0. Välj kataloger med DIR1 och DIR2
 #  1. Sätt ROWS = 1000 om du vill ha maximalt 1000 rader jämförda.
-#  2. Vill du se bara första problemet, sätt FIRST = True
+#  2. Vill du se bara första skillnaden, sätt FIRST = True
 #  3. I slutet av denna fil anger du vilka filer du vill jämföra.
-#  4. Ange antal signifikanta siffror som andra parameter efter filnamnet.
+#  4. Ange acceptabelt antal ppm som parameter efter filnamnet.
 
 DIR1 = 'data\\'
 DIR2 = 'facit\\'
-ROWS = 1000000
+ROWS = 1000 #000
 FIRST = False
 
 def ass (a,b,msg=''):
     if a != b:
-        print(' Difference in',msg)
+        print('  Difference in',msg)
         print('  ',a)
         print('  ',b)
         if FIRST: assert a == b
 
-def compare(filename,digits = 6):
-    SCI = "{" + f":.{digits}e" + "}"
+def comp(cell1,cell2,dtype,ppm,msg):
+    if dtype in ['float64','int64']:
+        if cell1 != 0 or cell2 != 0:
+            change = 2000000 * abs((cell1-cell2)/(cell1+cell2))
+            if change >= ppm:
+                if change >= 1: change = round(change)
+                elif change >= ppm: change = round(change,6)
+                print('  ',change,'ppm',f'({cell1},{cell2})')
+    else:
+        ass(cell1, cell2, msg)
+
+def compare(filename,ppm=1):
+    #SCI = "{" + f":.{digits}e" + "}"
     start = time.time()
     print()
-    print('Comparing',filename,'with',digits,'digits')
+    print('Comparing',filename,'using',ppm,'ppm')
     csv1 = pd.read_csv(DIR1 + filename + '.csv')
     csv2 = pd.read_csv(DIR2 + filename + '.csv')
     ass(csv1.shape,csv2.shape,'shape')
@@ -33,41 +44,37 @@ def compare(filename,digits = 6):
     cols2 = csv2.columns.to_list()
     cols = cols1 if len(cols1)> len(cols2) else cols2
     ass(cols1,cols2, 'column names')
+    n = min(ROWS, rows)
     for colname in cols:
         if colname in cols1 and colname in cols2:
-            print(' Comparing column',colname)
             col1 = csv1[colname]
             col2 = csv2[colname]
             dtype1 = col1.dtype
             dtype2 = col2.dtype
-            #if dtype1=='float': continue
-            for j in range(min(ROWS,rows)):
-                cell1 = col1[j]
-                cell2 = col2[j]
-                if dtype1 == 'float':
-                    ass(SCI.format(cell1),SCI.format(cell2), f"[{colname},{j}]")
-                else:
-                    ass(cell1,cell2,f"[{colname},{j}]")
+            print(' Comparing column',colname)
+            for j in range(n):
+                comp(col1[j],col2[j],dtype1,ppm,f"[{colname},{j}]")
         else:
             print(' Missing column',colname)
-    print(f' {rows} rows and {len(cols)} cols compared in {(time.time()-start):.3f} seconds')
+    print(f' {n} of {rows} rows and {len(cols)} cols compared in {(time.time()-start):.3f} seconds')
 
-def simple(filename,digits = 6):
-    SCI = "{:." + str(digits) + "e}"
+def simple(filename,ppm = 1):
     print()
-    print('Comparing simple',filename,'with',digits,'digits')
+    print('Comparing simple',filename,'using',ppm,'ppm')
     with open(DIR1 + filename + '.csv') as f: lines1 = f.readlines()
     with open(DIR2 + filename + '.csv') as f: lines2 = f.readlines()
     ass(len(lines1),len(lines2),'number of lines')
     for i in range(min(ROWS,len(lines1))):
-        cell1 = float(lines1[i])
-        cell2 = float(lines2[i])
-        ass(SCI.format(cell1), SCI.format(cell2), f"[{i}]")
+        comp(float(lines1[i]), float(lines2[i]), 'float64', ppm, f"[{i}]")
 
-simple('skattning_ASCs_hp',8)
-simple('skattning_ASCs_rp',8)
-compare('Resultat_smabiljett',8)
-compare('kalibreringsfaktorer_hp',8)
-compare('kalibreringsfaktorer_rp',8)
-compare('resandedata_long_hp_nulage',3) # 60 MB
-compare('resandedata_long_rp_nulage',3) # 60 MB
+simple('skattning_ASCs_hp',0.001)
+simple('skattning_ASCs_rp',0.001)
+
+compare('Resultat_smabiljett')
+compare('kalibreringsfaktorer_hp')
+compare('kalibreringsfaktorer_rp')
+compare('intakter_hp')
+compare('intakter_rp')
+
+#compare('resandedata_long_hp_nulage') # 60 MB
+compare('resandedata_long_rp_nulage') # 60 MB

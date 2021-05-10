@@ -20,14 +20,14 @@ class Smabiljetter:
         self.UA = self.df.loc[:,self.df.columns.str.startswith('Intakt_UA')]
         
         #Nytt format på df enl Sopra Sterias önskemål:
-        hp=self.UA.T.Vuxen.values
-        rp=self.UA.T.Rabatterad.values
-        UA=np.concatenate((hp,rp))
-        hp=self.JA.T.Vuxen.values
-        rp=self.JA.T.Rabatterad.values
-        JA=np.concatenate((hp,rp))
-        self.df=pd.DataFrame({'intakt_JA':JA,'intakt_UA':UA,'is_hp':[1]*3+[0]*3})
-        self.df.index=['turist','skol-fritid','ovriga']*2
+        hp = self.UA.T.Vuxen.values
+        rp = self.UA.T.Rabatterad.values
+        UA = np.concatenate((hp,rp))
+        hp = self.JA.T.Vuxen.values
+        rp = self.JA.T.Rabatterad.values
+        JA = np.concatenate((hp,rp))
+        self.df = pd.DataFrame({'intakt_JA':JA,'intakt_UA':UA,'is_hp':[1]*3+[0]*3})
+        self.df.index = ['turist','skol-fritid','ovriga']*2
 
     def Elasticiteter(self,prisf):
         if prisf < -.3: index = 0

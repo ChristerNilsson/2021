@@ -1,19 +1,19 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# import pandas as pd
+import pandas as pd
 # import numpy as np
 
-from A20_Bearbetning import *
+import A20_Bearbetning as A20
 
 #INDATA
-resmonsterfil_UA = "data\\LeveransTillWSP_75_min_20200915.csv"
-resmonsterfil_JA = "data\\LeveransTillWSP_75_min_20200915.csv"
+resmonsterfil_UA = "data\\LeveransTillWSP_75_min_20200915_small.csv"
+resmonsterfil_JA = "data\\LeveransTillWSP_75_min_20200915_small.csv"
 #eventuellt även resandedata_JA.*p och resmonsterfil_JA
 
 #resandedata_JA.*p bör läsas in från nuläget om resmonsterfil_UA == resmonsterfil_JA
 #När scenarierna körs från olika filer kommer den köra om oavsett.
-resandedata_UA = Bearbetning(resmonsterfil=resmonsterfil_UA, inkludera_manader=[9])
+resandedata_UA = A20.Bearbetning(resmonsterfil=resmonsterfil_UA, inkludera_manader=[9])
 resandedata_JA = resandedata_UA
 
 # try:
@@ -36,22 +36,23 @@ del resandedata_UA.resmonsterfil
 # del sys.modules["A21_Produktval_kostnad"]
 # del Produktval_kostnad
 
-from A21_Produktval_kostnad import *
+import A21_Produktval_kostnad as A21
 
 #INDATA
 #resandedata_UA.hp #16
 #resandedata_UA.rp #16
-pristak_UA = pd.read_excel("data\\alla_indata.xlsx", sheet_name = "pristak_UA",index_col="Produkt") #3
-pristak_UA_hp = pristak_UA[pristak_UA['Aldersgrupp']=="Vuxen"]
-pristak_UA_rp = pristak_UA[pristak_UA['Aldersgrupp']=="Rabatterad"]
-biljetter_UA = pd.read_excel("data\\alla_indata.xlsx", sheet_name = "biljetter_UA",index_col="Produkt") #3
 
-biljetter_UA_hp = biljetter_UA[biljetter_UA['Aldersgrupp']=="Vuxen"]
-biljetter_UA_rp = biljetter_UA[biljetter_UA['Aldersgrupp']=="Rabatterad"]
+pristak_UA = pd.read_excel("data\\alla_indata.xlsx", sheet_name = "pristak_UA",index_col="Produkt") #3
+pristak_UA_hp = pristak_UA[pristak_UA['Aldersgrupp'] == "Vuxen"]
+pristak_UA_rp = pristak_UA[pristak_UA['Aldersgrupp'] == "Rabatterad"]
+
+biljetter_UA = pd.read_excel("data\\alla_indata.xlsx", sheet_name = "biljetter_UA",index_col="Produkt") #3
+biljetter_UA_hp = biljetter_UA[biljetter_UA['Aldersgrupp'] == "Vuxen"]
+biljetter_UA_rp = biljetter_UA[biljetter_UA['Aldersgrupp'] == "Rabatterad"]
 
 #9 & 10 Räknar ut kostnad för ett specifikt scenario
-UA_hp = Produktval_kostnad(resandedata_UA.hp, pristak_UA_hp, biljetter_UA_hp)
-UA_rp = Produktval_kostnad(resandedata_UA.rp, pristak_UA_rp, biljetter_UA_rp)
+UA_hp = A21.Produktval_kostnad(resandedata_UA.hp, pristak_UA_hp, biljetter_UA_hp)
+UA_rp = A21.Produktval_kostnad(resandedata_UA.rp, pristak_UA_rp, biljetter_UA_rp)
 
 #Data som inte behöver lagras:
 del UA_hp.pristak
@@ -65,33 +66,35 @@ del UA_rp.biljetter
 #UTDATA
 #UA_*p.resandedata #17 Tabell med resandedata och deras kostnader enl taxor indatafilen
 
-from F33_34_Justering import *
+import F33_34_Justering as F33
 
 #INDATA
 # UA_*p.resandedata SHORT #17 Resandedata med kostnader per biljettslag
 skattning_ASCs_hp = pd.read_csv("data\\skattning_ASCs_hp.csv",header=None).to_numpy()[:,0] #11
 skattning_ASCs_rp = pd.read_csv("data\\skattning_ASCs_rp.csv",header=None).to_numpy()[:,0] #11
+
 pristak_JA = pd.read_excel("data\\alla_indata.xlsx", sheet_name = "pristak_JA",index_col="Produkt") #3
 pristak_JA_hp = pristak_JA[pristak_JA['Aldersgrupp']=="Vuxen"]
 pristak_JA_rp = pristak_JA[pristak_JA['Aldersgrupp']=="Rabatterad"]
+
 # pristak_UA_*p #4
 # biljetter_UA #4
 
 #Justerar ASC för reskassa om det behövs
-just_hp = Justering(skattning_ASCs_hp, UA_hp.resandedata, pristak_JA_hp, pristak_UA_hp, biljetter_UA_hp)
-just_rp = Justering(skattning_ASCs_rp, UA_rp.resandedata, pristak_JA_rp, pristak_UA_rp, biljetter_UA_rp)
+just_hp = F33.Justering(skattning_ASCs_hp, UA_hp.resandedata, pristak_JA_hp, pristak_UA_hp, biljetter_UA_hp)
+just_rp = F33.Justering(skattning_ASCs_rp, UA_rp.resandedata, pristak_JA_rp, pristak_UA_rp, biljetter_UA_rp)
 
 #UTDATA
 #just_*p.resandedata #utdata med justerade asc för reskassa
 
-from B24_Sannolikhet import *
+import B24_Sannolikhet as B24
 
 #INDATA
 # just_*p.resandedata #Resandedata med kostnader per biljettslag och asc
 
 #Räknar ut snl för kortval per individ baserat på skattningen
-snl_hp = Sannolikhet(just_hp.resandedata)
-snl_rp = Sannolikhet(just_rp.resandedata)
+snl_hp = B24.Sannolikhet(just_hp.resandedata)
+snl_rp = B24.Sannolikhet(just_rp.resandedata)
 
 #Data som inte behöver lagras:
 del snl_hp.resandedata
@@ -105,7 +108,7 @@ del snl_rp.ASCs
 # del sys.modules["H35_Elasticitet"]
 # del Elasticitet
 
-from H35_Elasticitet import *
+import H35_Elasticitet as H35
 
 #INDATA
 df_elast = pd.read_excel('data\\alla_indata.xlsx',sheet_name='elasticiteter_storbiljett',index_col=0) #Priselasticiteter per biljettslag (1 x 8)
@@ -113,8 +116,8 @@ resandedata_long_hp_nulage = pd.read_csv('data\\resandedata_long_hp_nulage.csv')
 resandedata_long_rp_nulage = pd.read_csv('data\\resandedata_long_rp_nulage.csv') #13
 #snl_*p.resandedata_long #20 UA
 
-elast_hp = Elasticitet(resandedata_long_hp_nulage, snl_hp.resandedata_long, df_elast)
-elast_rp = Elasticitet(resandedata_long_rp_nulage, snl_rp.resandedata_long, df_elast)
+elast_hp = H35.Elasticitet(resandedata_long_hp_nulage, snl_hp.resandedata_long, df_elast)
+elast_rp = H35.Elasticitet(resandedata_long_rp_nulage, snl_rp.resandedata_long, df_elast)
 
 #Data som inte behöver lagras:
 del elast_hp.df_elast
@@ -132,7 +135,7 @@ del elast_rp.resandedata_kostnad
 # del sys.modules["I36_37_Sammanstallning"]
 # del Sammanstallning
 
-from I36_37_Sammanstallning import *
+import I36_37_Sammanstallning as I36
 
 #INDATA
 kalibreringsfaktorer_hp = pd.read_csv('data\\kalibreringsfaktorer_hp.csv',index_col='intakt') #15
@@ -140,8 +143,8 @@ kalibreringsfaktorer_rp = pd.read_csv('data\\kalibreringsfaktorer_rp.csv',index_
 #elast_*p.resandedata_long #23
 andel = pd.read_excel('data\\alla_indata.xlsx',sheet_name='andel_uttag').set_index('namn').iloc[0,0] #enbart ett värde
 
-resultat_hp = Sammanstallning(elast_hp.resandedata_long,kalibreringsfaktorer_hp,andel)
-resultat_rp = Sammanstallning(elast_rp.resandedata_long,kalibreringsfaktorer_rp,andel)
+resultat_hp = I36.Sammanstallning(elast_hp.resandedata_long,kalibreringsfaktorer_hp,andel)
+resultat_rp = I36.Sammanstallning(elast_rp.resandedata_long,kalibreringsfaktorer_rp,andel)
 
 #UTDATA:
 # resultat_hp.kalibrerad_intakt
@@ -167,7 +170,7 @@ del resultat_rp.kalibrerad_intakt
 #del sys.modules["J_Smabiljetter"]
 #del Smabiljetter
 
-from J_Smabiljetter import *
+import J_Smabiljetter as J
 
 def justifyShape(df):
     # Make shape reflect the true values derived from actual matrix size.
@@ -182,7 +185,7 @@ df_prisf = justifyShape(pd.read_excel('data\\alla_indata.xlsx',sheet_name='prisf
 df_efterfr = pd.read_excel('data\\alla_indata.xlsx',sheet_name='intakt_smabiljett',index_col=0) #Intäkter per biljett
 df_korr = justifyShape(pd.read_excel('data\\alla_indata.xlsx',sheet_name='korrigering_smabiljett',index_col=0)) #Korrigering per biljettyp
 
-smabiljettintakter = Smabiljetter(df_elast,df_prisf,df_efterfr,df_korr)
+smabiljettintakter = J.Smabiljetter(df_elast,df_prisf,df_efterfr,df_korr)
 
 #Data som inte behöver lagras:
 del smabiljettintakter.df_elast

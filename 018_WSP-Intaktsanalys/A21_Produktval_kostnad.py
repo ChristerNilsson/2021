@@ -3,15 +3,10 @@
 
 # In[1]:
 
-
-import pandas as pd
 import numpy as np
-import pickle
 import sys
 
-
 # In[25]:
-
 
 #Indata:
     #7 i JA eller #16 i UA - Bearbetad resandedatafil
@@ -34,17 +29,39 @@ class Produktval_kostnad:
     
     def definiera_biljettattribut(self):
         #Räknar ut andelen i kortval 2 som väljer 90-dagar framför årsbiljett
-        andel_90=1.0*len(self.resandedata[(self.resandedata.SalesProductName.str.startswith('90'))]) /             len(self.resandedata[(self.resandedata.kortval==2)])
+        srd = self.resandedata
+        andel_90 = 1.0 * len(srd[srd.SalesProductName.str.startswith('90')]) / len(srd[srd.kortval == 2])
         #Definiera följande för HT och LT:
-        lagsta_pris = {'Baspris' : min(self.biljetter.loc['Reskassa','Baspris'],self.biljetter.loc['Enkel','Baspris']),
-                             'Lagpris' : min(self.biljetter.loc['Reskassa','Lagpris'],self.biljetter.loc['Enkel','Lagpris']),
-                             'Pristak_per_dag' : min(self.pristak.loc['Reskassa','Pristak_per_dag']*self.pristak.loc['Reskassa','Lagsta_pris_faktor_dag'],self.pristak.loc['Enkel','Pristak_per_dag']*self.pristak.loc['Enkel','Lagsta_pris_faktor_dag']),
-                             'Pristak_per_manad' : min(self.pristak.loc['Reskassa','Pristak_per_manad']*self.pristak.loc['Reskassa','Lagsta_pris_faktor_manad'],self.pristak.loc['Enkel','Pristak_per_manad']*self.pristak.loc['Enkel','Lagsta_pris_faktor_manad'])}
+        sb = self.biljetter
+        spt = self.pristak
+
+        r_b = sb.loc['Reskassa','Baspris']
+        e_b = sb.loc['Enkel','Baspris']
+        r_l = sb.loc['Reskassa','Lagpris']
+        e_l = sb.loc['Enkel','Lagpris']
+
+        r_ppd = spt.loc['Reskassa','Pristak_per_dag']
+        r_lpfd = spt.loc['Reskassa','Lagsta_pris_faktor_dag']
+        e_ppd = spt.loc['Enkel','Pristak_per_dag']
+        e_lpfd = spt.loc['Enkel','Lagsta_pris_faktor_dag']
+
+        r_ppm = spt.loc['Reskassa','Pristak_per_manad']
+        r_lpfm = spt.loc['Reskassa','Lagsta_pris_faktor_manad']
+        e_ppm = spt.loc['Enkel','Pristak_per_manad']
+        e_lpfm = spt.loc['Enkel','Lagsta_pris_faktor_manad']
+
+        lagsta_pris = {
+            'Baspris' : min(r_b, e_b),
+            'Lagpris' : min(r_l, e_l),
+            'Pristak_per_dag' : min(r_ppd * r_lpfd, e_ppd * e_lpfd),
+            'Pristak_per_manad' : min(r_ppm * r_lpfm, e_ppm * e_lpfm )
+        }
         return andel_90,lagsta_pris
 
     def indatakontroll(self):
         #Felaktig indata
-        urval = self.biljetter.loc[(self.biljetter['Bred_lagtrafiksbiljett_dummy'] == 1) & (self.biljetter['Smal_lagtrafiksbiljett_dummy'] == 1)]
+        sb = self.biljetter
+        urval = sb.loc[(sb.Bred_lagtrafiksbiljett_dummy == 1) & (sb.Smal_lagtrafiksbiljett_dummy == 1)]
         if len(urval) > 0:
             print("Felaktig indata. Båda lågtrafiksdummierna kan inte vara aktiverade för samma biljettyp:")
             for biljettyp in urval.index.to_list():
@@ -52,25 +69,39 @@ class Produktval_kostnad:
             sys.exit("Programmet avbryts")
         
     def bearbeta_anvandarindata(self):
+        sb = self.biljetter
+        spt = self.pristak
         #Kopierar över dummy-variabel från 90_dagar till Ars
-        self.biljetter.loc['Ars',['Lagtrafiksprisfaktor','Bred_lagtrafiksbiljett_dummy','Smal_lagtrafiksbiljett_dummy']]=self.biljetter.loc['90_dagar',['Lagtrafiksprisfaktor','Bred_lagtrafiksbiljett_dummy','Smal_lagtrafiksbiljett_dummy']].rename(index={'90_dagar':'Ars'})
+        lista = ['Lagtrafiksprisfaktor','Bred_lagtrafiksbiljett_dummy','Smal_lagtrafiksbiljett_dummy']
+        sb.loc['Ars',lista] = sb.loc['90_dagar',lista].rename(index = {'90_dagar':'Ars'})
+
         #Om ingen lågtrafiksdummy är aktiverad sätts lågtrafiksprisfaktorn till 1
-        self.biljetter.loc[(self.biljetter['Bred_lagtrafiksbiljett_dummy'] == 0) & (self.biljetter['Smal_lagtrafiksbiljett_dummy'] == 0),'Lagtrafiksprisfaktor']=1
+        sb.loc[(sb['Bred_lagtrafiksbiljett_dummy'] == 0) & (sb['Smal_lagtrafiksbiljett_dummy'] == 0),'Lagtrafiksprisfaktor']=1
         #Kompletterar prisinformaitonen med kostnad för olika perioder av dagen
-        self.biljetter.loc[:,'Lagpris']=self.biljetter['Baspris']*self.biljetter['Lagtrafiksprisfaktor']
+        sb.loc[:,'Lagpris'] = sb.Baspris * sb.Lagtrafiksprisfaktor
         #Skapar en faktor som är 1 om dummyn är 1 och inf om dummyn är 0. Detta behövs till Kostnad.py-skriptet för att pristaket ska bli oändligt om pristaket inte är aktiverat.
-        self.pristak.loc[:,'Lagsta_pris_faktor_dag']=((1-self.pristak.Pristak_per_dag_dummy)*np.inf).fillna(1)
-        self.pristak.loc[:,'Lagsta_pris_faktor_manad']=((1-self.pristak.Pristak_per_manad_dummy)*np.inf).fillna(1)
+        spt.loc[:,'Lagsta_pris_faktor_dag'] = ((1-spt.Pristak_per_dag_dummy)*np.inf).fillna(1)
+        spt.loc[:,'Lagsta_pris_faktor_manad'] = ((1-spt.Pristak_per_manad_dummy)*np.inf).fillna(1)
         #Pristak får inte vara 0 för den ska multipliceras med inf senare
-        self.pristak.loc[self.pristak['Pristak_per_manad_dummy']==0,'Pristak_per_manad']=1
-        self.pristak.loc[self.pristak['Pristak_per_dag_dummy']==0,'Pristak_per_dag']=1
+        spt.loc[spt.Pristak_per_manad_dummy == 0,'Pristak_per_manad'] = 1
+        spt.loc[spt.Pristak_per_dag_dummy == 0,'Pristak_per_dag'] = 1
     
     #Räknar ut lägsta pris för månadsbiljetter
     def kostnad_MK(self,lagsta_pris):
+
+        spt = self.pristak
+        srd = self.resandedata
+
         bred = self.biljetter.loc['30_dagar','Bred_lagtrafiksbiljett_dummy']
         smal = self.biljetter.loc['30_dagar','Smal_lagtrafiksbiljett_dummy']
-        pristak_per_manad = self.pristak.loc['Reskassa','Pristak_per_manad_dummy']+self.pristak.loc['Enkel','Pristak_per_manad_dummy'] #Räcker att minst en är aktiverad
-        pristak_per_dag = self.pristak.loc['Reskassa','Pristak_per_dag_dummy']+self.pristak.loc['Enkel','Pristak_per_dag_dummy'] #Räcker att minst en är aktiverad
+
+        r_ppm = spt.loc['Reskassa','Pristak_per_manad_dummy']
+        e_ppm = spt.loc['Enkel','Pristak_per_manad_dummy']
+        r_ppd = spt.loc['Reskassa','Pristak_per_dag_dummy']
+        e_ppd = spt.loc['Enkel','Pristak_per_dag_dummy']
+
+        pristak_per_manad = r_ppm + e_ppm #Räcker att minst en är aktiverad
+        pristak_per_dag = r_ppd + e_ppd   #Räcker att minst en är aktiverad
 
         #definierar alternativ
         kostnad_obegr = self.biljetter.loc['30_dagar','Baspris'] #Kostnad för månadskort obegränsat
@@ -79,14 +110,14 @@ class Produktval_kostnad:
         alt_lag_manad = np.inf #Lågtrafiksalternativet sätts initialt till oändligheten
         alt_lag_dag = np.inf
         alt_lag_enkel_andel = 0 #NY #Andel av priset som utgörs av enkelbiljetter (initieras som noll, men ändras om lagtrafikbiljett finns
-        if (bred + smal): #Om lågtrafiksbiljetter existerar ges även alt_lag som alternativ
+        if bred + smal: #Om lågtrafiksbiljetter existerar ges även alt_lag som alternativ
             kostnad_lt_kort = self.biljetter.loc['30_dagar','Lagpris']
             if bred: #Om 
-                kostnad_ht_manad = lagsta_pris['Baspris']*self.resandedata.Antal_resor_per_manad_under_rusningstid
-                kostnad_ht_dag = lagsta_pris['Baspris'] * self.resandedata.loc[:,"antalresor_rus_dag_1":"antalresor_rus_dag_30"] #en matris: resenärer x dagar
+                kostnad_ht_manad = lagsta_pris['Baspris'] * srd.Antal_resor_per_manad_under_rusningstid
+                kostnad_ht_dag =   lagsta_pris['Baspris'] * srd.loc[:,"antalresor_rus_dag_1":"antalresor_rus_dag_30"] #en matris: resenärer x dagar
             elif smal:
-                kostnad_ht_manad = lagsta_pris['Baspris']*(self.resandedata.Antal_resor_per_manad-self.resandedata.Antal_resor_per_manad_under_lagtrafik)
-                kostnad_ht_dag = lagsta_pris['Baspris'] * (self.resandedata.loc[:,"antalresor_dag_1":"antalresor_dag_30"] - self.resandedata.loc[:,"antalresor_lag_dag_1":"antalresor_lag_dag_30"].to_numpy())
+                kostnad_ht_manad = lagsta_pris['Baspris'] * (srd.Antal_resor_per_manad-srd.Antal_resor_per_manad_under_lagtrafik)
+                kostnad_ht_dag =   lagsta_pris['Baspris'] * (srd.loc[:,"antalresor_dag_1":"antalresor_dag_30"] - srd.loc[:,"antalresor_lag_dag_1":"antalresor_lag_dag_30"].to_numpy())
             #Inget pristak:
             alt_lag_manad = kostnad_lt_kort + kostnad_ht_manad
             alt_lag_manad_enkel_andel = 1-kostnad_lt_kort/alt_lag_manad #NY #Andel av priset som utgörs av enkelbiljetter
@@ -108,8 +139,8 @@ class Produktval_kostnad:
                 alt_lag_dag = kostnad_lt_kort + sum_kost_ht_per_dag
             alt_lag_enkel_andel = (alt_lag_manad<=alt_lag_dag)*alt_lag_manad_enkel_andel+(alt_lag_manad>alt_lag_dag)*alt_lag_dag_enkel_andel #NY #Andel av priset som utgörs av enkelbiljetter
         alt_lag = np.minimum(alt_lag_manad,alt_lag_dag)
-        self.resandedata['andel_enkel'] = (alt_grund<=alt_lag)*alt_grund_enkel_andel+(alt_grund>alt_lag)*alt_lag_enkel_andel #NY #Andel av priset som utgörs av enkelbiljetter
-        self.resandedata['P_MK'] = np.minimum(alt_grund,alt_lag)
+        srd['andel_enkel'] = (alt_grund<=alt_lag)*alt_grund_enkel_andel+(alt_grund>alt_lag)*alt_lag_enkel_andel #NY #Andel av priset som utgörs av enkelbiljetter
+        srd['P_MK'] = np.minimum(alt_grund,alt_lag)
     
     #Räknar ut lägsta pris för 90-dagar och årskort
     def kostnad_LPK(self,lagsta_pris,andel):
@@ -123,7 +154,7 @@ class Produktval_kostnad:
         alt_grund = kostnad_obegr #Grundalternativet
         alt_lag_manad = np.inf #Lågtrafiksalternativet sätts initialt till oändligheten
         alt_lag_dag = np.inf
-        if (bred + smal): #Om lågtrafiksbiljetter existerar ges även alt_lag som alternativ
+        if bred + smal: #Om lågtrafiksbiljetter existerar ges även alt_lag som alternativ
             kostnad_lt_kort = andel * self.biljetter.loc['90_dagar','Lagpris']/3 + (1-andel) * self.biljetter.loc['Ars','Lagpris']/12 #Kostnad för periodkort obegränsat
             if bred: #Om 
                 kostnad_ht_manad = lagsta_pris['Baspris'] * self.resandedata.Antal_resor_per_manad_under_rusningstid
@@ -180,12 +211,14 @@ class Produktval_kostnad:
     
     #Ger rimligt produktnamn
     def justera_produktnamn(self):
-        self.resandedata.loc[self.resandedata.SalesProductName.str.startswith('30'), 'SalesProductName'] = '30-dagars'
-        self.resandedata.loc[self.resandedata.SalesProductName.str.startswith('90'), 'SalesProductName'] = '90-dagars'
-        self.resandedata.loc[self.resandedata.SalesProductName.str.startswith('Ars'), 'SalesProductName'] = 'Arsbiljett'
-        self.resandedata.loc[self.resandedata.SalesProductName.str.startswith('Reskassa'), 'SalesProductName'] = 'Reskassa'
-        self.resandedata.loc[self.resandedata.SalesProductName.str.startswith('Enkelbiljett'), 'SalesProductName'] = 'Accesskort_enkel'
-        self.resandedata.loc[(self.resandedata.SalesProductName=="RAB")|(self.resandedata.SalesProductName=="VUX"), 'SalesProductName'] = 'Mobil_enkel'
+        srd = self.resandedata
+        name = srd.SalesProductName
+        srd.loc[name.str.startswith('30'), 'SalesProductName'] = '30-dagars'
+        srd.loc[name.str.startswith('90'), 'SalesProductName'] = '90-dagars'
+        srd.loc[name.str.startswith('Ars'), 'SalesProductName'] = 'Arsbiljett'
+        srd.loc[name.str.startswith('Reskassa'), 'SalesProductName'] = 'Reskassa'
+        srd.loc[name.str.startswith('Enkelbiljett'), 'SalesProductName'] = 'Accesskort_enkel'
+        srd.loc[(name=="RAB") | (name=="VUX"), 'SalesProductName'] = 'Mobil_enkel'
             
     def kostnadsberäkning(self):
         #Räknar ut lägsta pris för alla biljettyper. Resultatet skrivs in som kolumner i resandedata

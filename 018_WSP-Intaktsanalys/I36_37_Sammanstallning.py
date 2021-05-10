@@ -8,16 +8,17 @@ class Sammanstallning:
         self.Totala_intakter(andel) #25
         
     def Viktad_forvantad_intakt(self): #3.6 #24
-        self.resandedata_long['okalibrerad_intakt_UA'] = self.resandedata_long.kostnad_UA*self.resandedata_long.vikt/1.06 #viktad intäkt vikt gånger förväntat pris och moms borträknad
+        rdl = self.resandedata_long
+        self.resandedata_long['okalibrerad_intakt_UA'] = rdl.kostnad_UA * rdl.vikt / 1.06 #viktad intäkt vikt gånger förväntat pris och moms borträknad
         
         #Flyttar intäkt från månadsbiljett till enkelbiljett (de som köpt lågtrafikskort + enkelbiljetter i högtrafik)
-        enkelintakt_manad = self.resandedata_long.loc[(self.resandedata_long.alt==1)].andel_enkel*self.resandedata_long.loc[(self.resandedata_long.alt==1)].okalibrerad_intakt_UA
-        self.resandedata_long.loc[(self.resandedata_long.alt==1),'okalibrerad_intakt_UA'] -= enkelintakt_manad
-        self.resandedata_long.loc[(self.resandedata_long.alt==4),'okalibrerad_intakt_UA'] += enkelintakt_manad.tolist()
+        enkelintakt_manad = rdl.loc[(rdl.alt==1)].andel_enkel * rdl.loc[(rdl.alt==1)].okalibrerad_intakt_UA
+        rdl.loc[(rdl.alt==1),'okalibrerad_intakt_UA'] -= enkelintakt_manad
+        rdl.loc[(rdl.alt==4),'okalibrerad_intakt_UA'] += enkelintakt_manad.tolist()
         
         #Kalibrerar intäkter i resandedatan
         kortval2kalibreringsfaktor = dict(zip(list(range(1,5)), self.kalibreringsfaktorer['kalibreringsfaktor'].tolist()))
-        self.resandedata_long.loc[:,'intakt_UA'] = self.resandedata_long['alt'].map(kortval2kalibreringsfaktor)*self.resandedata_long['okalibrerad_intakt_UA'] #intäkt uppräknad med kalibreringsfaktorerna #Utdata 24
+        rdl['intakt_UA'] = rdl['alt'].map(kortval2kalibreringsfaktor) * rdl.okalibrerad_intakt_UA #intäkt uppräknad med kalibreringsfaktorerna #Utdata 24
         
     def Totala_intakter(self,andel): #3.6 #25
         # intäkter per biljettslag/produkttyp - 'alt'
@@ -29,5 +30,5 @@ class Sammanstallning:
     def Scenariojamforelse(self): #3.6
         #Slår ihop tabeller
         self.intakter = pd.concat([self.kalibreringsfaktorer,self.kalibrerad_intakt], axis=1, sort=False)
-        
-        self.resandedata_long = self.resandedata_long[self.resandedata_long.columns.drop(['kostnad_JA','vikt','okalibrerad_intakt_UA','antal_resenarer_UA'])]
+        rdl = self.resandedata_long
+        self.resandedata_long = rdl[rdl.columns.drop(['kostnad_JA','vikt','okalibrerad_intakt_UA','antal_resenarer_UA'])]
