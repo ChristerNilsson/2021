@@ -10,7 +10,7 @@ import time
 
 DIR1 = 'data\\'
 DIR2 = 'facit\\'
-ROWS = 1000000
+ROWS = 1000
 FIRST = False
 
 def ass (a,b,msg=''):
@@ -58,7 +58,7 @@ def compare(filename,ppm=0.001):
             print(' Missing column',colname)
     print(f' {n} of {rows} rows and {len(cols)} cols compared in {(time.time()-start):.3f} seconds')
 
-def simple(filename,ppm = 1):
+def simple(filename,ppm = 0.001):
     print()
     print('Comparing simple',filename,'using',ppm,'ppm')
     with open(DIR1 + filename + '.csv') as f: lines1 = f.readlines()
@@ -67,7 +67,7 @@ def simple(filename,ppm = 1):
     for i in range(min(ROWS,len(lines1))):
         comp(float(lines1[i]), float(lines2[i]), 'float64', ppm, f"[{i}]")
 
-print(DIR1,DIR2)
+print('Comparing directories',DIR1,'and',DIR2,'using maximum',ROWS,'rows')
 
 # Skattning
 simple('skattning_ASCs_hp')

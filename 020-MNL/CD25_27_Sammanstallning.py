@@ -25,7 +25,7 @@ class Sammanstallning:
     def kalibreringsfaktorer(self,kalibreringsmal): #2.7
         ##summerar de två sista raderna (enkel_app och -_accesskort) och byter namn##
         summa_enkelbiljett = kalibreringsmal.iloc[3:].sum()[0]
-        kalibreringsmal = kalibreringsmal.iloc[:3,:]
+        kalibreringsmal = kalibreringsmal.iloc[:3,:].copy()
         kalibreringsmal.loc['enkelbiljett',:] = summa_enkelbiljett
         
         ##Läser in skattad intäkt från intäktsberäkningen##

@@ -25,8 +25,8 @@ import sys
 class Produktval_kostnad:
     def __init__(self, resandedata, pristak, biljetter):
         self.resandedata = resandedata.copy()
-        self.pristak = pristak
-        self.biljetter = biljetter
+        self.pristak = pristak.copy()
+        self.biljetter = biljetter.copy()
         #Kör datahanteringen och räknar ut lägsta pris per biljettslag
         self.indatakontroll()
         self.bearbeta_anvandarindata()
