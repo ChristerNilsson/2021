@@ -84,9 +84,9 @@ execute = ->
 		if arr.length == 2 and arr[0] of memory
 			memory[arr[0]] = arr[1]
 
-		s = ("answers.#{key} = (#{key} = #{memory[key]})" for key of memory when key!='ans')
-		if arr.length == 1 and arr[0] != '' then s.push "answers.ans = #{arr[0]}"
-		if arr.length == 2 then s.push "answers.#{arr[0]} = (#{arr[0]} = #{arr[1]})"
+		s = ("answers.#{key} = (#{key} = (#{memory[key]}))" for key of memory when key!='ans')
+		if arr.length == 1 and arr[0] != '' then s.push "answers.ans = (#{arr[0]})"
+		if arr.length == 2 then s.push "answers.#{arr[0]} = (#{arr[0]} = (#{arr[1]}))"
 		eval transpile s.join ';'
 
 		if arr.length == 1 then memory.ans = arr[0]
