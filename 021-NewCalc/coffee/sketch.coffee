@@ -1,9 +1,5 @@
 label = null
 input = null
-up = null
-down = null
-exec = null
-curr = -1
 lista = null
 errorlabel = null
 bToggle = null
@@ -12,7 +8,27 @@ answers = {}
 
 range = _.range
 
-memory = {} #{'a':12,'b':23,'c':3,'d':4,'e':5,'add':'a+b','mul':'a*b', 'sq': 'a*a', 'f': '(x) -> x*x', 'g':'f 9','h':0}
+memory = {'a':12,'b':23,'c':3,'d':4,'e':5,'add':'a+b','mul':'a*b', 'sq': 'a*a', 'f': '(x) -> x*x', 'g':'f 9','h':'i*i for i in range a'}
+
+config = {}
+
+encode = ->
+	s = encodeURI JSON.stringify memory
+	s = s.replace /=/g,'%3D'
+	s = s.replace /\?/g,'%3F'
+	window.open '?content=' + s + '&config=' + encodeURI JSON.stringify config
+
+decode = ->
+	memory = {}
+	if '?' in window.location.href
+		parameters = getParameters()
+		if parameters.content
+			memory = decodeURI parameters.content
+			memory = memory.replace /%3D/g,'='
+			memory = memory.replace /%3F/g,'?'
+			memory = JSON.parse memory
+		if parameters.config
+			config = JSON.parse decodeURI parameters.config
 
 button = (prompt,click) ->
 	res = document.createElement 'button'
@@ -23,15 +39,19 @@ button = (prompt,click) ->
 	res
 
 updateList = () ->
-	lista.size = -1 + _.size memory
+	label.innerHTML = ""
+	lista.size = _.size memory
 	lista.length = 0
 	for key of memory
 		row = memory[key]
 		if key == 'ans'
 			if typeof answers.ans == 'function'
-				label.innerText = JSON.stringify row
+				label.innerHTML = row
 			else
-				label.innerText = JSON.stringify answers[key]
+				if answers.ans == ''
+					label.innerHTML = answers.ans
+				else
+					label.innerHTML = JSON.stringify answers.ans
 		else
 			option = document.createElement "option"
 			if typeof answers[key] == 'function'
@@ -44,54 +64,43 @@ updateList = () ->
 			lista.appendChild option
 
 execute = ->
+	label.innerHTML = ''
+	answers.ans = ""
 	errorlabel.innerHTML = ""
 
 	try
-		if input.value.length > 0
 
-			arr = input.value.split '='
-			arr = (item.trim() for item in arr)
+		arr = input.value.split '='
+		arr = (item.trim() for item in arr)
 
-			# delete?
-			if input.value.slice(-1) == '='
-				delete memory[arr[0]]
-				delete answers[arr[0]]
-				eval "#{arr[0]}=undefined"
-				updateList()
-				return 
+		# delete?
+		if input.value.slice(-1) == '='
+			delete memory[arr[0]]
+			delete answers[arr[0]]
+			eval "#{arr[0]}=undefined"
+			updateList()
+			return 
 
-			arr = input.value.split '='
-			arr = (item.trim() for item in arr)
-			[key,value] = arr
-			if not value
-				answers.ans = eval "ans = " + transpile "#{key}"
-				memory.ans = key
-			else
-				val = eval "#{key} = " + transpile "#{value}"
-				answers[key] = val
-				answers.ans = val
-				memory[key] = value
-				memory.ans = value
+		if arr.length == 2 and arr[0] of memory
+			memory[arr[0]] = arr[1]
 
-		for key of memory
-			answers[key] = eval "#{key} = " + transpile "#{memory[key]}"
+		s = ("answers.#{key} = (#{key} = #{memory[key]})" for key of memory when key!='ans')
+		if arr.length == 1 and arr[0] != '' then s.push "answers.ans = #{arr[0]}"
+		if arr.length == 2 then s.push "answers.#{arr[0]} = (#{arr[0]} = #{arr[1]})"
+		eval transpile s.join ';'
+
+		if arr.length == 1 then memory.ans = arr[0]
+		if arr.length == 2 then memory[arr[0]] = arr[1]
 
 		updateList()
 		input.select()
+
 	catch err
-		errorlabel.innerHTML = err
+		errorlabel.innerHTML = err.message
 
 transpile = (code) ->
 	result = CoffeeScript.compile code, {bare: true}
 	result.replace /\n/g,''
-
-safeeval = (key,value) ->
-	try
-		label.innerHTML = if key == '' then transpile eval value else transpile key + '=' + value
-		true
-	catch err
-		errorlabel.innerHTML = err
-		false
 
 clickList = (item) ->
 	key = item.srcElement.value
@@ -108,9 +117,11 @@ clear = ->
 
 document.body.onload = ->
 
+	decode()
+
 	clear = button 'clear', clear
 	bToggle = button 'values', toggle
-	bShare = button 'share', ->
+	bShare = button 'share', -> encode()
 
 	label = document.createElement "p"
 	label.style = 'font-family:courier; height:10px; width:99%;'

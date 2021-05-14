@@ -1,6 +1,7 @@
 # New Calculator
 
 * Coffeescript syntax
+	* https://coffeescript.org/
 
 * Sparar variabler
 	* a = 3.14
