@@ -31,5 +31,5 @@ draw = ->
 	d = d.slice 11,20
 	text d,width/2,height/2+5
 	d = d.slice 0,8
-	#if d.slice(3,8) in "00:00 32:00".split ' ' then say d.slice 0,5
-	if d.slice(6,8) in "00".split ' ' then say d.slice 0,5
+	if d.slice(3,8) in "00:00 30:00".split ' ' then say d.slice 0,5
+	#if d.slice(6,8) in "00".split ' ' then say d.slice 0,5
