@@ -12,6 +12,14 @@ memory = {'a':12,'b':23,'c':3,'d':4,'e':5,'add':'a+b','mul':'a*b', 'sq': 'a*a', 
 
 config = {}
 
+getParameters = (h = window.location.href) ->
+	h = decodeURI h
+	arr = h.split '?'
+	if arr.length != 2 then return {}
+	s = arr[1]
+	if s=='' then return {}
+	_.fromPairs(f.split '=' for f in s.split '&')
+
 encode = ->
 	s = encodeURI JSON.stringify memory
 	s = s.replace /=/g,'%3D'
