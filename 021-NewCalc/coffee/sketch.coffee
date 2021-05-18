@@ -13,12 +13,13 @@ memory = {'a':12,'b':23,'c':3,'d':4,'e':5,'add':'a+b','mul':'a*b', 'sq': 'a*a', 
 config = {}
 
 getParameters = (h = window.location.href) ->
-	h = decodeURI h
 	arr = h.split '?'
 	if arr.length != 2 then return {}
 	s = arr[1]
 	if s=='' then return {}
-	_.fromPairs(f.split '=' for f in s.split '&')
+	pairs = (f.split '=' for f in s.split '&')
+	pairs = ([key, decodeURIComponent value] for [key,value] in pairs)
+	_.fromPairs pairs
 
 encode = ->
 	s = encodeURI JSON.stringify memory
@@ -31,12 +32,10 @@ decode = ->
 	if '?' in window.location.href
 		parameters = getParameters()
 		if parameters.content
-			memory = decodeURI parameters.content
-			memory = memory.replace /%3D/g,'='
-			memory = memory.replace /%3F/g,'?'
+			memory = parameters.content
 			memory = JSON.parse memory
 		if parameters.config
-			config = JSON.parse decodeURI parameters.config
+			config = JSON.parse parameters.config
 
 button = (prompt,click) ->
 	res = document.createElement 'button'
@@ -78,7 +77,7 @@ execute = ->
 
 	try
 
-		arr = input.value.split '='
+		arr = input.value.split ' = '
 		arr = (item.trim() for item in arr)
 
 		# delete?

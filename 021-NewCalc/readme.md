@@ -24,4 +24,6 @@
 
 * share via url innehållande definitionerna
 
+* Observera: Tilldelning måste ha mellanslag runt =
+
 * localStorage
