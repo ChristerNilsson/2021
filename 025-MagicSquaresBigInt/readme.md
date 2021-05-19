@@ -1,5 +1,7 @@
 * Produces Odd Magic Squares of any size in an instant
 
+* Any cell in any Magic Square is calculated in less than one millisecond.
+
 * Buttons
 	* L = Left
 	* R = Right
@@ -12,7 +14,7 @@
 
 * [Youtube](https://www.youtube.com/watch?v=-czqJpGGQck&t=628s&ab_channel=LearnWithDivaLearnWithDiva)
 
-* [Calculator](http://christernilsson.github.io/2021/021-NewCalc/index.html?content=%7B%22ans%22:%22%22,%22n%22:%225%22,%22ANCHORS%22:%22%5B%5B%5Bn//2,0%5D,%5B0,n%5D%5D,%5B%5B0,n//2%5D,%5Bn,0%5D%5D,%5B%5Bn-1,n//2%5D,%5B-n,0%5D%5D,%5B%5Bn//2,n-1%5D,%5B0,-n%5D%5D%5D%22,%22nr%22:%22(i,j)%20-%3E%20if%20(i+j)%20%25%202%20%3D%3D%200%20then%20even%20i,j%20else%20odd%20i,j%22,%22even%22:%22(i,j)%20-%3E%20x(i,j)%20//%202%20+%201%20+%20n%20*%20(y(i,j)%20//%202)%22,%22odd%22:%22(i,j)%20-%3E%20%5Bdi,dj%5D%3Ddidj(i,j)%5B1%5D;%20even%20i+di,j+dj%22,%22x%22:%22(i,j)%20-%3E%20i-j+n-1%22,%22y%22:%22(i,j)%20-%3E%202*n-2-i-j%22,%22manhattan%22:%22(a,b,c,d)%20-%3E%20Math.abs(a-c)%20+%20Math.abs(b-d)%22,%22didj%22:%22(i,j)%20-%3E%20_.minBy%20ANCHORS,%20(%5B%5Ba,b%5D,%5Bc,d%5D%5D)%20-%3E%20manhattan%20a,b,i,j%22,%22a%22:%22nr%200,0%22,%22b%22:%22nr%200,1%22,%22c%22:%22nr%201,0%22%7D&config=%7B%7D)
+* [Calculator](https://christernilsson.github.io/2021/021-NewCalc/index.html?content=%7B%22ans%22:%22%22,%22n%22:%225%22,%22ANCHORS%22:%22%5B%5B%5Bn//2,0%5D,%5B0,n%5D%5D,%5B%5B0,n//2%5D,%5Bn,0%5D%5D,%5B%5Bn-1,n//2%5D,%5B-n,0%5D%5D,%5B%5Bn//2,n-1%5D,%5B0,-n%5D%5D%5D%22,%22nr%22:%22(i,j)%20-%3E%20if%20(i+j)%20%25%202%20%3D%3D%200%20then%20even%20i,j%20else%20odd%20i,j%22,%22even%22:%22(i,j)%20-%3E%20x(i,j)%20//%202%20+%201%20+%20n%20*%20(y(i,j)%20//%202)%22,%22odd%22:%22(i,j)%20-%3E%20%5Bdi,dj%5D%3Ddidj(i,j)%5B1%5D;%20even%20i+di,j+dj%22,%22x%22:%22(i,j)%20-%3E%20i-j+n-1%22,%22y%22:%22(i,j)%20-%3E%202*n-2-i-j%22,%22manhattan%22:%22(a,b,c,d)%20-%3E%20Math.abs(a-c)%20+%20Math.abs(b-d)%22,%22didj%22:%22(i,j)%20-%3E%20_.minBy%20ANCHORS,%20(%5B%5Ba,b%5D,%5Bc,d%5D%5D)%20-%3E%20manhattan%20a,b,i,j%22,%22a%22:%221%22,%22b%22:%221%22,%22c%22:%221%22,%22row%22:%22(j)%20-%3E%20(nr%20i,j%20for%20i%20in%20range%20n)%22,%22d%22:%22row%200%22,%22e%22:%22row%201%22,%22f%22:%22row%202%22,%22g%22:%22row%203%22,%22h%22:%22row%204%22%7D&config=%7B%7D)
 
 ## Magic Square 3
 
