@@ -1,4 +1,4 @@
-label = null
+label = null 
 input = null
 lista = null
 errorlabel = null
@@ -11,6 +11,8 @@ range = _.range
 memory = {'a':12,'b':23,'c':3,'d':4,'e':5,'add':'a+b','mul':'a*b', 'sq': 'a*a', 'f': '(x) -> x*x', 'g':'f 9','h':'i*i for i in range a'}
 
 config = {}
+
+ass = (a, b) -> _.isEqual a, b
 
 getParameters = (h = window.location.href) ->
 	arr = h.split '?'
@@ -40,10 +42,19 @@ decode = ->
 button = (prompt,click) ->
 	res = document.createElement 'button'
 	res.innerHTML = prompt
-	res.style= 'width:80px; font-family:courier;'
+	res.style = 'width:80px; font-family:courier;'
 	res.onclick = click
 	document.body.appendChild res
 	res
+
+# toObject = () ->
+# 	JSON.parse JSON.stringify this, (key, value) =>
+# 		if typeof value == 'bigint' then value.toString() else value # return everything else unchanged
+
+# https://github.com/GoogleChromeLabs/jsbi/issues/30
+myStringify = (value) ->
+	JSON.stringify value, (key, value) =>
+		if typeof value == 'bigint' then value.toString() else value # return everything else unchanged
 
 updateList = () ->
 	label.innerHTML = ""
@@ -58,7 +69,7 @@ updateList = () ->
 				if answers.ans == ''
 					label.innerHTML = answers.ans
 				else
-					label.innerHTML = JSON.stringify answers.ans
+					label.innerHTML = myStringify answers.ans
 		else
 			option = document.createElement "option"
 			if typeof answers[key] == 'function'
@@ -66,7 +77,7 @@ updateList = () ->
 			else if toggleMode == 0
 				option.innerText = "#{key} = #{row}"
 			else
-				option.innerText = "#{key} = #{JSON.stringify answers[key]}"
+				option.innerText = "#{key} = #{myStringify answers[key]}"
 			option.value = key
 			lista.appendChild option
 
