@@ -8,7 +8,7 @@ b = null
 inp = null
 score = [0,0]
 
-state = -2 # -2:start -1:visible 0:Left player 1:Right player 2:show score
+state = -1 # -2:start -1:visible 0:Left player 1:Right player 2:show score
 
 range = _.range
 
@@ -28,6 +28,9 @@ newGame = ->
 draw = ->
 	nextstate = state 
 	background 128
+
+	# if state == [-2]
+	# 	text width/2
 
 	if state in [0,1]
 		secs = (new Date() - start) // 1000 # seconds
