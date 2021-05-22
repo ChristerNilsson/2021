@@ -51,7 +51,7 @@ draw = ->
 		text "a*b = #{a*b}",width/2,150
 		text "a+b = #{a+b}",width/2,250
 
-	if state == 2
+	if state in [-2,2]
 		buttons[2].draw()
 		inp.hide()
 
