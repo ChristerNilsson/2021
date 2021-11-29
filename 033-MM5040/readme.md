@@ -1,29 +1,14 @@
-# New Calculator
+# MM5040
 
-* Coffeescript syntax
-	* https://coffeescript.org/
+This game is similar to MasterMind.
 
-* Sparar variabler
-	* a = 3.14
+Instead of answering 
+* White (correct position) or 
+* Black (wrong position), 
+* distance is given.
 
-* Sparar funktioner
-	* f = (x) -> x*x
+Example
 
-* Anropa funktion
-	* b = f 2
-	* c = f f 3
+* 4712, guessing 1234 gives answer 223
+* 4712, guessing 4712 gives answer 0000
 
-* Kommentarer kan användas
-	* avstånd = 12 # km
-
-* Toggla mellan värden och definitioner
-
-* Tag bort variabler och funktioner
-	* a =
-	* f =
-
-* share via url innehållande definitionerna
-
-* Observera: Tilldelning måste ha mellanslag runt =	
-
-* localStorage
