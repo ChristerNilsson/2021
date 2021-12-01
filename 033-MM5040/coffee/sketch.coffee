@@ -1,6 +1,7 @@
 SYMBOLS = '0123456789abcdefghij'
 M = 4
 N = 10
+CANDS = 0
 command = ""
 facit = ""
 guess = ""
@@ -30,6 +31,7 @@ newGame = =>
 	facit = _.shuffle SYMBOLS.substring 0,N
 	facit = pack facit.slice 0,M
 	cands = null
+	CANDS = candidates(M,N)
 	if candidates(M,N) <= 1000000 then cands = init()
 
 makeAnswer = (f,g) => # facit,guess
@@ -85,7 +87,7 @@ draw = ->
 	text command,50,40
 	textAlign RIGHT
 	fill 64+32
-	text candidates(M,N),width-10,50
+	text CANDS,width-10,50
 	textAlign LEFT
 	drawTable()
 	menuButton.draw()
