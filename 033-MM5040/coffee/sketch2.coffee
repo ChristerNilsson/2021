@@ -4,10 +4,7 @@ command = ''
 start = new Date()
 
 crap = (parent, type) => parent.appendChild document.createElement type
-
-connect = (button, handler) =>
-	button.ontouchend = handler
-	button.onclick = handler
+connect = (button, handler) => button.onclick = button.ontouchend = handler
 
 addButton = (title) =>
 	button = crap body,'button'
@@ -23,4 +20,4 @@ addButton = (title) =>
 addButton 'A'
 addButton 'B'
 div = crap body,'div'
-div.innerHTML = '111'
+div.innerHTML = '112'
