@@ -17,5 +17,5 @@ f = (title) =>
 f 'A'
 f 'B'
 d = document.createElement 'div'
-d.innerHTML = '103'
+d.innerHTML = '104'
 body.appendChild d
