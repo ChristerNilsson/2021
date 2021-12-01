@@ -1,21 +1,23 @@
 body = document.getElementById "body"
-d = null
+div = null
 command = ''
 start = new Date()
 
-f = (title) =>
-	res = document.createElement 'button'
-	res.innerHTML = title
-	res.style = "width:300px;height:300px"
-	body.appendChild res
-	res.onclick = =>
+addButton = (title) =>
+	button = document.createElement 'button'
+	body.appendChild button
+	button.innerHTML = title
+	button.style = "width:300px;height:300px"
+	button.onclick = (event) =>
 		t = new Date()
 		command += title + "#{t-start} "
-		d.innerHTML = command
+		div.innerHTML = command
 		start = t
+		event.preventDefault()
+		false
 
-f 'A'
-f 'B'
-d = document.createElement 'div'
-d.innerHTML = '104'
-body.appendChild d
+addButton 'A'
+addButton 'B'
+div = document.createElement 'div'
+body.appendChild div
+div.innerHTML = '105'
