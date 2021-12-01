@@ -8,7 +8,7 @@ f = (title) =>
 	res.innerHTML = title
 	res.style = "width:300px;height:300px"
 	body.appendChild res
-	res.onclick = =>
+	res.ontouchstart = =>
 		t = new Date()
 		command += title + "#{t-start} "
 		d.innerHTML = command
