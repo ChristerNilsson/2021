@@ -8,16 +8,16 @@ addButton = (title) =>
 	body.appendChild button
 	button.innerHTML = title
 	button.style = "width:300px;height:300px"
-	button.onclick = (event) =>
+	button.ontouchend = (event) =>
 		t = new Date()
 		command += title + "#{t-start} "
 		div.innerHTML = command
 		start = t
-		event.preventDefault()
+		#event.preventDefault()
 		false
 
 addButton 'A'
 addButton 'B'
 div = document.createElement 'div'
 body.appendChild div
-div.innerHTML = '105'
+div.innerHTML = '106'
