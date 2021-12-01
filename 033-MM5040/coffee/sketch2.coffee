@@ -1,19 +1,25 @@
+body = null
 d = null
 command = ''
 
+#createButton = =>
+
+
 f = (title) =>
-	res = createButton title
-	res.size 100,100
-	res.mousePressed => 
+	res = document.createElement 'button' # title
+	res.innerHTML = title
+	res.style = "width:100px;height:100px"
+	body.appendChild res
+	res.onclick = =>
 		command += title
-		d.html command
+		d.innerHTML = command
 
-setup = =>
-	noCanvas()
-	f 'A'
-	f 'B'
-	d = createDiv ''
-	f 'C'
-	f 'D'
+body = document.getElementById "body"
+f 'A'
+f 'B'
+d = document.createElement 'div'
+body.appendChild d
+f 'C'
+f 'D'
 
-	d.html 'yxa'
+d.innerHTML = '100'
