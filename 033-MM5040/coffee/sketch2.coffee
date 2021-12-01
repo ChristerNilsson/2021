@@ -13,11 +13,11 @@ addButton = (title) =>
 		command += title + "#{t-start} "
 		div.innerHTML = command
 		start = t
-		#event.preventDefault()
 		false
+	button.onclick = button.ontouchend
 
 addButton 'A'
 addButton 'B'
 div = document.createElement 'div'
 body.appendChild div
-div.innerHTML = '106'
+div.innerHTML = '107'
