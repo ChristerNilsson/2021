@@ -95,6 +95,7 @@ draw = ->
 	drawTable()
 	menuButton.draw()
 	showDialogue()
+	text int(frameRate()),width/2,height-50
 
 drawTable = =>
 	y0 = 100
@@ -139,7 +140,7 @@ menu1 = -> # Main Menu
 		handler()
 		dialogues.pop()
 
-	dialogue.clock '002',true
+	dialogue.clock '003',true
 	dialogue.add "New", => menu2()
 	button = _.last dialogue.buttons
 	button.x = width/2-50
