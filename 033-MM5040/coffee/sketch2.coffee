@@ -1,23 +1,34 @@
-body = document.getElementById "body"
-div = null
-command = ''
 start = new Date()
+released = true
+lista = []
 
-crap = (parent, type) => parent.appendChild document.createElement type
-connect = (button, handler) => button.onclick = button.ontouchend = handler
+setup = =>
+	createCanvas 600,600
+	lista.push 'setup 001'
+	xdraw()
 
-addButton = (title) =>
-	button = crap body,'button'
-	button.innerHTML = title
-	button.style = "width:300px;height:300px"
-	connect button,(event) =>
-		t = new Date()
-		command += title + "#{t-start} "
-		div.innerHTML = command
-		start = t
-		false
+xdraw = =>
+	background 128
+	for s,i in lista
+		text s,100,25+25*i
 
-addButton 'A'
-addButton 'B'
-div = crap body,'div'
-div.innerHTML = '112'
+mouseReleased = -> # to make Android work 
+	released = true 
+	false
+
+touchStarted = -> 
+	lista.push "touchStarted"
+	xdraw()
+
+mousePressed = ->
+	if !released then return # to make Android work 
+	released = false
+	lista.push "mousePressed"
+	xdraw()
+
+# keyPressed = ->
+# 	player.keyPressed(key) for player in g.players
+# 	if key == ' ' 
+# 		autolevel()
+# 		g.createProblem()
+# 	#xdraw()

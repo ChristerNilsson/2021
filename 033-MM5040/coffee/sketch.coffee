@@ -170,3 +170,6 @@ touchEnded = -> # mousePressed
 		dialogue = _.last dialogues
 		#if not dialogue.execute mouseX,mouseY then dialogues.pop()
 		dialogue.execute mouseX,mouseY # then dialogues.pop()
+
+######
+
