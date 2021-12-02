@@ -139,7 +139,7 @@ menu1 = -> # Main Menu
 		handler()
 		dialogues.pop()
 
-	dialogue.clock '001',true
+	dialogue.clock '002',true
 	dialogue.add "New", => menu2()
 	button = _.last dialogue.buttons
 	button.x = width/2-50
@@ -160,7 +160,8 @@ menu2 = -> # new Game
 	dialogue.add '-1', => if M > 1 then M--
 	dialogue.clock ' ',true
 
-mousePressed = touchEnded = ->
+touchEnded = -> # mousePressed
+	console.log 'touchEnded'
 	if menuButton.inside mouseX,mouseY
 		menuButton.click()
 		return false
