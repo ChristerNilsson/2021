@@ -4,26 +4,30 @@ lista = []
 
 setup = =>
 	createCanvas 600,600
-	lista.push 'setup 001'
+	lista.push 'setup 002'
 	xdraw()
 
 xdraw = =>
 	background 128
 	for s,i in lista
-		text s,100,25+25*i
+		text "#{i} #{s}",100,25+25*i
 
 mouseReleased = -> # to make Android work 
 	released = true 
 	false
 
 touchStarted = -> 
-	lista.push "touchStarted"
+	t = new Date()
+	lista.push "touchStarted #{t-start}"
+	start = new Date()
 	xdraw()
 
 mousePressed = ->
 	if !released then return # to make Android work 
 	released = false
-	lista.push "mousePressed"
+	t = new Date()
+	lista.push "mousePressed #{t-start}"
+	start = new Date()
 	xdraw()
 
 # keyPressed = ->
