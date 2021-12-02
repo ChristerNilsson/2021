@@ -11,9 +11,8 @@ headers = []
 historyx = []
 
 dialogues = []
-menuButton = null
-backButton = null
-okButton = null
+#backButton = null
+#okButton = null
 released = true
 
 crap = (parent, type) => parent.appendChild document.createElement type
@@ -76,9 +75,7 @@ handler = => handleGuess command
 
 setup = =>
 	createCanvas 600,800
-	#canvas.touchEnded touchEnded
 	angleMode DEGREES
-	menuButton = new MenuButton width-160
 	newGame()
 	xdraw()
 
@@ -95,9 +92,8 @@ xdraw = ->
 	text CANDS,width-10,50
 	textAlign LEFT
 	drawTable()
-	menuButton.draw()
 	showDialogue()
-	#text int(frameRate()),width/2,height-50
+	#text dialogues.length,width/2,height-50
 
 drawTable = =>
 	y0 = 100
@@ -126,37 +122,45 @@ menu1 = -> # Main Menu
 			dialogue.disable ch
 			command += ch
 			for button in dialogue.buttons
-				if button.title == 'Back' then button.active = command.length > 0
-				else if button.title == 'Ok' then button.active = command.length == M
+				if button.title == 'back' then button.active = command.length > 0
+				else if button.title == 'ok' then button.active = command.length == M
 				else button.active = command.length < M and button.title not in command
 
-	dialogue.add 'Back', =>
-		command = command.substring 0,command.length-1
-		for button in dialogue.buttons
-			if button.title == 'Back' then button.active = command.length > 0
-			else if button.title == 'Ok' then button.active = command.length == M
-			else if button.title not in command then button.active = true
-	dialogue.disable 'Back'
-
-	dialogue.add 'Ok', =>
+	dialogue.add 'ok', =>
 		handler()
 		dialogues.pop()
 
-	dialogue.clock '004',true
-	dialogue.add "New", => menu2()
+	dialogue.add 'back', =>
+		command = command.substring 0,command.length-1
+		for button in dialogue.buttons
+			if button.title == 'back' then button.active = command.length > 0
+			else if button.title == 'ok' then button.active = command.length == M
+			else if button.title not in command then button.active = true
+	dialogue.disable 'back'
+
+	buttons = dialogue.buttons
+	n = buttons.length
+	bs = buttons.splice n-2, 1
+	buttons.splice 1,0,bs[0]
+
+	dialogue.clock '005',true
+	dialogue.add "new", => menu2()
 	button = _.last dialogue.buttons
 	button.x = width/2-50
 	button.y = height/2-50
-	button.r = 35
+	button.r = 50
 
-	dialogue.disable 'Ok'
+	dialogue.disable 'ok'
 	dialogue.textSize *= 1.5
 
 menu2 = -> # new Game
 	dialogue = new Dialogue()
-	dialogue.add 'New', => 
+	dialogue.add 'new', =>
 		newGame()
 		dialogues.pop()
+		dialogues.pop()
+		menu1()
+		xdraw()
 	dialogue.add '-2', => if N > 2 and N > M then N-=2
 	dialogue.add '+2', => if N < SYMBOLS.length then N+=2
 	dialogue.add '+1', => if M < N then M++
@@ -166,12 +170,11 @@ menu2 = -> # new Game
 ######
 
 doit = ->
-	if menuButton.inside mouseX,mouseY
-		menuButton.click()
-		return false
 	if dialogues.length > 0
 		dialogue = _.last dialogues
-		dialogue.execute mouseX,mouseY # then dialogues.pop()
+		dialogue.execute mouseX,mouseY
+	else
+		menu1()
 
 mouseReleased = -> # to make Android work 
 	released = true 

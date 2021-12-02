@@ -80,6 +80,7 @@ class Dialogue
 			if button.inside mx,my,@
 				button.execute()
 				return true
+		dialogues.pop()
 		false 
 
 class Button 
