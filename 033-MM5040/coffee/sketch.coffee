@@ -14,6 +14,7 @@ dialogues = []
 menuButton = null
 backButton = null
 okButton = null
+released = true
 
 crap = (parent, type) => parent.appendChild document.createElement type
 connect = (button, handler) => button.onclick = button.ontouchend = handler
@@ -74,13 +75,14 @@ handleGuess = (guess) =>
 handler = => handleGuess command
 
 setup = =>
-	canvas = createCanvas 600,800
-	canvas.touchEnded touchEnded
+	createCanvas 600,800
+	#canvas.touchEnded touchEnded
 	angleMode DEGREES
 	menuButton = new MenuButton width-160
 	newGame()
+	xdraw()
 
-draw = ->
+xdraw = ->
 	noStroke()
 	background 128
 	fill 0
@@ -95,7 +97,7 @@ draw = ->
 	drawTable()
 	menuButton.draw()
 	showDialogue()
-	text int(frameRate()),width/2,height-50
+	#text int(frameRate()),width/2,height-50
 
 drawTable = =>
 	y0 = 100
@@ -140,7 +142,7 @@ menu1 = -> # Main Menu
 		handler()
 		dialogues.pop()
 
-	dialogue.clock '003',true
+	dialogue.clock '004',true
 	dialogue.add "New", => menu2()
 	button = _.last dialogue.buttons
 	button.x = width/2-50
@@ -161,15 +163,26 @@ menu2 = -> # new Game
 	dialogue.add '-1', => if M > 1 then M--
 	dialogue.clock ' ',true
 
-touchEnded = -> # mousePressed
-	console.log 'touchEnded'
+######
+
+doit = ->
 	if menuButton.inside mouseX,mouseY
 		menuButton.click()
 		return false
 	if dialogues.length > 0
 		dialogue = _.last dialogues
-		#if not dialogue.execute mouseX,mouseY then dialogues.pop()
 		dialogue.execute mouseX,mouseY # then dialogues.pop()
 
-######
+mouseReleased = -> # to make Android work 
+	released = true 
+	false
 
+touchStarted = -> 
+	doit()
+	xdraw()
+
+mousePressed = ->
+	if !released then return # to make Android work 
+	released = false
+	doit()
+	xdraw()
