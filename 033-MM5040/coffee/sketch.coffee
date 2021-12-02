@@ -15,6 +15,8 @@ menuButton = null
 backButton = null
 okButton = null
 
+crap = (parent, type) => parent.appendChild document.createElement type
+connect = (button, handler) => button.onclick = button.ontouchend = handler
 pack = (digits) => digits.join ""
 init = => _(SYMBOLS.substring(0,N)).permutations(M).map((v) => _.join(v, '')).value()
 candidates = (m,n) => _.reduce range(n,n-m,-1), (a,b) => a*b
@@ -72,7 +74,8 @@ handleGuess = (guess) =>
 handler = => handleGuess command
 
 setup = =>
-	createCanvas 600,800
+	canvas = createCanvas 600,800
+	canvas.touchEnded touchEnded
 	angleMode DEGREES
 	menuButton = new MenuButton width-160
 	newGame()
@@ -136,7 +139,7 @@ menu1 = -> # Main Menu
 		handler()
 		dialogues.pop()
 
-	dialogue.clock ' ',true
+	dialogue.clock '001',true
 	dialogue.add "New", => menu2()
 	button = _.last dialogue.buttons
 	button.x = width/2-50
@@ -157,7 +160,7 @@ menu2 = -> # new Game
 	dialogue.add '-1', => if M > 1 then M--
 	dialogue.clock ' ',true
 
-mousePressed = ->
+mousePressed = touchEnded = ->
 	if menuButton.inside mouseX,mouseY
 		menuButton.click()
 		return false
