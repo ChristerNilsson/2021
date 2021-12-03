@@ -1,4 +1,4 @@
-SYMBOLS = '0123456789abcdefghij'
+SYMBOLS = '0123456789abcdef'
 M = 4
 N = 10
 CANDS = 0
@@ -9,10 +9,9 @@ cands = null
 errors = []
 headers = []
 historyx = []
+ts = 20
 
 dialogues = []
-#backButton = null
-#okButton = null
 released = true
 
 crap = (parent, type) => parent.appendChild document.createElement type
@@ -79,18 +78,35 @@ setup = =>
 	newGame()
 	xdraw()
 
+interpolate = (x0,y0,x1,y1,x) =>
+	dy = y1-y0
+	dx = x1-x0
+	k = dy/dx
+	m = y0-k*x0
+	k*x+m
+
 xdraw = ->
-	noStroke()
 	background 128
+	noStroke()
 	fill 0
-	textSize 40
-	textAlign LEFT
-	text "#{M} of #{N}", 10,height-10
-	text command,50,40
-	textAlign RIGHT
+
+	x0 = width/2/1
+	x1 = width/2/16
+	y0 = 60
+	y1 = 30
+	ts = interpolate x0,y0,x1,y1,width/2/M
+	textSize ts
+
+	textAlign LEFT,TOP
+	text command,5,5
+
+	textAlign RIGHT,TOP
 	fill 64+32
-	text CANDS,width-10,50
-	textAlign LEFT
+	text CANDS,width-5,5
+
+	textAlign LEFT,BOTTOM
+	text "#{M} of #{N}", 5,height-5
+
 	drawTable()
 	showDialogue()
 	#text dialogues.length,width/2,height-50
@@ -102,16 +118,20 @@ drawTable = =>
 		
 		textAlign LEFT
 		fill 0
-		text a,10,y0+i*40
-
-		textAlign CENTER
-		fill 255,255,0
-		text b,0.5*width,y0+i*40
+		text a,5,5+(i+2)*ts
 
 		if c
+			textAlign CENTER
+			fill 255,255,0
+			text b,0.5*width,5+(i+2)*ts
+
 			textAlign RIGHT
 			fill 64+32
-			text c.length,width-10,y0+i*40
+			text c.length,width-5,5+(i+2)*ts
+		else
+			textAlign RIGHT
+			fill 255,255,0
+			text b,width-5,5+(i+2)*ts
 
 showDialogue = -> if dialogues.length > 0 then (_.last dialogues).show()
 
@@ -187,5 +207,4 @@ touchStarted = ->
 mousePressed = ->
 	if !released then return # to make Android work 
 	released = false
-	doit()
-	xdraw()
+	touchStarted()
