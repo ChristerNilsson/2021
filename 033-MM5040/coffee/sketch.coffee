@@ -23,7 +23,7 @@ assert 5040, candidates 4,10
 assert 11880, candidates 4,12
 assert 2162160, candidates 6,14
 assert 518918400, candidates 8,16
-assert 2432902008176640000, candidates 20,20
+assert 20922789888000, candidates 16,16
 
 newGame = =>
 	historyx = []
@@ -109,11 +109,15 @@ xdraw = ->
 
 	drawTable()
 	showDialogue()
-	#text dialogues.length,width/2,height-50
 
 drawTable = =>
-	y0 = 100
-	for h,i in historyx
+	n = Math.floor height/ts
+	n = max 0, n - 2
+	antal = min n, historyx.length
+	offset = max 0, historyx.length - n
+
+	for i in _.range antal
+		h = historyx[offset + i]
 		[a,b,c] = h
 		
 		textAlign LEFT
@@ -171,6 +175,8 @@ menu1 = -> # Main Menu
 	button.r = 50
 
 	dialogue.disable 'ok'
+	if historyx.length == 0 or _.last(historyx)[2].length > 0 then dialogue.disable 'new'
+
 	dialogue.textSize *= 1.5
 
 menu2 = -> # new Game
