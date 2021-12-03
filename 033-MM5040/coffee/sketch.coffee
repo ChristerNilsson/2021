@@ -73,7 +73,7 @@ handleGuess = (guess) =>
 handler = => handleGuess command
 
 setup = =>
-	createCanvas 600,800
+	createCanvas windowWidth, windowHeight
 	angleMode DEGREES
 	newGame()
 	xdraw()
