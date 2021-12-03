@@ -73,6 +73,10 @@ handleGuess = (guess) =>
 handler = => handleGuess command
 
 setup = =>
+	body.style.overflow = 'hidden'
+	body.style.position = 'fixed'
+	body.style.top = '0px'
+	body.style.width = '100%'
 	createCanvas windowWidth, windowHeight
 	angleMode DEGREES
 	newGame()
