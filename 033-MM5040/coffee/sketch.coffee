@@ -1,4 +1,4 @@
-SYMBOLS = '0123456789abcdef'
+SYMBOLS = '0123456789abcdefg'
 M = 4
 N = 10
 CANDS = 0
@@ -68,7 +68,7 @@ handleGuess = (guess) =>
 	answer = makeAnswer facit,guess
 	cands = reduce cands,guess
 	historyx.push [guess,answer,cands]
-	if answer == '0000' then historyx.push ["Solved in #{historyx.length} guesses!","",[]]
+	if answer == '0'.repeat M then dialogues.pop()
 	command = ''
 handler = => handleGuess command
 
@@ -79,7 +79,7 @@ setup = =>
 	body.style.width = '100%'
 	createCanvas windowWidth, windowHeight
 	angleMode DEGREES
-	newGame()
+	menu0()
 	xdraw()
 
 interpolate = (x0,y0,x1,y1,x) =>
@@ -143,74 +143,63 @@ drawTable = =>
 
 showDialogue = -> if dialogues.length > 0 then (_.last dialogues).show()
 
+menu0 = -> # select Game
+	dialogue = new Dialogue()
+	for i in range 9
+		for j in range 1,17
+			if j >= 2*i then continue
+			do (i,j) =>
+				button = new Button dialogue,"#{SYMBOLS[j+1]}:#{SYMBOLS[2*i]}", =>
+					M = j+1
+					N = 2*i
+					newGame()
+					menu1()
+					xdraw()
+				dialogue.buttons.push button
+				button.x = 60 * (i-5)
+				button.y = 60 * (j-8)
+				button.r = 30
+
 menu1 = -> # Main Menu
 	dialogue = new Dialogue()
 	for ch in SYMBOLS.substring 0,N
 		do (ch) -> dialogue.add ch, =>
 			dialogue.disable ch
 			command += ch
+			if command.length == M then handler()
 			for button in dialogue.buttons
 				if button.title == 'back' then button.active = command.length > 0
-				else if button.title == 'ok' then button.active = command.length == M
 				else button.active = command.length < M and button.title not in command
 
-	dialogue.add 'ok', =>
-		handler()
-		dialogues.pop()
+	dialogue.add 'nop', =>
 
 	dialogue.add 'back', =>
 		command = command.substring 0,command.length-1
 		for button in dialogue.buttons
 			if button.title == 'back' then button.active = command.length > 0
-			else if button.title == 'ok' then button.active = command.length == M
 			else if button.title not in command then button.active = true
 	dialogue.disable 'back'
+	dialogue.disable 'nop'
 
 	buttons = dialogue.buttons
 	n = buttons.length
 	bs = buttons.splice n-2, 1
 	buttons.splice 1,0,bs[0]
-
-	dialogue.clock '005',true
-	dialogue.add "new", => menu2()
-	button = _.last dialogue.buttons
-	button.x = width/2-50
-	button.y = height/2-50
-	button.r = 50
-
-	dialogue.disable 'ok'
-	if historyx.length == 0 or _.last(historyx)[2].length > 0 then dialogue.disable 'new'
-
+	dialogue.clock 'exit',true
 	dialogue.textSize *= 1.5
-
-menu2 = -> # new Game
-	dialogue = new Dialogue()
-	dialogue.add 'new', =>
-		newGame()
-		dialogues.pop()
-		dialogues.pop()
-		menu1()
-		xdraw()
-	dialogue.add '-2', => if N > 2 and N > M then N-=2
-	dialogue.add '+2', => if N < SYMBOLS.length then N+=2
-	dialogue.add '+1', => if M < N then M++
-	dialogue.add '-1', => if M > 1 then M--
-	dialogue.clock ' ',true
-
-######
 
 doit = ->
 	if dialogues.length > 0
 		dialogue = _.last dialogues
 		dialogue.execute mouseX,mouseY
 	else
-		menu1()
+		menu0()
 
 mouseReleased = -> # to make Android work 
 	released = true 
 	false
 
-touchStarted = -> 
+touchStarted = ->
 	doit()
 	xdraw()
 
